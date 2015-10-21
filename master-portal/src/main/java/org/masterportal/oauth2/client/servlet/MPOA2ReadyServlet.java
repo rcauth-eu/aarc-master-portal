@@ -17,6 +17,7 @@ import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
 import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
 
+import javax.print.attribute.standard.MediaPrintableArea;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,6 +27,7 @@ import org.gridforum.jgss.ExtendedGSSCredential;
 import org.masterportal.myproxy.MPCredStoreService;
 import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
 import org.masterportal.myproxy.exception.MyProxyNoUserException;
+import org.masterportal.oauth2.client.MPOA2Asset;
 import org.masterportal.oauth2.client.MPOA2MPService;
 
 import java.net.URI;
@@ -60,9 +62,9 @@ public class MPOA2ReadyServlet extends ClientServlet {
 
         AuthorizationGrant grant = new AuthorizationGrantImpl(URI.create(token));
         String identifier = clearCookie(request, response);
-        OA2Asset asset = null;
+        MPOA2Asset asset = null;
         if (identifier == null) {
-            asset = (OA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
+            asset = (MPOA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
             if (asset != null) {
                 identifier = asset.getIdentifierString();
             }
@@ -78,7 +80,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
             error("no cookie found. Cannot save certificates");
             throw new GeneralException("no cookie found. Cannot save certificates");
         } else {
-            asset = (OA2Asset) getCE().getAssetStore().get(identifier);
+            asset = (MPOA2Asset) getCE().getAssetStore().get(identifier);
             if(!asset.getState().equals(state)){
                 warn("The expected state from the server was \"" + asset.getState() + "\", but instead \"" + state + "\" was returned. Transaction aborted.");
                 throw new IllegalArgumentException("Error: The state returned by the server is invalid.");
@@ -101,6 +103,11 @@ public class MPOA2ReadyServlet extends ClientServlet {
             String userSubject = userInfo.getSub();
             asset.setUsername(userSubject);
             
+            debug("2.a VOMS FQAN sent to MyProxy CredStore: " + asset.getVoms_fqan());
+            
+            boolean userCertValid = true;
+            
+            /*
             boolean userCertValid = false;
             
             try {
@@ -115,11 +122,12 @@ public class MPOA2ReadyServlet extends ClientServlet {
             	debug("2.a User certificate from MyProxy Credential Store is expired!");
             	userCertValid = false;
             }
+            */
 
             if (userCertValid) {
             
             	info("2.a.1 Trying to create proxy certificate for user");
-            	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername());
+            	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername(),asset.getVoms_fqan());
             	
             } else {
             	
@@ -131,7 +139,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
                 //assetResponse = getOA4MPService().getCert(token, null, BasicIdentifier.newID(identifier));
                 
             	info("2.a.2 Trying to create proxy certificate for user");
-            	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername());
+            	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername(),asset.getVoms_fqan());
             }
             
         }

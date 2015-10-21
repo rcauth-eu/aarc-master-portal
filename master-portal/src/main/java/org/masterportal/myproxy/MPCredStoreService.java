@@ -2,6 +2,7 @@ package org.masterportal.myproxy;
 
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -90,7 +91,7 @@ public class MPCredStoreService {
     }
     
 	
-	public GlobusGSSCredentialImpl doGet(String username) throws Exception {
+	public GlobusGSSCredentialImpl doGet(String username, String voms_fqan) throws Exception {
 		
     	int lifetime = Integer.parseInt(properties.getProperty("lifetime"));
     	if (lifetime <= 0) {
@@ -107,17 +108,34 @@ public class MPCredStoreService {
         //getRequest.setCredentialName(credName);
         getRequest.setLifetime(lifetime);
         //getRequest.setWantTrustroots(true);
-        /*if (! voname.isEmpty()) {
-            getRequest.setVoname(voname);
-            getRequest.setVomses( readVOMS_USERCONF() );
-        }*/
+        if ( voms_fqan != null ) {
+        	
+        	// we might have to add then one by one instead of all on one line...
+        	ArrayList voms_array = new ArrayList();
+        	voms_array.add(voms_fqan);
+            getRequest.setVoname(voms_array);
+            //getRequest.setVomses( readVOMS_USERCONF() );
+            
+        }
         getRequest.setPassphrase(password);
         
         // load default credentials to use for authentication with myproxy
         GSSCredential credential = getDefaultCredential();
         
         MPMyProxy myproxy = getMyProxy();
-        GSSCredential userCredentials = myproxy.get(credential, getRequest);
+        GSSCredential userCredentials = null;
+        
+        try {
+        
+        userCredentials = myproxy.get(credential, getRequest);
+        
+        } catch (Exception e) {
+
+        	System.out.println(e);
+        	e.printStackTrace();
+        	
+        	throw e;
+        }
         
         /*
         byte [] data = ((ExtendedGSSCredential)userCredentials).export(ExtendedGSSCredential.IMPEXP_OPAQUE);
