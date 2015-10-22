@@ -105,9 +105,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
             
             debug("2.a VOMS FQAN sent to MyProxy CredStore: " + asset.getVoms_fqan());
             
-            boolean userCertValid = true;
             
-            /*
             boolean userCertValid = false;
             
             try {
@@ -122,8 +120,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
             	debug("2.a User certificate from MyProxy Credential Store is expired!");
             	userCertValid = false;
             }
-            */
-
+        
             if (userCertValid) {
             
             	info("2.a.1 Trying to create proxy certificate for user");
@@ -141,7 +138,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
             	info("2.a.2 Trying to create proxy certificate for user");
             	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername(),asset.getVoms_fqan());
             }
-            
+        
         }
         
         // Again, we take the first returned cert to peel off some information to display. This

@@ -34,9 +34,6 @@ public class MPOA2StartRequest extends ClientServlet {
     	} else {
     		info("1.a.1 voms fqan received : " + vomsFQAN);
     		
-    		System.out.println("MPOA2StartRequest id: " + id );
-    		System.out.println("MPOA2StartRequest id: " + id.getUri() );
-    		
     		MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
     		asset.setVoms_fqan(vomsFQAN);
     		getCE().getAssetStore().save(asset);

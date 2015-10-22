@@ -21,10 +21,20 @@
         <url-pattern>/vos</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>VomsInfo</servlet-name>
+        <servlet-class>org.voportal.servlet.VomsProxyInfoServlet</servlet-class>
+    </servlet>
+    
+    <servlet-mapping>
+        <servlet-name>VomsInfo</servlet-name>
+        <url-pattern>/info</url-pattern>
+    </servlet-mapping>
+
+
     <welcome-file-list>
         <welcome-file>vos</welcome-file>
     </welcome-file-list>
-
 
     <!-- Configure the location of vomsdir on the local filesystem -->
     <context-param>
@@ -33,10 +43,12 @@
     </context-param>
 
     <!-- Configure the Master Portal endpoint -->
+    <!--
     <context-param>
         <param-name>org.voportal.master-portal</param-name>
         <param-value>https://master-portal-host/mp-oa2-client/start</param-value>
     </context-param>
+    -->
 
 </web-app>
 

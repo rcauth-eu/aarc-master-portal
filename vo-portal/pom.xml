@@ -10,7 +10,12 @@
     
   <name>VO Portal</name>
  
-  <dependencies>  
+  <dependencies>
+    <dependency>
+         <groupId>org.italiangrid</groupId>
+         <artifactId>voms-api-java</artifactId>
+         <version>3.1.0.rc0</version>
+    </dependency>  
     <dependency>
          <groupId>javax.servlet</groupId>
          <artifactId>servlet-api</artifactId>
