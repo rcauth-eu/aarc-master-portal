@@ -30,11 +30,14 @@ import org.masterportal.myproxy.exception.MyProxyNoUserException;
 import org.masterportal.oauth2.client.MPOA2Asset;
 import org.masterportal.oauth2.client.MPOA2MPService;
 
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.security.Principal;
 
 public class MPOA2ReadyServlet extends ClientServlet {
 
+	public static String PROXY_DIR = "/tmp";
+	
 	@Override
 	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
 		
@@ -105,7 +108,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
             
             debug("2.a VOMS FQAN sent to MyProxy CredStore: " + asset.getVoms_fqan());
             
-            
+           
             boolean userCertValid = false;
             
             try {
@@ -149,6 +152,11 @@ public class MPOA2ReadyServlet extends ClientServlet {
         
         byte [] proxyData = ((ExtendedGSSCredential)userProxy).export(ExtendedGSSCredential.IMPEXP_OPAQUE);
         String proxyString = new String(proxyData);
+        
+        //export the user proxy into local storage so that the vo-portal can pick it up.
+	    FileOutputStream fileOuputStream = new FileOutputStream(PROXY_DIR + "/" + asset.getUsername() + ".proxy"); 
+	    fileOuputStream.write(proxyData);
+	    fileOuputStream.close();
         
     	System.out.println("CERT in ReadyServlet");
     	System.out.println("###########  PROXY ###########");

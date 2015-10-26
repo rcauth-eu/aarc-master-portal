@@ -61,7 +61,7 @@ public class ProxyVomsInfoTester {
 			X509Certificate[] chain =  certChain.toArray(new X509Certificate[certChain.size()]);
 			List<VOMSValidationResult> results =  validator.validateWithResult(chain);
 			
-			
+
 			//collect printable data
 			System.out.println("subject    : " + proxycert.getSubjectDN());
 	        System.out.println("issuer     : " + proxycert.getIssuerDN() );
@@ -74,7 +74,6 @@ public class ProxyVomsInfoTester {
 
 		    Date notAfter = proxycert.getNotAfter();
 		    long diffInMillies = (notAfter.getTime() - (new Date()).getTime());
-		    
 		    long seconds=(diffInMillies/1000)%60;
 		    long minutes=(diffInMillies/(1000*60))%60;
 		    long hours=(diffInMillies/(1000*60*60))%24;

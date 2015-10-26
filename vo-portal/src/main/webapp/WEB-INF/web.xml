@@ -28,7 +28,7 @@
     
     <servlet-mapping>
         <servlet-name>VomsInfo</servlet-name>
-        <url-pattern>/info</url-pattern>
+        <url-pattern>/vomsinfo</url-pattern>
     </servlet-mapping>
 
 

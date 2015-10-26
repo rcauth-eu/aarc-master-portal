@@ -30,7 +30,7 @@ import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 public class MPCredStoreService {
 	
 	public static final String MYPROXY_SERVER_PORT = "7512";
-    public static final int MYPROXY_DEFAULT_PROXY_LIFETIME = 12;
+    public static final int MYPROXY_DEFAULT_PROXY_LIFETIME = 43200;
     public static final String MYPROXY_DEFAULT_PASSWORD = "changeit";
     
     private MyLoggingFacade logger = null;
@@ -68,7 +68,7 @@ public class MPCredStoreService {
         }
     	
     	logger.info("Starting PUT request for user " + username + " with id=" + identifier + "and lifetime=" + lifetime);
-
+    	
     	MPMyProxy myproxy = getMyProxy(identifier);
 
         // load default credentials to use for authentication with myproxy
@@ -93,6 +93,7 @@ public class MPCredStoreService {
 	
 	public GlobusGSSCredentialImpl doGet(String username, String voms_fqan) throws Exception {
 		
+		
     	int lifetime = Integer.parseInt(properties.getProperty("lifetime"));
     	if (lifetime <= 0) {
     		lifetime =  MYPROXY_DEFAULT_PROXY_LIFETIME;
@@ -103,6 +104,8 @@ public class MPCredStoreService {
         	password = MYPROXY_DEFAULT_PASSWORD;
         }
 		
+        logger.info("Starting GET request for user " + username + "and lifetime=" + lifetime);
+    	
         GetParams getRequest = new GetParams();
         getRequest.setUserName(username);
         //getRequest.setCredentialName(credName);
