@@ -18,6 +18,7 @@ import edu.uiuc.ncsa.security.servlet.JSPUtil;
 import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
 
 import javax.print.attribute.standard.MediaPrintableArea;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -108,7 +109,6 @@ public class MPOA2ReadyServlet extends ClientServlet {
             
             debug("2.a VOMS FQAN sent to MyProxy CredStore: " + asset.getVoms_fqan());
             
-           
             boolean userCertValid = false;
             
             try {
@@ -123,6 +123,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
             	debug("2.a User certificate from MyProxy Credential Store is expired!");
             	userCertValid = false;
             }
+            
         
             if (userCertValid) {
             

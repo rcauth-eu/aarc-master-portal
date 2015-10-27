@@ -11,6 +11,7 @@ import java.util.logging.Logger;
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletConfig;
 import javax.servlet.ServletException;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -58,6 +59,10 @@ public class VOChoosingServlet extends HttpServlet {
 		
 		request.setAttribute("masterportal", masterPortalHost);
 		request.setAttribute("vomses", vomses);
+		
+		Cookie voportal = new Cookie("voportal", "https://centos6-portal-457.novalocal/vo-portal");
+		voportal.setMaxAge(60*60);
+		response.addCookie(voportal);
 		
         RequestDispatcher dispatcher = request.getRequestDispatcher(VO_CHOOSER_PAGE);
         dispatcher.forward(request, response);		

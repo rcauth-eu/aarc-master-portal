@@ -11,6 +11,11 @@
   <name>VO Portal</name>
  
   <dependencies>
+   <dependency>
+         <groupId>org.italiangrid</groupId>
+         <artifactId>voms-clients</artifactId>
+         <version>3.0.6</version>
+    </dependency>
     <dependency>
          <groupId>org.italiangrid</groupId>
          <artifactId>voms-api-java</artifactId>
