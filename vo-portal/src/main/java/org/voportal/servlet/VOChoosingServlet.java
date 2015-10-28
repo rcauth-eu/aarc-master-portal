@@ -24,6 +24,7 @@ public class VOChoosingServlet extends HttpServlet {
 	
 	public static final String VOMSDIR_LOCATION_KEY="org.voportal.vomsdir";
 	public static final String MASTER_PORTAL_KEY="org.voportal.master-portal";
+	public static final String REDIRECT_URL_KEY="org.voportal.redirect-url";
 	
 	String[] vomses = null;
 	
@@ -56,13 +57,11 @@ public class VOChoosingServlet extends HttpServlet {
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
 		String masterPortalHost = this.getServletContext().getInitParameter(MASTER_PORTAL_KEY);
+		String redirect_url  = this.getServletContext().getInitParameter(REDIRECT_URL_KEY);
 		
 		request.setAttribute("masterportal", masterPortalHost);
+		request.setAttribute("redirect_url", redirect_url);
 		request.setAttribute("vomses", vomses);
-		
-		Cookie voportal = new Cookie("voportal", "https://centos6-portal-457.novalocal/vo-portal");
-		voportal.setMaxAge(60*60);
-		response.addCookie(voportal);
 		
         RequestDispatcher dispatcher = request.getRequestDispatcher(VO_CHOOSER_PAGE);
         dispatcher.forward(request, response);		

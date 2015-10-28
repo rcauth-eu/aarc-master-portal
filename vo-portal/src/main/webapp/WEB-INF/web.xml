@@ -50,5 +50,13 @@
     </context-param>
     -->
 
+    <!-- Configure the Redirect URL (VO Portal endpoint) -->
+    <!--
+    <context-param>
+        <param-name>org.voportal.redirect-url</param-name>
+        <param-value>https://vo-portal/vo-portal/ready</param-value>
+    </context-param>
+    -->
+    
 </web-app>
 

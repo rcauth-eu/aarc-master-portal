@@ -7,10 +7,19 @@
 function redirect() {
 
 	var host = "${masterportal}"
+	var redirect_url = "${redirect_url}"
 	var volist = document.getElementById("volist");
 	var vo = volist.options[volist.selectedIndex].text
 	
-	window.location = host + "?voms_fqan=" + vo;
+	var roles = document.getElementById("roles").value;
+	var fqan;
+	if (roles) {
+		fqan = vo + ":" + roles;
+	} else {
+		fqan = vo;
+	}
+	
+	window.location = host + "?voms_fqan=" + fqan + "&redirect_url=" + redirect_url;
 }
 </script>
 <head>
@@ -22,17 +31,21 @@ function redirect() {
 
 <h1>Welcome to the VO Portal!</h1>
 
-<br><br><br>
+<br><br>
 
-Choose your vo from the list: 
+Choose your vo from the list, followed by the desired roles and capabilities:
 
+<br>
+FAQN :
 <select name="volist" id="volist">
     <c:forEach var="vo" items="${vomses}">
            <option value="${vo}">${vo}</option>
     </c:forEach>
 </select>
+:
+<input id="roles" type="text" size="25" name="roles" />
 
-<br>
+<br><br>
 
 <button onclick="redirect()">Go Go!</button>
 

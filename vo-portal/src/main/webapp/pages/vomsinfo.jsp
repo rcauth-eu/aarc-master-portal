@@ -32,7 +32,7 @@
 	
 	<br><br>
 	
-	The results of voms-proxy-info:
+	The results of voms-proxy-info -all:
 	
 	<br>
 	

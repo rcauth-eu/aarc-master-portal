@@ -18,7 +18,19 @@ function getCookie(cname) {
         if (c.indexOf(name) == 0) return c.substring(name.length,c.length);
     }
     return "";
-} 
+}
+function redirect() {
+
+	var host = getCookie("voportal");
+	host = host.replace(/"+/g,'');
+	
+	var username = "${userSubject}"
+	
+	if (host) {
+		window.location = host + "?username=" + username;
+	}
+}
+window.onload=redirect
 </script>
 <head>
     <title>Master Portal for OAuth 2 client success page.</title>
@@ -68,8 +80,13 @@ function getCookie(cname) {
         </div>
     </ul>
     <form name="input" action="${action}" method="get"/>
-    <input type="submit" value="Return to client"/>
+    	<input type="submit" value="Return to client"/>
     </form>
+    
+    <br>
+    
+    <button id="redirect" onclick="redirect()">Return to VO Portal</button>
+    
 </div>
 </body>
 </html>

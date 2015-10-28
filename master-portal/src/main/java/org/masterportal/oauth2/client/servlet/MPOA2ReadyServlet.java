@@ -33,6 +33,7 @@ import org.masterportal.oauth2.client.MPOA2MPService;
 
 import java.io.FileOutputStream;
 import java.net.URI;
+import java.net.URLEncoder;
 import java.security.Principal;
 
 public class MPOA2ReadyServlet extends ClientServlet {
@@ -41,7 +42,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
 	
 	@Override
 	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-		
+
        if (request.getParameterMap().containsKey(OA2Constants.ERROR)) {
             throw new OA2Error(request.getParameter(OA2Constants.ERROR),
                     request.getParameter(OA2Constants.ERROR_DESCRIPTION),
@@ -163,7 +164,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
     	System.out.println("###########  PROXY ###########");
     	System.out.println( proxyString );
     	System.out.println("###########  PROXY ###########");
-        
+    	
         info("2.b. Done! Displaying success page.");
 
         // Rest of this is putting up something for the user to see
@@ -180,6 +181,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
         request.setAttribute("action", contextPath);
         info("2.a. Completely finished with delegation.");
         JSPUtil.fwd(request, response, getCE().getSuccessPagePath());
+    
         return;
 		
 	}

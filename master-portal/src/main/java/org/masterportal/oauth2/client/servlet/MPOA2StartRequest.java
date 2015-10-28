@@ -8,9 +8,12 @@ import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
 import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 
+import java.net.URLEncoder;
+
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.http.HttpUtils;
 
 import org.masterportal.oauth2.client.MPOA2Asset;
 
@@ -28,15 +31,21 @@ public class MPOA2StartRequest extends ClientServlet {
         
         
     	String vomsFQAN = request.getParameter("voms_fqan");
+    	String voRedirectURL = request.getParameter("redirect_url");
     	
-    	if (vomsFQAN == null) {
-    		info("1.a.1 No voms fqan received, continuing without it");
+    	if (vomsFQAN == null || voRedirectURL == null) {
+    		info("1.a.1 No voms fqan, or vo redirect URL received, continuing without it");
     	} else {
     		info("1.a.1 voms fqan received : " + vomsFQAN);
+    		info("1.a.1 vo redirect_url received : " + voRedirectURL);
     		
     		MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
     		asset.setVoms_fqan(vomsFQAN);
     		getCE().getAssetStore().save(asset);
+    		
+    		Cookie voportalRedirect = new Cookie("voportal", voRedirectURL );
+    		voportalRedirect.setMaxAge(60*60);
+    		response.addCookie(voportalRedirect);
     	}        
         
         // if there is a store, store something in it.
