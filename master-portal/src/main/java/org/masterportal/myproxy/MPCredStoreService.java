@@ -1,16 +1,15 @@
 package org.masterportal.myproxy;
 
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.Map;
 
-import org.apache.commons.codec.binary.Base64;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
+import org.apache.log4j.PropertyConfigurator;
 import org.globus.common.CoGProperties;
-import org.globus.gsi.OpenSSLKey;
 import org.globus.gsi.X509Credential;
-import org.globus.gsi.bc.BouncyCastleOpenSSLKey;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.globus.gsi.gssapi.auth.IdentityAuthorization;
 import org.globus.myproxy.CredentialInfo;
@@ -18,14 +17,12 @@ import org.globus.myproxy.GetParams;
 import org.globus.myproxy.InfoParams;
 import org.globus.myproxy.InitParams;
 import org.globus.myproxy.MyProxyException;
-import org.globus.myproxy.StoreParams;
 import org.globus.util.Util;
 import org.gridforum.jgss.ExtendedGSSCredential;
 import org.ietf.jgss.GSSCredential;
 import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
 import org.masterportal.myproxy.exception.MyProxyNoUserException;
-
-import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
+import org.masterportal.oauth2.client.MPOA2ClientBootstrapper;
 
 public class MPCredStoreService {
 	
@@ -33,7 +30,7 @@ public class MPCredStoreService {
     public static final int MYPROXY_DEFAULT_PROXY_LIFETIME = 43200;
     public static final String MYPROXY_DEFAULT_PASSWORD = "changeit";
     
-    private MyLoggingFacade logger = null;
+    private Log logger = null;
     
 	private CoGProperties properties = null;
 
@@ -42,11 +39,16 @@ public class MPCredStoreService {
     private static MPCredStoreService instance = null;
 	
     private MPCredStoreService() {
-    	logger = new MyLoggingFacade(getClass().getName(), false);
-    	properties = CoGProperties.getDefault();
+    	String logProperties = System.getProperty(MPOA2ClientBootstrapper.MP_OA2_MYPROXY_CONFIG_LOG4J);
+    	if (logProperties != null && !logProperties.isEmpty()) {
+    		PropertyConfigurator.configure(logProperties);
+        }
+    	logger = LogFactory.getLog(this.getClass());
+        properties = CoGProperties.getDefault();
     	pendingSessions = new HashMap<String,MPMyProxy>();
 	}   
-
+    
+    
     public static MPCredStoreService getMPCredStoreService() {
     	if (instance == null) {
     		instance = new MPCredStoreService();
@@ -54,7 +56,9 @@ public class MPCredStoreService {
     	return instance;
     }
     
-    
+    /*
+     *  Execute the first half of the PUT protocol and save the session
+     */
     public byte[] doPutStart(String identifier,String username) throws Exception {
     	
     	int lifetime = Integer.parseInt(properties.getProperty("lifetime"));
@@ -79,18 +83,26 @@ public class MPCredStoreService {
         initRequest.setLifetime(lifetime);
         initRequest.setPassphrase(password);
         
+        logger.info("Pending PUT request waiting for completion ...");
+        
     	return myproxy.pput_start(credential, initRequest);
     }
 
-
+    /* 
+     *  Execute the second half of the PUT protocol by retrieving a previously saved session
+     */
 	public void doPutFinish(String identifier,X509Certificate[] certificates) throws Exception {
     	
+		logger.info("Finishing PUT request with id=" + identifier);
+		
     	MPMyProxy myproxy = getMyProxy(identifier);
     	
     	myproxy.pput_finish(certificates);
     }
     
-	
+	/*
+	 *  Execute a MyProxy GET command
+	 */
 	public GlobusGSSCredentialImpl doGet(String username, String voms_fqan) throws Exception {
 		
 		
@@ -104,20 +116,17 @@ public class MPCredStoreService {
         	password = MYPROXY_DEFAULT_PASSWORD;
         }
 		
-        logger.info("Starting GET request for user " + username + "and lifetime=" + lifetime);
+        logger.info("Starting GET request for user " + username + " and lifetime=" + lifetime + " and voms=" + voms_fqan);
     	
         GetParams getRequest = new GetParams();
         getRequest.setUserName(username);
-        //getRequest.setCredentialName(credName);
         getRequest.setLifetime(lifetime);
-        //getRequest.setWantTrustroots(true);
         if ( voms_fqan != null ) {
         	
         	// we might have to add then one by one instead of all on one line...
-        	ArrayList voms_array = new ArrayList();
+        	ArrayList<String> voms_array = new ArrayList<String>();
         	voms_array.add(voms_fqan);
             getRequest.setVoname(voms_array);
-            //getRequest.setVomses( readVOMS_USERCONF() );
             
         }
         getRequest.setPassphrase(password);
@@ -128,94 +137,28 @@ public class MPCredStoreService {
         MPMyProxy myproxy = getMyProxy();
         GSSCredential userCredentials = null;
         
-        try {
-        
         userCredentials = myproxy.get(credential, getRequest);
         
-        } catch (Exception e) {
-
-        	System.out.println(e);
-        	e.printStackTrace();
-        	
-        	throw e;
-        }
         
-        /*
         byte [] data = ((ExtendedGSSCredential)userCredentials).export(ExtendedGSSCredential.IMPEXP_OPAQUE);
+    	logger.debug("Exported CERT to IMPEXP_OPAQUE");
+    	logger.debug("###########  CERT  ###########");
+    	logger.debug(new String(data));
+    	logger.debug("###########  CERT  ###########");
         
-    	System.out.println("Exported CERT to IMPEXP_OPAQUE");
-    	System.out.println("###########  CERT  ###########");
-    	String csrString1 = new String(data);
-    	System.out.println(csrString1);
-    	System.out.println("###########  CERT  ###########");
-        */
         
     	return ((GlobusGSSCredentialImpl)userCredentials);
     	
 	}
 	
     
-    /*
-     *  Execute a myproxy-store
-     */
-    public void doStore(String user, X509Certificate[] userCerts, PrivateKey userKey) throws Exception {
-    	
-        // set uploaded credential name 
-        // equivalent of myproxy-store -k
-        String credName = null;
-        // set uploaded credential description 
-        // equivalent of myproxy-store -K
-        String credDesc = null;
-        // maximum lifetime of proxies retrieved 
-        // equivalent of myproxy-store -t
-        int proxyLifetime = MYPROXY_DEFAULT_PROXY_LIFETIME * 3600;
-        
-        //the myproxy.store command expects a OpenSSLKey key instance
-        //therefore we have to convert the key used by OA4MP
-        OpenSSLKey userKeyGlobus = new BouncyCastleOpenSSLKey(userKey);
-
-        logger.info("Building STORE request for " + user);
-        logger.debug("user=" + user);
-        logger.debug("proxy lifetime=" + proxyLifetime);
-        logger.debug("credentail name=" + credName);
-        
-        // build store request
-        StoreParams storeRequest = new StoreParams();
-        storeRequest.setUserName(user);
-        storeRequest.setLifetime(proxyLifetime);
-        storeRequest.setCredentialName(credName);
-        storeRequest.setCredentialDescription(credDesc);
-
-        // load default credentials to use for authentication with myproxy
-        GSSCredential credential = getDefaultCredential();
-        
-        logger.info("~ CERTs ~");
-        for (X509Certificate cert : userCerts) {
-        	System.out.print(cert.getEncoded());
-        	logger.info("SUBJECT:" + cert.getSubjectDN());
-        	logger.info("ISSUER:" + cert.getIssuerDN());
-        }
-        logger.info("~ END CERTs ~");        
-        
-        logger.info("~ KEY ~");
-        System.out.println(userKey.getEncoded());        
-        logger.info("~ END KEY ~");        
-
-        logger.info("~ GLOBUS KEY ~");
-        System.out.println(userKeyGlobus.getPrivateKey().getEncoded());
-        logger.info("~ END GLOBUS KEY ~");                
-        
-        // send the store request
-        MPMyProxy myProxy = getMyProxy();
-        myProxy.store(credential, userCerts, userKeyGlobus, storeRequest);
-
-    }
-    
 	/*
-	 *  Execute a myproxy-info 
+	 *  Execute a MyProxy INFO command
 	 */
 	public void doInfo(String username) throws Exception {
         
+		logger.info("Starting an INFO request for username " + username);
+		
 		// build info request
         InfoParams infoRequest = new InfoParams();
         infoRequest.setUserName(username);
@@ -224,14 +167,14 @@ public class MPCredStoreService {
         GSSCredential credential = getDefaultCredential();
         
         // send the info request
-
         MPMyProxy myProxy = getMyProxy();
         CredentialInfo[] info = null;
         
         try {
         	info = myProxy.info(credential, infoRequest);
         } catch (MyProxyException e) {
-        	if (e.getCause().getMessage().startsWith("no credentials found for use")) {
+        	if (e.getCause().getMessage().startsWith("no credentials found for user")) {
+        		logger.warn("No credentials found for user!");
         		throw new MyProxyNoUserException("unknown user",e);
         	} else {
         		throw e;
@@ -241,45 +184,44 @@ public class MPCredStoreService {
         // interpret results 
         // just print them out for now
         String tmp;
-        System.out.println ("From MyProxy server: " + myProxy.getHost());
-        System.out.println ("Owner: " + info[0].getOwner());
+        logger.info("Owner: " + info[0].getOwner());
         
         for (int i=0;i<info.length;i++) {
             tmp = info[i].getName();
-            System.out.println ((tmp == null) ? "default:" : tmp +":");
-            System.out.println ("\tStart Time  : " +
-                                info[i].getStartTime());
-            System.out.println ("\tEnd Time    : " +
-                                info[i].getEndTime());
+            logger.info((tmp == null) ? "default:" : tmp +":");
+            logger.info("\tStart Time  : " + info[i].getStartTime());
+            logger.info("\tEnd Time    : " + info[i].getEndTime());
 
             long now = System.currentTimeMillis();
             if (info[i].getEndTime() > now) {
-                System.out.println ("\tTime left   : " +
+            	logger.info("\tTime left   : " +
                                     Util.formatTimeSec((info[i].getEndTime() - now)/1000));
             } else {
-                System.out.println ("\tTime left   : expired");
+            	logger.info("\tTime left   : expired");
             }
 
             tmp = info[i].getRetrievers();
             if (tmp != null) {
-                System.out.println ("\tRetrievers  : "+tmp);
+            	logger.info("\tRetrievers  : "+tmp);
             }
             tmp = info[i].getRenewers();
             if (tmp != null) {
-                System.out.println ("\tRenewers    : "+tmp);
+            	logger.info("\tRenewers    : "+tmp);
             }
             tmp = info[i].getDescription();
             if (tmp != null) {
-                System.out.println ("\tDescription : "+tmp);
+            	logger.info("\tDescription : "+tmp);
             }
         } 
         
         if ( info.length > 1 ) {
+        	logger.error("More than one certificate found unser one username!");
         	throw new MyProxyException("Undefined behaviour! More then one certificate registered under username:" + username);
         }
         
         long now = System.currentTimeMillis();
         if (info[0].getEndTime() < now) {
+        	logger.warn("User credentials expired!");
         	throw new MyProxyCertExpiredExcpetion("User certificate expired in Credential Store!");
         }
 	}
@@ -295,7 +237,7 @@ public class MPCredStoreService {
     	
     	logger.info("Creating MyProxy instance to " + hostname + ":" + port + " with DN=" + myproxySubjectDN);
     	
-        MPMyProxy myProxy = new MPMyProxy(hostname, Integer.parseInt(port) );
+    	MPMyProxy myProxy = new MPMyProxy(hostname, Integer.parseInt(port) );
         
         if (myproxySubjectDN != null) {
             myProxy.setAuthorization(new IdentityAuthorization(myproxySubjectDN));
@@ -304,13 +246,19 @@ public class MPCredStoreService {
         return myProxy;
     }    	
     
-    
+    /*
+     *  The MyProxy PUT request is redesigned to work together with the
+     *  OA4MP /getCert endpoint. This forces the PUT request to hang in the
+     *  middle and wait for a valid certificate to be returned. This method 
+     *  is used to save pending MyProxy sessions 
+     */
 	protected MPMyProxy getMyProxy(String identifier) {
     	
     	MPMyProxy myProxy = null;
     	
     	if ( pendingSessions.containsKey(identifier) ) {
     		myProxy = pendingSessions.get(identifier);
+    		//TODO Maybe remove it from the pending sessions once it's retrieved...
     	} else {
     		myProxy = getMyProxy();
 			pendingSessions.put(identifier, myProxy);

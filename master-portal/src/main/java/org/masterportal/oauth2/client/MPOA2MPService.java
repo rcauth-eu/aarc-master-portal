@@ -38,8 +38,17 @@ public class MPOA2MPService extends OA2MPService {
         }
     }
 
+    protected MyLoggingFacade logger = null;
+    
     public MPOA2MPService(ClientEnvironment environment) {
         super(environment);
+        
+        if (getEnvironment() != null) {
+        	logger = getEnvironment().getMyLogger();
+        } else {
+	        // always return one so even if things blow up some record remains...
+	        logger = new MyLoggingFacade("NOENV-MasterPortal");
+        }
     }
     
     @Override
@@ -79,19 +88,19 @@ public class MPOA2MPService extends OA2MPService {
     @Override
     public void preGetCert(Asset asset, Map parameters) {
     	
-    	getLogger().info("Entering Master Portal GetCert Preprocessing");
+    	logger.info("Entering Master Portal GetCert Preprocessing");
     	
     	MyPKCS10CertRequest certReq = null;
     	try {
         
         	MPCredStoreService credStore = MPCredStoreService.getMPCredStoreService();
         	byte[] csr = credStore.doPutStart(asset.getIdentifierString(), asset.getUsername());
-
-        	System.out.println("Starting /getCert request with CSR");
-        	System.out.println("###########  CSR  ###########");
         	String csrString = new String(Base64.encodeBase64(csr));
-        	System.out.println(csrString);
-        	System.out.println("###########  CSR  ###########");        	
+        	
+        	logger.debug("Starting /getCert request with CSR");
+        	logger.debug("###########  CSR  ###########");
+        	logger.debug(csrString);
+        	logger.debug("###########  CSR  ###########");        	
         	
         	certReq = CertUtil.fromStringToCertReq(csrString); 
         	
@@ -106,7 +115,7 @@ public class MPOA2MPService extends OA2MPService {
         //a.setPrivateKey(keyPair.getPrivate());
     	asset.setCertReq(certReq);    	
     	
-    	getLogger().info("Exiting Master Portal GetCert Preprocessing");
+    	logger.info("Exiting Master Portal GetCert Preprocessing");
     	
     	super.preGetCert(asset, parameters);
     }
@@ -114,29 +123,28 @@ public class MPOA2MPService extends OA2MPService {
     @Override
     public void postGetCert(Asset asset, AssetResponse assetResponse) {
     	
-    	getLogger().info("Entering Master Portal GetCert Postprocessing");
+    	logger.info("Entering Master Portal GetCert Postprocessing");
     	
     	X509Certificate[] certs = assetResponse.getX509Certificates();
-    	getLogger().info("Nr of certificates found: " + certs.length);
+    	logger.info("Nr of certificates found: " + certs.length);
     	
         X509Certificate userCert = null;
         if (certs.length != 0) {
             userCert = certs[0];
         	if (certs.length > 1) {
-	                getLogger().info("Why are there " + certs.length + " certs ?");
+        		logger.info("Why are there " + certs.length + " certs ?");
 	        }
         } else {
         	throw new GeneralException("No certificate returned for post processing!");
         }
 
-    	getLogger().info("Got cert with DN: " + userCert.getSubjectDN());
+        logger.info("Got cert with DN: " + userCert.getSubjectDN());
 
     	try {
-        	System.out.println("Ending /getCert request with Cert");
-        	System.out.println("###########  CERT  ###########");
-        	String c = new String(Base64.encodeBase64(userCert.getEncoded()));
-        	System.out.println(c);
-            System.out.println("###########  CERT  ###########"); 
+    		logger.debug("Ending /getCert request with Cert");
+    		logger.debug("###########  CERT  ###########");
+    		logger.debug(new String(Base64.encodeBase64(userCert.getEncoded())));
+    		logger.debug("###########  CERT  ###########"); 
             
         	MPCredStoreService credStore = MPCredStoreService.getMPCredStoreService();
         	credStore.doPutFinish(asset.getIdentifierString(),certs);
@@ -149,17 +157,9 @@ public class MPOA2MPService extends OA2MPService {
 		}    	
     	
 
-    	getLogger().info("Exiting Master Portal GetCert Postprocessing");
+    	logger.info("Exiting Master Portal GetCert Postprocessing");
     	
     	super.postGetCert(asset, assetResponse);
     }
-    
-    protected MyLoggingFacade getLogger() {
-        if (getEnvironment() != null) {
-            return getEnvironment().getMyLogger();
-        }
-        // always return one so even if things blow up some record remains...
-        return new MyLoggingFacade("oa4mp");
-    }        
 
 }

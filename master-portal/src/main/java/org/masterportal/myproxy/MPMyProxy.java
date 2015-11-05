@@ -1,11 +1,9 @@
 package org.masterportal.myproxy;
 
 
-import java.io.BufferedReader;
 import java.io.ByteArrayInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.io.OutputStream;
 import java.net.Socket;
 import java.security.KeyPair;
@@ -34,7 +32,7 @@ import org.masterportal.myproxy.exception.MyProxyVomsException;
 
 public class MPMyProxy extends org.masterportal.myproxy.MyProxy {
 
-    static Log logger = LogFactory.getLog(MyProxy.class.getName());	
+	static Log logger = LogFactory.getLog(MPMyProxy.class.getName());	
     
     private Socket pendingGSISocket = null;
     private OutputStream pendingOUT = null;
@@ -155,6 +153,8 @@ public class MPMyProxy extends org.masterportal.myproxy.MyProxy {
 	 */
     public void pput_finish(X509Certificate[] certificates) throws MyProxyException {
     	
+    	logger.debug("<<<< Finishing pending put request >>>>");
+    	
     	if ( pendingGSISocket == null || pendingIN == null || pendingOUT == null) {
     		
             pendingGSISocket = null;
@@ -163,6 +163,8 @@ public class MPMyProxy extends org.masterportal.myproxy.MyProxy {
     		
     		throw new MyProxyException("Pending MyProxy connection not found!");
     	}
+    	
+    	logger.debug("peding request found!");
     	
         try {	    	
 	        
@@ -323,17 +325,6 @@ public class MPMyProxy extends org.masterportal.myproxy.MyProxy {
                 logger.debug("Reading " + size + " certs");
             }
 
-            //System.out.println("---------------- GET ERROR ---------------------");
-            
-            //String readLine;
-            //BufferedReader br = new BufferedReader(new InputStreamReader(in));
-            //while (((readLine = br.readLine()) != null)) {
-            //	System.out.println(readLine);
-            //}
-            //System.out.println("---------------- GET ERROR ---------------------");
-            
-            
-            
             X509Certificate [] chain
                 = new X509Certificate[size];
 

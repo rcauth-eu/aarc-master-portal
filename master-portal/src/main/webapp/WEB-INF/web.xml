@@ -98,13 +98,19 @@
     </context-param>
     -->
     
-    <!-- Myproxy ceonfiguration file -->
+    <!-- JGlobus Myproxy configuration file -->
     <!--
     <context-param>
         <param-name>org.globus.config.file</param-name>
         <param-value>/path/to/myproxy.cfg</param-value>
     </context-param>
     -->
+
+    <!-- JGlobus Myproxy logging configuration file -->
+    <context-param>
+        <param-name>org.globus.log4j.properties</param-name>
+        <param-value>WEB-INF/log4j.properties</param-value>
+    </context-param>
 
 </web-app>
 

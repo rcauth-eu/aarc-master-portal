@@ -3,6 +3,7 @@ package org.masterportal.oauth2.client.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientLoaderInterface;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
@@ -29,6 +30,7 @@ import org.masterportal.myproxy.MPCredStoreService;
 import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
 import org.masterportal.myproxy.exception.MyProxyNoUserException;
 import org.masterportal.oauth2.client.MPOA2Asset;
+import org.masterportal.oauth2.client.MPOA2ClientLoader;
 import org.masterportal.oauth2.client.MPOA2MPService;
 
 import java.io.FileOutputStream;
@@ -78,6 +80,9 @@ public class MPOA2ReadyServlet extends ClientServlet {
         AssetResponse assetResponse = null;
         UserInfo userInfo = null;
         MPOA2MPService oa2MPService = (MPOA2MPService) getOA4MPService();
+        
+        MPCredStoreService mpCredStoreService = ((MPOA2ClientLoader) getConfigurationLoader()).getMPCredStoreService();
+        
         GlobusGSSCredentialImpl userProxy = null;
 
         // we need an identifier in order to be able to save things into the asset store
@@ -160,10 +165,10 @@ public class MPOA2ReadyServlet extends ClientServlet {
 	    fileOuputStream.write(proxyData);
 	    fileOuputStream.close();
         
-    	System.out.println("CERT in ReadyServlet");
-    	System.out.println("###########  PROXY ###########");
-    	System.out.println( proxyString );
-    	System.out.println("###########  PROXY ###########");
+    	debug("Proxy Certificate in ReadyServlet returning to the user");
+    	debug("###########  PROXY ###########");
+    	debug( proxyString );
+    	debug("###########  PROXY ###########");
     	
         info("2.b. Done! Displaying success page.");
 

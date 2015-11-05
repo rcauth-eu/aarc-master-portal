@@ -8,6 +8,7 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientLoader;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2SQLAssetStoreProvider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
+import org.masterportal.myproxy.MPCredStoreService;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientXMLTags;
@@ -41,6 +42,10 @@ public class MPOA2ClientLoader extends OA2ClientLoader {
     public OA4MPServiceProvider getServiceProvider() {
         return new MPOA2MPService.MPOA2MPProvider(load());
     }	
+    
+    public MPCredStoreService getMPCredStoreService() {
+    	return MPCredStoreService.getMPCredStoreService();
+    }
 	
     public MPOA2ClientLoader(ConfigurationNode node) {
         super(node);
@@ -48,7 +53,7 @@ public class MPOA2ClientLoader extends OA2ClientLoader {
 
     @Override
     public String getVersionString() {
-        return "CILogon OAuth2/OIDC client configuration loader version " + VERSION_NUMBER;
+        return "Master Portal OAuth2/OIDC client configuration loader version " + VERSION_NUMBER;
     }
 
     AssetProvider assetProvider = null;
