@@ -3,10 +3,7 @@ package org.masterportal.oauth2.client.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
-import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientLoaderInterface;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
@@ -16,26 +13,20 @@ import edu.uiuc.ncsa.security.oauth_2_0.OA2Error;
 import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
-import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
 
-import javax.print.attribute.standard.MediaPrintableArea;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.commons.codec.binary.Base64;
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.gridforum.jgss.ExtendedGSSCredential;
 import org.masterportal.myproxy.MPCredStoreService;
 import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
 import org.masterportal.myproxy.exception.MyProxyNoUserException;
 import org.masterportal.oauth2.client.MPOA2Asset;
-import org.masterportal.oauth2.client.MPOA2ClientLoader;
 import org.masterportal.oauth2.client.MPOA2MPService;
 
 import java.io.FileOutputStream;
 import java.net.URI;
-import java.net.URLEncoder;
 import java.security.Principal;
 
 public class MPOA2ReadyServlet extends ClientServlet {
@@ -81,7 +72,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
         UserInfo userInfo = null;
         MPOA2MPService oa2MPService = (MPOA2MPService) getOA4MPService();
         
-        MPCredStoreService mpCredStoreService = ((MPOA2ClientLoader) getConfigurationLoader()).getMPCredStoreService();
+        MPCredStoreService mpCredStoreService =  MPCredStoreService.getMPCredStoreService();
         
         GlobusGSSCredentialImpl userProxy = null;
 
@@ -131,23 +122,17 @@ public class MPOA2ReadyServlet extends ClientServlet {
             }
             
         
-            if (userCertValid) {
-            
-            	info("2.a.1 Trying to create proxy certificate for user");
-            	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername(),asset.getVoms_fqan());
-            	
-            } else {
+            if (!userCertValid) {
             	
             	info("2.a. Proxy retrieval failed! Creating new user certificate ...");
             	
                 info("2.a. Getting the cert(s) from the service");
                 assetResponse = oa2MPService.getCert(asset, atResponse2);
-                // The general case is to do the call with the identifier if you want the asset store managed.
-                //assetResponse = getOA4MPService().getCert(token, null, BasicIdentifier.newID(identifier));
-                
-            	info("2.a.2 Trying to create proxy certificate for user");
-            	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername(),asset.getVoms_fqan());
+
             }
+            
+        	info("2.a.1 Trying to create proxy certificate for user");
+        	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername(),asset.getVoms_fqan());
         
         }
         

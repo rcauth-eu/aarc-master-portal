@@ -3,6 +3,9 @@ package org.masterportal.oauth2.client;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.security.core.Identifier;
 
+/*
+ * Master Portal Asset extension includes voms_fqan for every transaction asset
+ */
 public class MPOA2Asset extends OA2Asset {
 
 	String voms_fqan;

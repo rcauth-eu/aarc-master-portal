@@ -38,25 +38,23 @@ import java.util.HashMap;
  */
 public class MPOA2ClientLoader extends OA2ClientLoader {
 	
+    AssetProvider assetProvider = null;
+
+    public MPOA2ClientLoader(ConfigurationNode node) {
+        super(node);
+    }
+
+    
     @Override
     public OA4MPServiceProvider getServiceProvider() {
         return new MPOA2MPService.MPOA2MPProvider(load());
     }	
-    
-    public MPCredStoreService getMPCredStoreService() {
-    	return MPCredStoreService.getMPCredStoreService();
-    }
-	
-    public MPOA2ClientLoader(ConfigurationNode node) {
-        super(node);
-    }
 
     @Override
     public String getVersionString() {
         return "Master Portal OAuth2/OIDC client configuration loader version " + VERSION_NUMBER;
     }
 
-    AssetProvider assetProvider = null;
     @Override
     public AssetProvider getAssetProvider() {
         if(assetProvider == null){
@@ -65,7 +63,10 @@ public class MPOA2ClientLoader extends OA2ClientLoader {
         return assetProvider;
     }
     
-    
+
+    /*
+     * Overrides the creation of AssetStore related classes to MPOA4Asset*
+     */
     @Override
     protected Provider<AssetStore> getAssetStoreProvider() {
         if (assetStoreProvider == null) {

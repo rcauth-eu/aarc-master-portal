@@ -4,7 +4,6 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
-import org.globus.myproxy.CredentialInfo;
 import org.masterportal.myproxy.MPCredStoreService;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.Asset;
@@ -27,6 +26,8 @@ import edu.uiuc.ncsa.security.util.pkcs.MyPKCS10CertRequest;
  * on 8/21/15 at  12:03 PM
  */
 public class MPOA2MPService extends OA2MPService {
+	
+	
     public static class MPOA2MPProvider extends OA4MPServiceProvider{
         public MPOA2MPProvider(ClientEnvironment clientEnvironment) {
             super(clientEnvironment);
@@ -67,6 +68,8 @@ public class MPOA2MPService extends OA2MPService {
     
     @Override
     public AssetResponse getCert(OA2Asset a, ATResponse2 atResponse2) {
+
+    	// The process of including the right CSR in the request has been moved to preGetCert 
 
         Map<String, String> m1 = getAssetParameters(a);
         preGetCert(a, m1);

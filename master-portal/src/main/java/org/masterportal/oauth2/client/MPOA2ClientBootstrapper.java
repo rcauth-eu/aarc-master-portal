@@ -1,6 +1,5 @@
 package org.masterportal.oauth2.client;
 
-import edu.uiuc.ncsa.myproxy.oa4mp.client.loader.AbstractClientBootstrapper;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientBootstrapper;
 import edu.uiuc.ncsa.security.core.exceptions.MyConfigurationException;
 import edu.uiuc.ncsa.security.core.util.ConfigurationLoader;
@@ -9,11 +8,11 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
 
-/**
- * <p>Created by Jeff Gaynor<br>
- * on 4/2/15 at  2:01 PM
+/*
+ *  Bootstraps Master Portal OA4MP Client
  */
 public class MPOA2ClientBootstrapper extends OA2ClientBootstrapper {
+	
     public static final String MP_OA2_CONFIG_FILE_KEY = "oa4mp:mp-oa2.client.config.file";
     public static final String MP_OA2_CONFIG_NAME_KEY = "oa4mp:mp-oa2.client.config.name";
     public static final String MP_OA2_MYPROXY_CONFIG_NAME_KEY = "org.globus.config.file";
@@ -31,7 +30,6 @@ public class MPOA2ClientBootstrapper extends OA2ClientBootstrapper {
 
     @Override
     public ConfigurationLoader getConfigurationLoader(ConfigurationNode node) throws MyConfigurationException {
-        // so this prints out the CILogon client version mostly.
         return new MPOA2ClientLoader(node);
     }
     
