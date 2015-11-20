@@ -22,4 +22,24 @@ public class MPOA2Asset extends OA2Asset {
 		this.voms_fqan = voms_fqan;
 	}
 	
+	
+	String request_state;
+	String request_code;
+	
+	public String getRequest_state() {
+		return request_state;
+	}
+	
+	public String getRequest_code() {
+		return request_code;
+	}
+	
+	public void setRequest_state(String request_state) {
+		this.request_state = request_state;
+	}
+	
+	public void setRequest_code(String request_code) {
+		this.request_code = request_code;
+	}
+	
 }

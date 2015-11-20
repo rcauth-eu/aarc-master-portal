@@ -13,7 +13,8 @@
         <servlet-name>startRequest</servlet-name>
         <!--internal name of the servlet-->
         <!--<servlet-class>edu.uiuc.ncsa.oa4mp.oauth2.client.servlet.OA2StartRequest</servlet-class>-->
-        <servlet-class>org.masterportal.oauth2.client.servlet.MPOA2StartRequest</servlet-class>
+        <!--<servlet-class>org.masterportal.oauth2.client.servlet.MPOA2StartRequest</servlet-class> -->
+        <servlet-class>org.masterportal.oauth2.client.servlet.MPOA2ForwardingStartRequest</servlet-class>
         <load-on-startup>1</load-on-startup>
         <!--load as soon as tomcat starts?-->
     </servlet>
@@ -30,7 +31,8 @@
         <servlet-name>ready</servlet-name>
         <!--internal name of the servlet-->
         <!-- <servlet-class>edu.uiuc.ncsa.oa4mp.oauth2.client.servlet.OA2ReadyServlet</servlet-class> -->
-        <servlet-class>org.masterportal.oauth2.client.servlet.MPOA2ReadyServlet</servlet-class>
+        <!-- <servlet-class>org.masterportal.oauth2.client.servlet.MPOA2ReadyServlet</servlet-class> -->
+        <servlet-class>org.masterportal.oauth2.client.servlet.MPOA2ForwardingReadyServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
         <!--load as soon as tomcat starts?-->
     </servlet>

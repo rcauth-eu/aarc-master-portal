@@ -23,6 +23,9 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 		
 		a.setVoms_fqan(map.getString(getASK().voms_fqan()));
 		
+		a.setRequest_state(map.getString(getASK().request_state));
+		a.setRequest_code(map.getString(getASK().request_code));
+		
 		return a;
 	}
 	
@@ -35,6 +38,13 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 		if (a.getVoms_fqan() != null) {
 			map.put(getASK().voms_fqan(), a.getVoms_fqan());
 		}
+
+		if (a.getRequest_code() != null) {
+			map.put(getASK().request_code(), a.getRequest_code());
+		}
+		if (a.getRequest_state() != null) {
+			map.put(getASK().request_state(), a.getRequest_state());
+		}		
 	}
 	
 }

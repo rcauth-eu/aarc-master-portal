@@ -9,11 +9,13 @@ import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
 import edu.uiuc.ncsa.security.delegation.token.impl.AuthorizationGrantImpl;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2Error;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
 
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -29,7 +31,7 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.security.Principal;
 
-public class MPOA2ReadyServlet extends ClientServlet {
+public class MPOA2ForwardingReadyServlet extends ClientServlet {
 
 	public static String PROXY_DIR = "/tmp";
 	
@@ -37,7 +39,7 @@ public class MPOA2ReadyServlet extends ClientServlet {
 	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
 
        if (request.getParameterMap().containsKey(OA2Constants.ERROR)) {
-            throw new OA2Error(request.getParameter(OA2Constants.ERROR),
+            throw new OA2RedirectableError(request.getParameter(OA2Constants.ERROR),
                     request.getParameter(OA2Constants.ERROR_DESCRIPTION),
                     request.getParameter(OA2Constants.STATE));
         }
@@ -62,9 +64,12 @@ public class MPOA2ReadyServlet extends ClientServlet {
         String identifier = clearCookie(request, response);
         MPOA2Asset asset = null;
         if (identifier == null) {
+        	System.out.println("Getting Asset from token: " + token);
             asset = (MPOA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
+            System.out.println("Getting Asset: " + asset);
             if (asset != null) {
                 identifier = asset.getIdentifierString();
+                System.out.println("Getting identifier: " + identifier);
             }
         }
         
@@ -104,74 +109,27 @@ public class MPOA2ReadyServlet extends ClientServlet {
             String userSubject = userInfo.getSub();
             asset.setUsername(userSubject);
             
-            debug("2.a VOMS FQAN sent to MyProxy CredStore: " + asset.getVoms_fqan());
+            //info("2.a. Getting the cert(s) from the service");
+            //assetResponse = oa2MPService.getCert(asset, atResponse2);
             
-            boolean userCertValid = false;
+            String reqState = asset.getRequest_state();
+            String reqCode = asset.getRequest_code();
             
-            try {
-            	debug("2.a Executing MyProxy INFO command");
-            	MPCredStoreService.getMPCredStoreService().doInfo(asset.getUsername());
-            	debug("2.a Valid user certificate found!");
-            	userCertValid = true;
-            } catch (MyProxyNoUserException e) {
-            	debug("2.a No user found in MyProxy Credential Store!");
-            	userCertValid = false;
-            } catch (MyProxyCertExpiredExcpetion e) {
-            	debug("2.a User certificate from MyProxy Credential Store is expired!");
-            	userCertValid = false;
-            }
+            debug("Forwarding back to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
             
-        
-            if (!userCertValid) {
-            	
-            	info("2.a. Proxy retrieval failed! Creating new user certificate ...");
-            	
-                info("2.a. Getting the cert(s) from the service");
-                assetResponse = oa2MPService.getCert(asset, atResponse2);
-
-            }
+            request.setAttribute("code", reqCode);
+            request.setAttribute("state", reqState);
+            request.setAttribute("username", userSubject);
+            request.setAttribute("action", "ok");
             
-        	info("2.a.1 Trying to create proxy certificate for user");
-        	userProxy = MPCredStoreService.getMPCredStoreService().doGet(asset.getUsername(),asset.getVoms_fqan());
-        
+            ServletContext serverContext = getServletConfig().getServletContext();
+            ServletContext clientContext = serverContext.getContext("/mp-oauth2");
+             
+            RequestDispatcher dispatcher = clientContext.getRequestDispatcher("/authorize");
+            dispatcher.forward(request, response);
+            
         }
         
-        // Again, we take the first returned cert to peel off some information to display. This
-        // just proves we got a response.
-        //X509Certificate cert = assetResponse.getX509Certificates()[0];
-
-        Principal userDN = userProxy.getCertificateChain()[0].getSubjectDN();
-        
-        byte [] proxyData = ((ExtendedGSSCredential)userProxy).export(ExtendedGSSCredential.IMPEXP_OPAQUE);
-        String proxyString = new String(proxyData);
-        
-        //export the user proxy into local storage so that the vo-portal can pick it up.
-	    FileOutputStream fileOuputStream = new FileOutputStream(PROXY_DIR + "/" + asset.getUsername() + ".proxy"); 
-	    fileOuputStream.write(proxyData);
-	    fileOuputStream.close();
-        
-    	debug("Proxy Certificate in ReadyServlet returning to the user");
-    	debug("###########  PROXY ###########");
-    	debug( proxyString );
-    	debug("###########  PROXY ###########");
-    	
-        info("2.b. Done! Displaying success page.");
-
-        // Rest of this is putting up something for the user to see
-        request.setAttribute("userSubject", asset.getUsername());
-        request.setAttribute("certSubject", userDN);
-        request.setAttribute("cert", proxyString);
-        request.setAttribute("username", asset.getUsername());
-        // Fix in cases where the server request passes through Apache before going to Tomcat.
-
-        String contextPath = request.getContextPath();
-        if (!contextPath.endsWith("/")) {
-            contextPath = contextPath + "/";
-        }
-        request.setAttribute("action", contextPath);
-        info("2.a. Completely finished with delegation.");
-        JSPUtil.fwd(request, response, getCE().getSuccessPagePath());
-    
         return;
 		
 	}

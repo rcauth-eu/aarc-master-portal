@@ -5,10 +5,10 @@
     <artifactId>aarc-portal</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
-  <artifactId>master-portal</artifactId>
+  <artifactId>master-portal-client</artifactId>
   <packaging>war</packaging>
   
-  <name>Master Portal</name>
+  <name>Master Portal (Client Component)</name>
   
    <url>http://maven.apache.org</url>
 
@@ -45,12 +45,12 @@
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-client-api</artifactId>
-            <version>3.2</version>
+            <version>3.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-client-oauth2</artifactId>
-            <version>3.2</version>
+            <version>3.3-SNAPSHOT</version>
             <type>war</type>
             <scope>runtime</scope>
         </dependency>
@@ -63,24 +63,24 @@
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-client-loader-oauth2</artifactId>
-            <version>3.2</version>
+            <version>3.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>edu.uiuc.ncsa.security.delegation</groupId>
             <artifactId>ncsa-security-delegation-common</artifactId>
-            <version>3.2</version>
+            <version>3.3-SNAPSHOT</version>
         </dependency>
         <dependency>
             <artifactId>ncsa-security-util</artifactId>
             <groupId>edu.uiuc.ncsa.security</groupId>
-            <version>3.2</version>
+            <version>3.3-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <artifactId>ncsa-security-delegation-common</artifactId>
             <groupId>edu.uiuc.ncsa.security.delegation</groupId>
-            <version>3.2</version>
+            <version>3.3-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
