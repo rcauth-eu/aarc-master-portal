@@ -1,4 +1,4 @@
-package org.masterportal.myproxy;
+package org.masterportal.myproxy.jglobus;
 
 
 import java.io.ByteArrayInputStream;
@@ -30,7 +30,7 @@ import org.ietf.jgss.GSSCredential;
 import org.ietf.jgss.GSSException;
 import org.masterportal.myproxy.exception.MyProxyVomsException;
 
-public class MPMyProxy extends org.masterportal.myproxy.MyProxy {
+public class MPMyProxy extends org.masterportal.myproxy.jglobus.MyProxy {
 
 	static Log logger = LogFactory.getLog(MPMyProxy.class.getName());	
     

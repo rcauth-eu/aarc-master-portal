@@ -50,7 +50,13 @@
          <groupId>edu.uiuc.ncsa.myproxy</groupId>
          <artifactId>oa4mp-client-api</artifactId>
          <version>3.3-SNAPSHOT</version>
-     </dependency>       
+     </dependency>  
+     
+     <dependency>
+         <groupId>nikhef.oa4mp.oauth2</groupId>
+         <artifactId>aarc-portal-delegation</artifactId>
+         <version>0.0.1-SNAPSHOT</version>
+     </dependency>           
 	   
   </dependencies>  
   

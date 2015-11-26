@@ -1,4 +1,4 @@
-package org.masterportal.myproxy;
+package org.masterportal.myproxy.jglobus;
 
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
@@ -22,13 +22,14 @@ import org.gridforum.jgss.ExtendedGSSCredential;
 import org.ietf.jgss.GSSCredential;
 import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
 import org.masterportal.myproxy.exception.MyProxyNoUserException;
-import org.masterportal.oauth2.client.MPOA2ClientBootstrapper;
 
 public class MPCredStoreService {
 	
 	public static final String MYPROXY_SERVER_PORT = "7512";
     public static final int MYPROXY_DEFAULT_PROXY_LIFETIME = 43200;
     public static final String MYPROXY_DEFAULT_PASSWORD = "changeit";
+    
+    public static final String MP_OA2_MYPROXY_CONFIG_LOG4J = "org.globus.log4j.properties";
     
     private Log logger = null;
     
@@ -39,7 +40,7 @@ public class MPCredStoreService {
     private static MPCredStoreService instance = null;
 	
     private MPCredStoreService() {
-    	String logProperties = System.getProperty(MPOA2ClientBootstrapper.MP_OA2_MYPROXY_CONFIG_LOG4J);
+    	String logProperties = System.getProperty(MP_OA2_MYPROXY_CONFIG_LOG4J);
     	if (logProperties != null && !logProperties.isEmpty()) {
     		PropertyConfigurator.configure(logProperties);
         }

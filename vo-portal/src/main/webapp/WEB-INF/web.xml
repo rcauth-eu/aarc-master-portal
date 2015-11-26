@@ -29,7 +29,7 @@
         <servlet-name>ready</servlet-name>
         <!--internal name of the servlet-->
         <!-- <servlet-class>edu.uiuc.ncsa.oa4mp.oauth2.client.servlet.OA2ReadyServlet</servlet-class> -->
-        <servlet-class>org.voportal.oauth2.client.servlet.VPOA2ReadyServlet</servlet-class>
+        <servlet-class>org.voportal.client.oauth2.servlet.VPOA2ReadyServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
         <!--load as soon as tomcat starts?-->
     </servlet>
@@ -49,7 +49,7 @@
 
     </welcome-file-list>
     <listener>
-        <listener-class>org.voportal.oauth2.client.VPOA2ClientBootstrapper</listener-class>
+        <listener-class>org.voportal.client.oauth2.VPOA2ClientBootstrapper</listener-class>
     </listener>
 
     <!--

@@ -4,7 +4,7 @@ import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import org.apache.commons.codec.binary.Base64;
-import org.masterportal.myproxy.MPCredStoreService;
+import org.masterportal.myproxy.jglobus.MPCredStoreService;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.Asset;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;

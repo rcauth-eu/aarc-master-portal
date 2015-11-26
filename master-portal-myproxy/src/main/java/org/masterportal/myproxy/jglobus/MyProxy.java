@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package org.masterportal.myproxy;
+package org.masterportal.myproxy.jglobus;
 
 import java.nio.charset.Charset;
 

@@ -13,9 +13,14 @@
   </developers>
   
   <modules>
+  
+	<module>aarc-portal-delegation</module>
   	<module>vo-portal</module>
+  	
+  	<module>master-portal-myproxy</module>
   	<module>master-portal-client</module>
   	<module>master-portal-server</module>
+  	
   </modules>
   
     <build>

@@ -8,7 +8,7 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientLoader;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2SQLAssetStoreProvider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
-import org.masterportal.myproxy.MPCredStoreService;
+import org.masterportal.myproxy.jglobus.MPCredStoreService;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientXMLTags;

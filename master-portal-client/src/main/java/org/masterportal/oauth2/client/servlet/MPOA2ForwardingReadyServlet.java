@@ -21,9 +21,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
 import org.gridforum.jgss.ExtendedGSSCredential;
-import org.masterportal.myproxy.MPCredStoreService;
 import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
 import org.masterportal.myproxy.exception.MyProxyNoUserException;
+import org.masterportal.myproxy.jglobus.MPCredStoreService;
 import org.masterportal.oauth2.client.MPOA2Asset;
 import org.masterportal.oauth2.client.MPOA2MPService;
 

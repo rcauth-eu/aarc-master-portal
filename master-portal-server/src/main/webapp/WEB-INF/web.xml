@@ -53,12 +53,21 @@
     <servlet>
         <servlet-name>getCert</servlet-name>
         <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2CertServlet</servlet-class> -->
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2CertServlet</servlet-class>
+        <servlet-class>org.masterportal.server.oauth2.servlet.MPOA2CertServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>getCert</servlet-name>
         <url-pattern>/getcert</url-pattern>
     </servlet-mapping>
+    
+    <servlet>
+        <servlet-name>getProxy</servlet-name>
+        <servlet-class>org.masterportal.server.oauth2.servlet.MPOA2ProxyServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>getProxy</servlet-name>
+        <url-pattern>/getproxy</url-pattern>
+    </servlet-mapping>    
 
     <servlet>
         <servlet-name>error</servlet-name>
@@ -72,7 +81,7 @@
     <servlet>
         <servlet-name>authorize</servlet-name>
         <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizationServer</servlet-class> -->
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2AuthorizationServer</servlet-class>
+        <servlet-class>org.masterportal.server.oauth2.servlet.MPOA2AuthorizationServer</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>authorize</servlet-name>
@@ -134,8 +143,8 @@
     </resource-ref>
 
     <listener>
-        <listener-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2Bootstrapper</listener-class>
-
+        <!-- <listener-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2Bootstrapper</listener-class> -->
+		<listener-class>org.masterportal.server.oauth2.MPOA2ServerBootstrapper</listener-class>
     </listener>
 
 <!--

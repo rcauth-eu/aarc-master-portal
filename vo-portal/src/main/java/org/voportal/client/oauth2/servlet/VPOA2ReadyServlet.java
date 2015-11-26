@@ -1,4 +1,4 @@
-package org.voportal.oauth2.client.servlet;
+package org.voportal.client.oauth2.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
@@ -18,6 +18,10 @@ import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+
+import org.voportal.client.ProxyAssetResponse;
+import org.voportal.client.oauth2.VPOA2MPService;
+
 import java.net.URI;
 import java.security.cert.X509Certificate;
 
@@ -65,7 +69,7 @@ public class VPOA2ReadyServlet extends ClientServlet {
             }
         }
         AssetResponse assetResponse = null;
-        OA2MPService oa2MPService = (OA2MPService) getOA4MPService();
+        VPOA2MPService oa2MPService = (VPOA2MPService) getOA4MPService();
 
         UserInfo ui = null;
         if (identifier == null) {
@@ -95,13 +99,15 @@ public class VPOA2ReadyServlet extends ClientServlet {
 
         // Again, we take the first returned cert to peel off some information to display. This
         // just proves we got a response.
-        X509Certificate cert = assetResponse.getX509Certificates()[0];
+        //X509Certificate cert = assetResponse.getX509Certificates()[0];
+        byte[] proxy = ((ProxyAssetResponse)assetResponse).getProxy();
 
         info("2.b. Done! Displaying success page.");
 
         // Rest of this is putting up something for the user to see
-        request.setAttribute("certSubject", cert.getSubjectDN());
-        request.setAttribute("cert", CertUtil.toPEM(assetResponse.getX509Certificates()));
+        //request.setAttribute("certSubject", cert.getSubjectDN());
+        //request.setAttribute("cert", CertUtil.toPEM(assetResponse.getX509Certificates()));
+        request.setAttribute("cert", new String(proxy));
         request.setAttribute("username", assetResponse.getUsername());
         if(ui != null) {
             request.setAttribute("userinfo", ui.toJSon());
