@@ -12,7 +12,9 @@ import edu.uiuc.ncsa.security.delegation.client.DelegationService;
 import edu.uiuc.ncsa.security.oauth_2_0.client.AGServer2;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATServer2;
 import edu.uiuc.ncsa.security.oauth_2_0.client.DS2;
+import edu.uiuc.ncsa.security.oauth_2_0.client.PAServer2;
 import edu.uiuc.ncsa.security.oauth_2_0.client.PPServer2;
+import edu.uiuc.ncsa.security.oauth_2_0.client.ProxyDelegationService;
 import edu.uiuc.ncsa.security.oauth_2_0.client.RTServer2;
 import edu.uiuc.ncsa.security.oauth_2_0.client.UIServer2;
 
@@ -47,11 +49,12 @@ public class VPOA2ClientLoader extends OA2ClientLoader {
             dsp = new Provider<DelegationService>() {
                 @Override
                 public DelegationService get() {
-                    return new DS2(new AGServer2(createServiceClient(getAuthzURI())), // as per spec, request for AG comes through authz endpoint.
+                    return new ProxyDelegationService(new AGServer2(createServiceClient(getAuthzURI())), // as per spec, request for AG comes through authz endpoint.
                             new ATServer2(createServiceClient(getAccessTokenURI())),
-                            new PPServer2(createServiceClient(getProxyAssetURI())),
+                            new PAServer2(createServiceClient(getAssetURI())),
                             new UIServer2(createServiceClient(getUIURI())),
-                            new RTServer2(createServiceClient(getAccessTokenURI())) // as per spec, refresh token server is at same endpoint as access token server.
+                            new RTServer2(createServiceClient(getAccessTokenURI())), // as per spec, refresh token server is at same endpoint as access token server.
+                            new PPServer2(createServiceClient(getProxyAssetURI()))
                     );
                 }
             };

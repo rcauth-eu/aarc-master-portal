@@ -1,20 +1,27 @@
 package org.masterportal.server.oauth2.servlet;
 
 import java.io.IOException;
-import java.security.GeneralSecurityException;
 import java.security.KeyPair;
+import java.util.HashMap;
+import java.util.Map;
+
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
 
 import org.masterportal.myproxy.CredStoreService;
 import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
 import org.masterportal.myproxy.exception.MyProxyNoUserException;
 import org.masterportal.myproxy.jglobus.JGlobusCredStoreService;
-import org.masterportal.myproxy.jglobus.MPCredStoreService;
+import org.masterportal.server.oauth2.MPOA2SE;
 
-import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2CertServlet;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
+import edu.uiuc.ncsa.security.delegation.server.issuers.PAIssuer;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
+import edu.uiuc.ncsa.security.delegation.server.request.PPRequest;
+import edu.uiuc.ncsa.security.delegation.server.request.PPResponse;
+import edu.uiuc.ncsa.security.delegation.servlet.TransactionState;
 import edu.uiuc.ncsa.security.delegation.token.MyX509Proxy;
 import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
 import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
@@ -27,6 +34,7 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
 		ServiceTransaction transaction = super.verifyAndGet(iResponse);
 		
 		// insert a CSR into the transaction
+		/*
 		KeyPair keyPair = null;
 		MyPKCS10CertRequest certReq = null;
         try {
@@ -39,10 +47,50 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
             throw new GeneralException("Could no create cert request", e);
         }
 		transaction.setCertReq(certReq);
+		*/
 		
 		return transaction;
 	}
 
+	
+	@Override
+	protected void doIt(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse) throws Throwable {
+		
+        info("6.a. Starting to process proxy request");
+        PPRequest ppRequest = new PPRequest(httpServletRequest, getClient(httpServletRequest));
+        String statusString = "client = " + ppRequest.getClient().getIdentifier();
+        // The next call will pull the access token off of any parameters. The result may be null if there is
+        // no access token.
+        ppRequest.setAccessToken(getAccessToken(httpServletRequest));
+
+        PPResponse ppResponse = (PPResponse) getPPI().process(ppRequest);
+        
+        debug("6.a. " + statusString);
+        ServiceTransaction t = verifyAndGet(ppResponse);
+        Map params = httpServletRequest.getParameterMap();
+
+        info("6.a. Processing request for transaction " + t.getIdentifier());
+        doRealCertRequest(t, statusString);
+        t.setAccessTokenValid(false);
+        preprocess(new TransactionState(httpServletRequest, httpServletResponse, ppResponse.getParameters(), t));
+
+        debug("6.a. protected asset:" + (t.getProtectedAsset() == null ? "(null)" : "ok") + ", " + statusString);
+        HashMap<String, String> username = new HashMap<String, String>();
+        username.put("username", t.getUsername());
+        if (ppResponse.getParameters() != null) {
+            username.putAll(ppResponse.getParameters());
+        }
+        ppResponse.setAdditionalInformation(username);
+        ppResponse.setProtectedAsset(t.getProtectedAsset());
+        debug("6.a. Added username \"" + t.getUsername() + "\" & cert for request from " + statusString);
+        getTransactionStore().save(t);
+
+        info("6.b. Done with proxy request " + statusString);
+        ppResponse.write(httpServletResponse);
+        info("6.b. Completed transaction " + t.getIdentifierString() + ", " + statusString);
+        postprocess(new TransactionState(httpServletRequest, httpServletResponse, ppResponse.getParameters(), t));		
+		
+	}
 	
 	@Override
 	protected void doRealCertRequest(ServiceTransaction trans, String statusString) throws Throwable {
@@ -87,5 +135,9 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
     	getServiceEnvironment().getTransactionStore().save(trans);
 	}
 	
+	
+    protected PAIssuer getPPI() throws IOException {
+        return ((MPOA2SE)getServiceEnvironment()).getPpIssuer();
+    }
 
 }

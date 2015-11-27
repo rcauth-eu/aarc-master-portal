@@ -90,7 +90,7 @@ public class VPOA2ReadyServlet extends ClientServlet {
             ATResponse2 atResponse2 = oa2MPService.getAccessToken(asset, grant);
           //  ui = oa2MPService.getUserInfo(atResponse2.getAccessToken().getToken());
             ui = oa2MPService.getUserInfo(identifier);
-            assetResponse = oa2MPService.getCert(asset, atResponse2);
+            assetResponse = oa2MPService.getProxy(asset, atResponse2);
 
             // The general case is to do the call with the identifier if you want the asset store managed.
             //assetResponse = getOA4MPService().getCert(token, null, BasicIdentifier.newID(identifier));

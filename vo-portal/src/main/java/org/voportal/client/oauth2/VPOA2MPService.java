@@ -14,6 +14,7 @@ import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.delegation.client.request.DelegatedAssetResponse;
 import edu.uiuc.ncsa.security.delegation.token.MyX509Proxy;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
+import edu.uiuc.ncsa.security.oauth_2_0.client.ProxyDelegationService;
 
 public class VPOA2MPService extends OA2MPService {
 	
@@ -42,16 +43,15 @@ public class VPOA2MPService extends OA2MPService {
         }
     }
     
-    
-    @Override
-    public AssetResponse getCert(OA2Asset a, ATResponse2 atResponse2) {
+    public AssetResponse getProxy(OA2Asset a, ATResponse2 atResponse2) {
 
     	// The process of including the right CSR in the request has been moved to preGetCert 
 
         Map<String, String> m1 = getAssetParameters(a);
         preGetCert(a, m1);
         
-        DelegatedAssetResponse daResp = getEnvironment().getDelegationService().getCert(atResponse2, getEnvironment().getClient(), m1);
+        ProxyDelegationService proxyService = (ProxyDelegationService) getEnvironment().getDelegationService();
+        DelegatedAssetResponse daResp = proxyService.getProxy(atResponse2, getEnvironment().getClient(), m1);
 
         ProxyAssetResponse par = new ProxyAssetResponse();
         MyX509Proxy myX509Proxy = (MyX509Proxy) daResp.getProtectedAsset();

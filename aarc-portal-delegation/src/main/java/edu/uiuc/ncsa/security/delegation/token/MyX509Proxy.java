@@ -6,14 +6,15 @@ import java.security.cert.X509Certificate;
 /**
  * This wraps whatever X509 proxy is returned.
  */
-public class MyX509Proxy implements ProtectedAsset {
+public class MyX509Proxy extends MyX509Certificates {
 
-    protected X509Certificate[] x509Certificates;
+    //protected X509Certificate[] x509Certificates;
     protected PrivateKey proxyKey;
 	
     protected byte[] proxy;
     
     public MyX509Proxy(byte[] pemProxy) {
+    	super(new X509Certificate[0]);
 		this.proxy = pemProxy;
 	}
     
@@ -28,10 +29,6 @@ public class MyX509Proxy implements ProtectedAsset {
         this.proxyKey = key;
     }
     */
-
-    public X509Certificate [] getX509Certificates() {
-        return x509Certificates;
-    }
     
     public PrivateKey getProxyKey() {
 		return proxyKey;
@@ -43,10 +40,6 @@ public class MyX509Proxy implements ProtectedAsset {
 
     public String getX509ProxyPEM() {
     	return new String(proxy);
-    }
-
-    public void setX509Certificates(X509Certificate [] x509Certificates) {
-        this.x509Certificates = x509Certificates;
     }
     
 }

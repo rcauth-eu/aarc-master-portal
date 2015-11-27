@@ -4,7 +4,8 @@ import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.issuers.AbstractIssuer;
 import edu.uiuc.ncsa.security.delegation.server.issuers.PAIssuer;
 import edu.uiuc.ncsa.security.delegation.server.request.PARequest;
-import edu.uiuc.ncsa.security.delegation.server.request.PAResponse;
+import edu.uiuc.ncsa.security.delegation.server.request.PPRequest;
+import edu.uiuc.ncsa.security.delegation.server.request.PPResponse;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
 
 import java.net.URI;
@@ -18,23 +19,18 @@ public class PPI2 extends PAI2 {
 
     public PPI2(TokenForge tokenForge, URI address) {
         super(tokenForge, address);
-        System.out.println("CONSTRUCTING PPI2!!");
     }
 
     @Override
-    public PAResponse processProtectedAsset(PARequest paRequest) {
+    public PPResponse processProtectedAsset(PARequest paRequest) {
         try {
          //   Map<String, String> reqParamMap = OA2Utilities.getParameters(paRequest.getServletRequest());
 
-        	System.out.println("PPI2 : processProtectedAsset !!");
-        	
-        	
             PPIResponse2 paResponse = new PPIResponse2();
             paResponse.setAccessToken(paRequest.getAccessToken()); // return the right access token with this, so the caller can track it
             
-            System.out.println("PPI2 : returnning " + paResponse.getClass().getName());
-            
             return paResponse;
+            
         } catch (Exception x) {
             if(x instanceof RuntimeException){
                 throw (RuntimeException)x;
