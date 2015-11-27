@@ -9,10 +9,23 @@
     <!--what gets put in the browser's title bar -->
 
 
+	<!-- Simple VO Choosing servlet -->
+    <servlet>
+        <servlet-name>VOChooser</servlet-name>
+        <servlet-class>org.voportal.servlet.VOChoosingServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+
+    <servlet-mapping>
+        <servlet-name>VOChooser</servlet-name>
+        <url-pattern>/vos</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>startRequest</servlet-name>
         <!--internal name of the servlet-->
-        <servlet-class>edu.uiuc.ncsa.oa4mp.oauth2.client.servlet.OA2StartRequest</servlet-class>
+        <!-- <servlet-class>edu.uiuc.ncsa.oa4mp.oauth2.client.servlet.OA2StartRequest</servlet-class> -->
+        <servlet-class>org.voportal.client.oauth2.servlet.VPOA2StartRequest</servlet-class>
         <load-on-startup>1</load-on-startup>
         <!--load as soon as tomcat starts?-->
     </servlet>
@@ -97,5 +110,11 @@
     </context-param>
     -->
    
+    <!-- Configure the location of vomsdir on the local filesystem -->
+    <context-param>
+        <param-name>org.voportal.vomsdir</param-name>
+        <param-value>/etc/grid-security/vomsdir</param-value>
+    </context-param>
+       
 </web-app>
 

@@ -20,6 +20,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.voportal.client.ProxyAssetResponse;
+import org.voportal.client.oauth2.VPOA2Asset;
 import org.voportal.client.oauth2.VPOA2MPService;
 
 import java.net.URI;
@@ -61,9 +62,9 @@ public class VPOA2ReadyServlet extends ClientServlet {
         AuthorizationGrant grant = new AuthorizationGrantImpl(URI.create(token));
         info("2.a. Getting the cert(s) from the service");
         String identifier = clearCookie(request, response);
-        OA2Asset asset = null;
+        VPOA2Asset asset = null;
         if (identifier == null) {
-            asset = (OA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
+            asset = (VPOA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
             if (asset != null) {
                 identifier = asset.getIdentifierString();
             }
@@ -82,7 +83,7 @@ public class VPOA2ReadyServlet extends ClientServlet {
             ui = oa2MPService.getUserInfo(atResponse2.getAccessToken().toString());
             assetResponse = oa2MPService.getCert(asset, atResponse2);
         } else {
-            asset = (OA2Asset) getCE().getAssetStore().get(identifier);
+            asset = (VPOA2Asset) getCE().getAssetStore().get(identifier);
             if(asset.getState() == null || !asset.getState().equals(state)){
                 warn("The expected state from the server was \"" + asset.getState() + "\", but instead \"" + state + "\" was returned. Transaction aborted.");
                 throw new IllegalArgumentException("Error: The state returned by the server is invalid.");
@@ -90,6 +91,7 @@ public class VPOA2ReadyServlet extends ClientServlet {
             ATResponse2 atResponse2 = oa2MPService.getAccessToken(asset, grant);
           //  ui = oa2MPService.getUserInfo(atResponse2.getAccessToken().getToken());
             ui = oa2MPService.getUserInfo(identifier);
+            
             assetResponse = oa2MPService.getProxy(asset, atResponse2);
 
             // The general case is to do the call with the identifier if you want the asset store managed.

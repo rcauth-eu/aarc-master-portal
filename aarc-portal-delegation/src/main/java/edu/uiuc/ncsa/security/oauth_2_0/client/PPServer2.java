@@ -5,6 +5,7 @@ import edu.uiuc.ncsa.security.delegation.storage.Client;
 import edu.uiuc.ncsa.security.delegation.token.AccessToken;
 import edu.uiuc.ncsa.security.delegation.token.MyX509Proxy;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
+import edu.uiuc.ncsa.security.oauth_2_0.ProxyOA2Constants;
 import edu.uiuc.ncsa.security.servlet.ServiceClient;
 
 import java.util.HashMap;
@@ -27,6 +28,12 @@ public class PPServer2 extends PAServer2 {
         m.put(OA2Constants.CLIENT_SECRET, client.getSecret());
         //m.put(OA2Constants.REDIRECT_URI,  props.get(OA2Constants.REDIRECT_URI));
         //m.put(OA2Constants.CERT_REQ, String.valueOf(props.get(AbstractClientEnvironment.CERT_REQUEST_KEY)));
+        
+        System.out.println("PPServer2 Adding VOMS_FQAN into the map : " +   props.get(ProxyOA2Constants.VOMS_FQAN));
+        if ( props.get(ProxyOA2Constants.VOMS_FQAN) != null) {
+        	m.put(ProxyOA2Constants.VOMS_FQAN, props.get(ProxyOA2Constants.VOMS_FQAN));
+        }
+
         //m.put(OA2Constants.CERT_LIFETIME, String.valueOf(props.get(AbstractClientEnvironment.CERT_LIFETIME_KEY)));
         String response = getServiceClient().getRawResponse(m); // No JSON in the spec. Just a string of proxy.
         

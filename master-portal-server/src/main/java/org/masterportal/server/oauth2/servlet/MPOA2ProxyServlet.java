@@ -23,6 +23,7 @@ import edu.uiuc.ncsa.security.delegation.server.request.PPRequest;
 import edu.uiuc.ncsa.security.delegation.server.request.PPResponse;
 import edu.uiuc.ncsa.security.delegation.servlet.TransactionState;
 import edu.uiuc.ncsa.security.delegation.token.MyX509Proxy;
+import edu.uiuc.ncsa.security.oauth_2_0.ProxyOA2Constants;
 import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
 import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 import edu.uiuc.ncsa.security.util.pkcs.MyPKCS10CertRequest;
@@ -70,7 +71,7 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
         Map params = httpServletRequest.getParameterMap();
 
         info("6.a. Processing request for transaction " + t.getIdentifier());
-        doRealCertRequest(t, statusString);
+        doRealProxyRequest(t, statusString, httpServletRequest.getParameter(ProxyOA2Constants.VOMS_FQAN));
         t.setAccessTokenValid(false);
         preprocess(new TransactionState(httpServletRequest, httpServletResponse, ppResponse.getParameters(), t));
 
@@ -92,15 +93,16 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
 		
 	}
 	
-	@Override
-	protected void doRealCertRequest(ServiceTransaction trans, String statusString) throws Throwable {
+	protected void doRealProxyRequest(ServiceTransaction trans, String statusString, String voms_fqan) throws Throwable {
 		
 		String username = trans.getUsername();
 		
 		// use jglobus myproxy to connect to the CredStore and retrieve a proxy
 		
 	    CredStoreService credStore = JGlobusCredStoreService.getInstance();
-        boolean userCertValid = false;
+        
+	    /*
+	    boolean userCertValid = false;
         
         try {    	    
     	    info("Executing MyProxy INFO with username : " + username);
@@ -122,10 +124,11 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
         	// call /forwardetproxy on the Master Portal Client component
         	
         }
+        */
         
     	info("2.a.1 Trying to create proxy certificate for user");
     	//TODO: voms_fqan goes here as 2nd parameter
-    	byte[] userProxy = credStore.doGet(username, null);
+    	byte[] userProxy = credStore.doGet(username, voms_fqan);
 		
 		// create MyX509Proxy to return
     	MyX509Proxy proxy = new MyX509Proxy(userProxy);

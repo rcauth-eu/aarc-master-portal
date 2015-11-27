@@ -6,8 +6,8 @@
 <script type="text/javascript">
 function redirect() {
 
-	var host = "${masterportal}"
-	var redirect_url = "${redirect_url}"
+	var host = "${redirect_host}"
+	//var redirect_url = "${redirect_url}"
 	var volist = document.getElementById("volist");
 	var vo = volist.options[volist.selectedIndex].text
 	
@@ -19,7 +19,8 @@ function redirect() {
 		fqan = vo;
 	}
 	
-	window.location = host + "?voms_fqan=" + fqan + "&redirect_url=" + redirect_url;
+	//window.location = host + "?voms_fqan=" + fqan + "&redirect_url=" + redirect_url;
+	window.location = host + "?voms_fqan=" + fqan;
 }
 </script>
 <head>

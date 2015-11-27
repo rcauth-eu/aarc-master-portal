@@ -21,10 +21,9 @@ public class VOChoosingServlet extends HttpServlet {
 	Logger logger = Logger.getLogger(VOChoosingServlet.class.getName());
 
 	public static final String VO_CHOOSER_PAGE="/pages/chooser.jsp";
+	public static final String VO_PORTAL_START="/startRequest";
 	
 	public static final String VOMSDIR_LOCATION_KEY="org.voportal.vomsdir";
-	public static final String MASTER_PORTAL_KEY="org.voportal.master-portal";
-	public static final String REDIRECT_URL_KEY="org.voportal.redirect-url";
 	
 	String[] vomses = null;
 	
@@ -47,7 +46,11 @@ public class VOChoosingServlet extends HttpServlet {
 		  }
 		});
 		
-		logger.log(Level.INFO,  vomses.length + " vomses discovered");
+		if (vomses != null) {
+			logger.log(Level.INFO,  vomses.length + " vomses discovered");
+		} else {
+			logger.log(Level.SEVERE, "Failed to load VOMS information!");
+		}
 	}
 	
 	/*
@@ -56,15 +59,12 @@ public class VOChoosingServlet extends HttpServlet {
 	@Override
 	protected void doGet(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
 		
-		String masterPortalHost = this.getServletContext().getInitParameter(MASTER_PORTAL_KEY);
-		String redirect_url  = this.getServletContext().getInitParameter(REDIRECT_URL_KEY);
-		
-		request.setAttribute("masterportal", masterPortalHost);
-		request.setAttribute("redirect_url", redirect_url);
+		request.setAttribute("redirect_host", getServletConfig().getServletContext().getContextPath() + VO_PORTAL_START);
 		request.setAttribute("vomses", vomses);
 		
-        RequestDispatcher dispatcher = request.getRequestDispatcher(VO_CHOOSER_PAGE);
-        dispatcher.forward(request, response);		
+        RequestDispatcher dispatcher = getServletConfig().getServletContext().getRequestDispatcher(VO_CHOOSER_PAGE);
+        dispatcher.forward(request, response);
+		
 	}
 	
 }

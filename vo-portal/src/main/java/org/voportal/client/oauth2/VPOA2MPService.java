@@ -13,6 +13,7 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.delegation.client.request.DelegatedAssetResponse;
 import edu.uiuc.ncsa.security.delegation.token.MyX509Proxy;
+import edu.uiuc.ncsa.security.oauth_2_0.ProxyOA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ProxyDelegationService;
 
@@ -72,6 +73,8 @@ public class VPOA2MPService extends OA2MPService {
     public void preGetCert(Asset asset, Map parameters) {
     	
     	logger.info("Entering VO Portal GetCert Preprocessing");
+    	
+    	parameters.put(ProxyOA2Constants.VOMS_FQAN, ((VPOA2Asset)asset).getVoms_fqan());
     	
     	logger.info("Exiting VO Portal GetCert Preprocessing");
     	
