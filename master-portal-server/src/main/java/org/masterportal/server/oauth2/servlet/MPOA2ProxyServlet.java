@@ -15,6 +15,7 @@ import org.masterportal.myproxy.jglobus.JGlobusCredStoreService;
 import org.masterportal.server.oauth2.MPOA2SE;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2CertServlet;
+import edu.uiuc.ncsa.myproxy.oa4mp.server.ServiceConstantKeys;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.issuers.PAIssuer;
@@ -70,8 +71,20 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
         ServiceTransaction t = verifyAndGet(ppResponse);
         Map params = httpServletRequest.getParameterMap();
 
+        
+        if(params.containsKey(ProxyOA2Constants.PROXY_LIFETIME)) {
+            t.setLifetime(Long.parseLong(((String[]) params.get(ProxyOA2Constants.PROXY_LIFETIME))[0]));
+        	debug("6.a. Setting proxy lifetime from request value " + ProxyOA2Constants.PROXY_LIFETIME + "=" + t.getLifetime());
+        }else{
+        	t.setLifetime(10*24*3600); // set the default to 10 days if there is no certlifetime parameter passed in.
+        	debug("6.a. Setting proxy lifetime from default value = " + t.getLifetime());
+        }
+        
+        
         info("6.a. Processing request for transaction " + t.getIdentifier());
-        doRealProxyRequest(t, statusString, httpServletRequest.getParameter(ProxyOA2Constants.VOMS_FQAN));
+        doRealProxyRequest(t, 
+        				   statusString, 
+        				   httpServletRequest.getParameter(ProxyOA2Constants.VOMS_FQAN));
         t.setAccessTokenValid(false);
         preprocess(new TransactionState(httpServletRequest, httpServletResponse, ppResponse.getParameters(), t));
 
@@ -96,12 +109,13 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
 	protected void doRealProxyRequest(ServiceTransaction trans, String statusString, String voms_fqan) throws Throwable {
 		
 		String username = trans.getUsername();
+		long proxyLifetime = trans.getLifetime();
 		
 		// use jglobus myproxy to connect to the CredStore and retrieve a proxy
 		
 	    CredStoreService credStore = JGlobusCredStoreService.getInstance();
         
-	    /*
+	    
 	    boolean userCertValid = false;
         
         try {    	    
@@ -124,11 +138,11 @@ public class MPOA2ProxyServlet extends OA2CertServlet {
         	// call /forwardetproxy on the Master Portal Client component
         	
         }
-        */
+        
         
     	info("2.a.1 Trying to create proxy certificate for user");
     	//TODO: voms_fqan goes here as 2nd parameter
-    	byte[] userProxy = credStore.doGet(username, voms_fqan);
+    	byte[] userProxy = credStore.doGet(username, (int) proxyLifetime, voms_fqan);
 		
 		// create MyX509Proxy to return
     	MyX509Proxy proxy = new MyX509Proxy(userProxy);

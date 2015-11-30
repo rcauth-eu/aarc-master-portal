@@ -75,7 +75,9 @@ public class VPOA2MPService extends OA2MPService {
     	logger.info("Entering VO Portal GetCert Preprocessing");
     	
     	parameters.put(ProxyOA2Constants.VOMS_FQAN, ((VPOA2Asset)asset).getVoms_fqan());
-    	
+        
+        parameters.put(ProxyOA2Constants.PROXY_LIFETIME, ((VPOA2ClientEnvironment)getEnvironment()).getProxyLifetime());
+            	
     	logger.info("Exiting VO Portal GetCert Preprocessing");
     	
     }

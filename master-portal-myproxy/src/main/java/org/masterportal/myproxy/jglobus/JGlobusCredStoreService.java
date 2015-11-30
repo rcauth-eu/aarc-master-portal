@@ -103,13 +103,8 @@ public class JGlobusCredStoreService implements CredStoreService {
 	/*
 	 *  Execute a MyProxy GET command
 	 */
-	public byte[] doGet(String username, String voms_fqan) throws Exception {
+	public byte[] doGet(String username, int lifetime, String voms_fqan) throws Exception {
 		
-		
-    	int lifetime = Integer.parseInt(properties.getProperty("lifetime"));
-    	if (lifetime <= 0) {
-    		lifetime =  MYPROXY_DEFAULT_PROXY_LIFETIME;
-    	}
     	
         String password = properties.getProperty("password");
         if (password == null) {
@@ -150,6 +145,18 @@ public class JGlobusCredStoreService implements CredStoreService {
     	//return ((GlobusGSSCredentialImpl)userCredentials);
     	return data;
     	
+	}
+	
+	@Override
+	public byte[] doGet(String username,  String voms_fqan) throws Exception {
+		
+    	int lifetime = Integer.parseInt(properties.getProperty("lifetime"));
+    	if (lifetime <= 0) {
+    		lifetime =  MYPROXY_DEFAULT_PROXY_LIFETIME;
+    	}
+    	
+    	return doGet(username, lifetime, voms_fqan);
+
 	}
 	
     

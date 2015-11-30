@@ -9,6 +9,7 @@ public interface CredStoreService {
 	
 	public void doInfo(String username) throws Exception;
 	
+	public byte[] doGet(String username, int lifetime, String voms_fqan) throws Exception;
 	public byte[] doGet(String username, String voms_fqan) throws Exception;
 
 	public byte[] doPutStart(String identifier,String username) throws Exception;

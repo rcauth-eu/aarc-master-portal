@@ -4,6 +4,7 @@ import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientXMLTags;
 
 public interface VPClientXMLTags extends ClientXMLTags {
 
-    public static final String PROXY_ASSET_URI = "proxyassetUri";	
-	
+    public static final String PROXY_ASSET_URI = "proxyAssetUri";	
+    public static final String PROXY_LIFETIME = "proxyLifetime";	
+    
 }

@@ -29,11 +29,14 @@ public class PPServer2 extends PAServer2 {
         //m.put(OA2Constants.REDIRECT_URI,  props.get(OA2Constants.REDIRECT_URI));
         //m.put(OA2Constants.CERT_REQ, String.valueOf(props.get(AbstractClientEnvironment.CERT_REQUEST_KEY)));
         
-        System.out.println("PPServer2 Adding VOMS_FQAN into the map : " +   props.get(ProxyOA2Constants.VOMS_FQAN));
         if ( props.get(ProxyOA2Constants.VOMS_FQAN) != null) {
         	m.put(ProxyOA2Constants.VOMS_FQAN, props.get(ProxyOA2Constants.VOMS_FQAN));
         }
-
+        
+        if ( props.get(ProxyOA2Constants.PROXY_LIFETIME) != null) {
+        	m.put(ProxyOA2Constants.PROXY_LIFETIME, props.get(ProxyOA2Constants.PROXY_LIFETIME));
+        }
+        
         //m.put(OA2Constants.CERT_LIFETIME, String.valueOf(props.get(AbstractClientEnvironment.CERT_LIFETIME_KEY)));
         String response = getServiceClient().getRawResponse(m); // No JSON in the spec. Just a string of proxy.
         
