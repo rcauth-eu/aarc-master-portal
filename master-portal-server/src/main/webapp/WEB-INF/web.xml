@@ -32,7 +32,8 @@
 
     <servlet>
         <servlet-name>initiate</servlet-name>
-        <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizedServlet</servlet-class>
+        <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizedServlet</servlet-class> -->
+        <servlet-class>org.masterportal.server.oauth2.servlet.MPOA2AuthorizedServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>initiate</servlet-name>
@@ -52,8 +53,7 @@
 
     <servlet>
         <servlet-name>getCert</servlet-name>
-        <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2CertServlet</servlet-class> -->
-        <servlet-class>org.masterportal.server.oauth2.servlet.MPOA2CertServlet</servlet-class>
+        <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2CertServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>getCert</servlet-name>
@@ -144,7 +144,7 @@
 
     <listener>
         <!-- <listener-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2Bootstrapper</listener-class> -->
-		<listener-class>org.masterportal.server.oauth2.MPOA2ServerBootstrapper</listener-class>
+		<listener-class>org.masterportal.server.oauth2.loader.MPOA2ServerBootstrapper</listener-class>
     </listener>
 
 <!--

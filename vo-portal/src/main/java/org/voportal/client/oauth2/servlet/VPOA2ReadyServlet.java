@@ -4,7 +4,7 @@ import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
+import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPProxyService;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
@@ -14,15 +14,15 @@ import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
-import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
 
+import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.voportal.client.ProxyAssetResponse;
-import org.voportal.client.oauth2.VPOA2Asset;
-import org.voportal.client.oauth2.VPOA2MPService;
+import org.voportal.voms.VPVomsProxyInfo;
 
+import java.io.File;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.security.cert.X509Certificate;
 
@@ -36,6 +36,10 @@ import java.security.cert.X509Certificate;
  */
 
 public class VPOA2ReadyServlet extends ClientServlet {
+	
+	protected static String PROXY_TMP_DIR = "/tmp";
+	public static String VOMS_INFO_PAGE = "/pages/vomsinfo.jsp";
+	
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
         if (request.getParameterMap().containsKey(OA2Constants.ERROR)) {
@@ -62,15 +66,15 @@ public class VPOA2ReadyServlet extends ClientServlet {
         AuthorizationGrant grant = new AuthorizationGrantImpl(URI.create(token));
         info("2.a. Getting the cert(s) from the service");
         String identifier = clearCookie(request, response);
-        VPOA2Asset asset = null;
+        OA2Asset asset = null;
         if (identifier == null) {
-            asset = (VPOA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
+            asset = (OA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
             if (asset != null) {
                 identifier = asset.getIdentifierString();
             }
         }
         AssetResponse assetResponse = null;
-        VPOA2MPService oa2MPService = (VPOA2MPService) getOA4MPService();
+        OA2MPProxyService oa2MPService = (OA2MPProxyService) getOA4MPService();
 
         UserInfo ui = null;
         if (identifier == null) {
@@ -83,7 +87,7 @@ public class VPOA2ReadyServlet extends ClientServlet {
             ui = oa2MPService.getUserInfo(atResponse2.getAccessToken().toString());
             assetResponse = oa2MPService.getCert(asset, atResponse2);
         } else {
-            asset = (VPOA2Asset) getCE().getAssetStore().get(identifier);
+            asset = (OA2Asset) getCE().getAssetStore().get(identifier);
             if(asset.getState() == null || !asset.getState().equals(state)){
                 warn("The expected state from the server was \"" + asset.getState() + "\", but instead \"" + state + "\" was returned. Transaction aborted.");
                 throw new IllegalArgumentException("Error: The state returned by the server is invalid.");
@@ -91,7 +95,6 @@ public class VPOA2ReadyServlet extends ClientServlet {
             ATResponse2 atResponse2 = oa2MPService.getAccessToken(asset, grant);
           //  ui = oa2MPService.getUserInfo(atResponse2.getAccessToken().getToken());
             ui = oa2MPService.getUserInfo(identifier);
-            
             assetResponse = oa2MPService.getProxy(asset, atResponse2);
 
             // The general case is to do the call with the identifier if you want the asset store managed.
@@ -99,17 +102,17 @@ public class VPOA2ReadyServlet extends ClientServlet {
         }
         // The work in this call
 
+        
+        /*
         // Again, we take the first returned cert to peel off some information to display. This
         // just proves we got a response.
-        //X509Certificate cert = assetResponse.getX509Certificates()[0];
-        byte[] proxy = ((ProxyAssetResponse)assetResponse).getProxy();
-
+        X509Certificate cert = assetResponse.getX509Certificates()[0];
+        
         info("2.b. Done! Displaying success page.");
 
         // Rest of this is putting up something for the user to see
-        //request.setAttribute("certSubject", cert.getSubjectDN());
-        //request.setAttribute("cert", CertUtil.toPEM(assetResponse.getX509Certificates()));
-        request.setAttribute("cert", new String(proxy));
+        request.setAttribute("certSubject", cert.getSubjectDN());
+        request.setAttribute("cert", assetResponse.getCredential().getX509CertificatesPEM() );
         request.setAttribute("username", assetResponse.getUsername());
         if(ui != null) {
             request.setAttribute("userinfo", ui.toJSon());
@@ -126,6 +129,44 @@ public class VPOA2ReadyServlet extends ClientServlet {
         request.setAttribute("action", contextPath);
         info("2.a. Completely finished with delegation.");
         JSPUtil.fwd(request, response, getCE().getSuccessPagePath());
+        */
+        
+        info("2.b. Done! Displaying VOMS INFO.");
+
+        String username = ui.getSub();
+        String tmpProxy = PROXY_TMP_DIR + "/" + username + ".proxy";
+		String proxyString = assetResponse.getCredential().getX509CertificatesPEM();
+        String vomsinfo = null;
+		
+		try {
+			FileOutputStream fOut = new FileOutputStream(new File(tmpProxy));
+			fOut.write( proxyString.getBytes() );
+			fOut.close();
+			
+			vomsinfo = VPVomsProxyInfo.exec(tmpProxy);
+		}
+		catch (Exception e) {
+			
+			System.out.println(e);
+			e.printStackTrace();
+			
+			throw new ServletException("Unable to get voms-info! \nPartial info" + vomsinfo,e);
+			
+		}        
+        
+		request.setAttribute("vomsinfo", vomsinfo);
+		request.setAttribute("proxy", proxyString);
+
+		// Fix in cases where the server request passes through Apache before going to Tomcat.
+
+        String contextPath = request.getContextPath();
+        if (!contextPath.endsWith("/")) {
+            contextPath = contextPath + "/";
+        }
+        info("2.a. Completely finished with delegation.");
+        JSPUtil.fwd(request, response, VOMS_INFO_PAGE);       
+        
+        
         return;
     }
 

@@ -1,50 +1,44 @@
 package org.masterportal.oauth2.client;
 
-import edu.uiuc.ncsa.myproxy.oa4mp.client.OA4MPServiceProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetProvider;
+import edu.uiuc.ncsa.myproxy.oa4mp.server.MyProxyFacadeProvider;
+import edu.uiuc.ncsa.myproxy.oa4mp.server.OA4MPConfigTags;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2AssetConverter;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2AssetSerializationKeys;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientLoader;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2SQLAssetStoreProvider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
-import org.masterportal.myproxy.jglobus.MPCredStoreService;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientXMLTags;
-import edu.uiuc.ncsa.myproxy.oa4mp.client.loader.AbstractClientLoader;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.OA4MPServiceProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.*;
+import edu.uiuc.ncsa.security.core.configuration.Configurations;
 import edu.uiuc.ncsa.security.core.configuration.provider.CfgEvent;
 import edu.uiuc.ncsa.security.core.configuration.provider.TypedProvider;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
-import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
-import edu.uiuc.ncsa.security.delegation.client.DelegationService;
 import edu.uiuc.ncsa.security.delegation.storage.Client;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2ConfigurationLoaderUtils;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2TokenForge;
-import edu.uiuc.ncsa.security.oauth_2_0.client.*;
+
+import java.util.HashMap;
+import java.util.LinkedList;
+import java.util.List;
 
 import javax.inject.Provider;
-import java.net.URI;
-import java.util.Collection;
-import java.util.HashMap;
-
 /**
  * <p>Created by Jeff Gaynor<br>
  * on 4/2/15 at  2:01 PM
  */
-public class MPOA2ClientLoader extends OA2ClientLoader {
+public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoader<T> {
 	
     AssetProvider assetProvider = null;
 
     public MPOA2ClientLoader(ConfigurationNode node) {
         super(node);
     }
-
-    
+  
     @Override
     public OA4MPServiceProvider getServiceProvider() {
         return new MPOA2MPService.MPOA2MPProvider(load());
@@ -55,6 +49,54 @@ public class MPOA2ClientLoader extends OA2ClientLoader {
         return "Master Portal OAuth2/OIDC client configuration loader version " + VERSION_NUMBER;
     }
 
+    
+    
+    
+    /**
+     * Factory method. Override this to create the actual instance as needed.
+     *
+     * @param tokenForgeProvider
+     * @param clientProvider
+     * @param constants
+     * @return
+     */
+    public T createInstance(Provider<TokenForge> tokenForgeProvider,
+                            Provider<Client> clientProvider,
+                            HashMap<String, String> constants) {
+        try {
+            return (T) new MPOA2ClientEnvironment(
+                    myLogger, constants,
+                    getAccessTokenURI(),
+                    getAuthorizeURI(),
+                    getCallback(),
+                    getInitiateURI(),
+                    getAssetURI(),
+                    checkCertLifetime(),
+                    getId(),
+                    getSkin(),
+                    isEnableAssetCleanup(),
+                    getMaxAssetLifetime(),
+                    getKeypairLifetime(),
+                    getAssetProvider(),
+                    clientProvider,
+                    tokenForgeProvider,
+                    getDSP(),
+                    getAssetStoreProvider(),
+                    isShowRedirectPage(),
+                    requestProxies(),
+                    getErrorPagePath(),
+                    getRedirectPagePath(),
+                    getSuccessPagePath(),
+                    getSecret(),
+                    getScopes(),
+                    getMyProxyFacadeProvider()
+            );
+        } catch (Throwable e) {
+            throw new GeneralException("Unable to create client environment", e);
+        }
+    }    
+    
+    
     @Override
     public AssetProvider getAssetProvider() {
         if(assetProvider == null){
@@ -99,5 +141,32 @@ public class MPOA2ClientLoader extends OA2ClientLoader {
         }
         return assetStoreProvider;
     }    
+    
+    
+    protected LinkedList<MyProxyFacadeProvider> mfp = null;
 
+    protected LinkedList<MyProxyFacadeProvider> getMyProxyFacadeProvider() {
+         if (mfp == null) {
+             mfp = new LinkedList<MyProxyFacadeProvider>();
+             // This is the global default for all instances. It can be overridden below.
+             String defaultDN = Configurations.getFirstAttribute(cn, OA4MPConfigTags.MYPROXY_SERVER_DN);
+
+             if (0 < cn.getChildrenCount(OA4MPConfigTags.MYPROXY)) {
+                 List kids = cn.getChildren(OA4MPConfigTags.MYPROXY);
+                 for (int i = 0; i < kids.size(); i++) {
+                     ConfigurationNode currentNode = (ConfigurationNode) kids.get(i);
+                     // Fix for CIL-196.
+                     String currentDN  = Configurations.getFirstAttribute(currentNode, OA4MPConfigTags.MYPROXY_SERVER_DN);
+                     mfp.add(new MyProxyFacadeProvider(((ConfigurationNode) kids.get(i)), (currentDN==null?defaultDN:currentDN)));
+                 }
+
+             } else {
+                 // set up with defaults
+                 mfp.add(new MyProxyFacadeProvider());
+             }
+
+         }
+         return mfp;
+     }    
+    
 }

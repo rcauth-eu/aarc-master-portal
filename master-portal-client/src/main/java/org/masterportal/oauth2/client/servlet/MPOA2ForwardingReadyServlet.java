@@ -1,9 +1,9 @@
 package org.masterportal.oauth2.client.servlet;
 
-
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
+import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
@@ -16,20 +16,14 @@ import edu.uiuc.ncsa.security.servlet.JSPUtil;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
+import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.globus.gsi.gssapi.GlobusGSSCredentialImpl;
-import org.gridforum.jgss.ExtendedGSSCredential;
-import org.masterportal.myproxy.exception.MyProxyCertExpiredExcpetion;
-import org.masterportal.myproxy.exception.MyProxyNoUserException;
-import org.masterportal.myproxy.jglobus.MPCredStoreService;
 import org.masterportal.oauth2.client.MPOA2Asset;
 import org.masterportal.oauth2.client.MPOA2MPService;
 
-import java.io.FileOutputStream;
 import java.net.URI;
-import java.security.Principal;
 
 public class MPOA2ForwardingReadyServlet extends ClientServlet {
 
@@ -61,6 +55,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         info("2.a Token found.");
 
         AuthorizationGrant grant = new AuthorizationGrantImpl(URI.create(token));
+        //String identifier = getIdentifierCookie(request, response);
         String identifier = clearCookie(request, response);
         MPOA2Asset asset = null;
         if (identifier == null) {
@@ -75,11 +70,10 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         
         AssetResponse assetResponse = null;
         UserInfo userInfo = null;
-        MPOA2MPService oa2MPService = (MPOA2MPService) getOA4MPService();
+        OA2MPService oa2MPService = (OA2MPService) getOA4MPService();
         
-        MPCredStoreService mpCredStoreService =  MPCredStoreService.getMPCredStoreService();
-        
-        GlobusGSSCredentialImpl userProxy = null;
+        //MPCredStoreService mpCredStoreService =  MPCredStoreService.getMPCredStoreService();
+       // GlobusGSSCredentialImpl userProxy = null;
 
         // we need an identifier in order to be able to save things into the asset store
         if (identifier == null) {
@@ -117,6 +111,8 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             
             debug("Forwarding back to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
             
+            request.setAttribute("mpclient_session_id", identifier);
+            
             request.setAttribute("code", reqCode);
             request.setAttribute("state", reqState);
             request.setAttribute("username", userSubject);
@@ -133,5 +129,5 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         return;
 		
 	}
-
+	
 }

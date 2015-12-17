@@ -3,17 +3,12 @@ package org.masterportal.oauth2.client.servlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.OA4MPResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetStoreUtil;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.security.core.Identifier;
-import edu.uiuc.ncsa.security.servlet.JSPUtil;
-import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
-
-import java.net.URLEncoder;
+import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import javax.servlet.http.HttpUtils;
 
 import org.masterportal.oauth2.client.MPOA2Asset;
 
@@ -26,27 +21,9 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
         
         OA4MPResponse gtwResp = null;
         // Drumroll please: here is the work for this call.
+       
         Identifier id = AssetStoreUtil.createID();
         gtwResp = getOA4MPService().requestCert(id);
-        
-        
-    	String vomsFQAN = request.getParameter("voms_fqan");
-    	String voRedirectURL = request.getParameter("redirect_url");
-    	
-    	if (vomsFQAN == null || voRedirectURL == null) {
-    		info("1.a.1 No voms fqan, or vo redirect URL received, continuing without it");
-    	} else {
-    		info("1.a.1 voms fqan received : " + vomsFQAN);
-    		info("1.a.1 vo redirect_url received : " + voRedirectURL);
-    		
-    		MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
-    		asset.setVoms_fqan(vomsFQAN);
-    		getCE().getAssetStore().save(asset);
-    		
-    		Cookie voportalRedirect = new Cookie("voportal", voRedirectURL );
-    		voportalRedirect.setMaxAge(60*60);
-    		response.addCookie(voportalRedirect);
-    	}        
         
     	// The MP-Server has to be able to identify its pending authentication session when
     	// the MP-Client returns an authenticated username. For this reason, the code&state 
@@ -64,6 +41,9 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     		MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
     		asset.setRequest_code(code);
     		asset.setRequest_state(state);
+    		
+    		//asset.set
+    		
     		getCE().getAssetStore().save(asset);
     		
     	} else {

@@ -21,6 +21,12 @@
   		  	<version>2.1.0</version>
 		</dependency>
   
+		<dependency>		
+  		  	<groupId>edu.uiuc.ncsa.myproxy</groupId>
+    		<artifactId>myproxy-logon</artifactId>
+    		<version>3.3-SNAPSHOT</version>
+		</dependency>  
+  
     </dependencies>  
   
 </project>

@@ -13,6 +13,28 @@
    <url>http://maven.apache.org</url>
 
     <dependencies>  
+    
+     	<dependency>	
+	    	<groupId>edu.uiuc.ncsa.myproxy</groupId>
+			<artifactId>oa4mp-server-api</artifactId>
+    		<version>3.4-SNAPSHOT</version>
+     	</dependency>	
+    
+    	<!--
+     	<dependency>	
+	    	<groupId>edu.uiuc.ncsa.myproxy</groupId>
+    		<artifactId>myproxy-logon</artifactId>
+    		<version>3.4-SNAPSHOT</version>
+    	</dependency>
+		-->
+		
+		<!--
+     	<dependency>
+         	<groupId>nikhef.oa4mp.oauth2</groupId>
+         	<artifactId>master-portal-common</artifactId>
+         	<version>0.0.1-SNAPSHOT</version>
+     	</dependency>
+     	-->   
 
 		<!--
         <dependency>
@@ -27,11 +49,13 @@
 		</dependency>
 		-->
 		
+		<!--
 		<dependency>
     		<groupId>nikhef.oa4mp</groupId>
     		<artifactId>master-portal-myproxy</artifactId>
     		<version>0.0.1-SNAPSHOT</version>
 		</dependency>
+		-->
 		
 		<dependency>
             <groupId>junit</groupId>
@@ -54,12 +78,12 @@
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-client-api</artifactId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-client-oauth2</artifactId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
             <type>war</type>
             <scope>runtime</scope>
         </dependency>
@@ -72,24 +96,24 @@
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-client-loader-oauth2</artifactId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <groupId>edu.uiuc.ncsa.security.delegation</groupId>
             <artifactId>ncsa-security-delegation-common</artifactId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
         </dependency>
         <dependency>
             <artifactId>ncsa-security-util</artifactId>
             <groupId>edu.uiuc.ncsa.security</groupId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>
         <dependency>
             <artifactId>ncsa-security-delegation-common</artifactId>
             <groupId>edu.uiuc.ncsa.security.delegation</groupId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
             <type>test-jar</type>
             <scope>test</scope>
         </dependency>

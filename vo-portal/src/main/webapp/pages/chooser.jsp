@@ -20,7 +20,7 @@ function redirect() {
 	}
 	
 	//window.location = host + "?voms_fqan=" + fqan + "&redirect_url=" + redirect_url;
-	window.location = host + "?voms_fqan=" + fqan;
+	window.location = host + "?voname=" + fqan;
 }
 </script>
 <head>

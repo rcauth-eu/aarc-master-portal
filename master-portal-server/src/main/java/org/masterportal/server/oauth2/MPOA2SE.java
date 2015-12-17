@@ -26,27 +26,26 @@ public class MPOA2SE extends OA2SE {
 	public MPOA2SE(MyLoggingFacade logger, Provider<TransactionStore> tsp, Provider<ClientStore> csp,
 			int maxAllowedNewClientRequests, long rtLifetime, Provider<ClientApprovalStore> casp,
 			List<MyProxyFacadeProvider> mfp, MailUtilProvider mup, MessagesProvider messagesProvider,
-			Provider<AGIssuer> agip, Provider<ATIssuer> atip, Provider<PAIssuer> paip, Provider<PAIssuer> ppip, Provider<TokenForge> tfp,
+			Provider<AGIssuer> agip, Provider<ATIssuer> atip, Provider<PAIssuer> paip, Provider<TokenForge> tfp,
 			HashMap<String, String> constants, AuthorizationServletConfig ac, UsernameTransformer usernameTransformer,
 			boolean isPingable, int clientSecretLength, Collection<String> scopes, ScopeHandler scopeHandler,
-			boolean isRefreshTokenEnabled) {
+			boolean isRefreshTokenEnabled, String myproxyPassword) {
 		
 		super(logger, tsp, csp, maxAllowedNewClientRequests, rtLifetime, casp, mfp, mup, messagesProvider, agip, atip, paip,
 				tfp, constants, ac, usernameTransformer, isPingable, clientSecretLength, scopes, scopeHandler,
 				isRefreshTokenEnabled);
 		
-		this.ppip = ppip;
+		this.myproxyPassword = myproxyPassword;
 	}
-
-	protected Provider<PAIssuer> ppip;
 	
-    public PAIssuer getPpIssuer() {
-        if (ppIssuer == null) {
-            ppIssuer = ppip.get();
-        }
-        return ppIssuer;
-    }
-
-    protected PAIssuer ppIssuer;	
-	
+    protected String myproxyPassword;
+    
+    public void setMyproxyPassword(String myproxyPassword) {
+		this.myproxyPassword = myproxyPassword;
+	}
+    
+    public String getMyproxyPassword() {
+		return myproxyPassword;
+	}
+    
 }

@@ -21,8 +21,6 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 	public Asset fromMap(ConversionMap<String, Object> map, Asset asset) {
 		MPOA2Asset a = (MPOA2Asset) super.fromMap(map,asset);
 		
-		a.setVoms_fqan(map.getString(getASK().voms_fqan()));
-		
 		a.setRequest_state(map.getString(getASK().request_state));
 		a.setRequest_code(map.getString(getASK().request_code));
 		
@@ -34,10 +32,6 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 		super.toMap(asset, map);
 		
 		MPOA2Asset a = (MPOA2Asset) super.fromMap(map,asset);
-		
-		if (a.getVoms_fqan() != null) {
-			map.put(getASK().voms_fqan(), a.getVoms_fqan());
-		}
 
 		if (a.getRequest_code() != null) {
 			map.put(getASK().request_code(), a.getRequest_code());

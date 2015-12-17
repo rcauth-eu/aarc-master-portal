@@ -44,7 +44,20 @@
         <!--what needs to be in the url, so http://foo.org/client/simple-->
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>forwardGetCert</servlet-name>
+        <servlet-class>org.masterportal.oauth2.client.servlet.MPOA2ForwardingGetCertServer</servlet-class>
+        <load-on-startup>1</load-on-startup>
+        <!--load as soon as tomcat starts?-->
+    </servlet>
 
+    <servlet-mapping>
+        <servlet-name>forwardGetCert</servlet-name>
+        <!--the servlet-name above-->
+        <url-pattern>/forwardgetcert</url-pattern>
+        <!--what needs to be in the url, so http://foo.org/client/simple-->
+    </servlet-mapping>
+    
     <welcome-file-list>
         <welcome-file>
             index.html <!--default file to be displayed at http://foo.org/client-->

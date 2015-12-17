@@ -14,6 +14,13 @@
         
      	<dependency>
          	<groupId>nikhef.oa4mp.oauth2</groupId>
+         	<artifactId>master-portal-common</artifactId>
+         	<version>0.0.1-SNAPSHOT</version>
+     	</dependency>         
+        
+        <!--
+     	<dependency>
+         	<groupId>nikhef.oa4mp.oauth2</groupId>
          	<artifactId>aarc-portal-delegation</artifactId>
          	<version>0.0.1-SNAPSHOT</version>
      	</dependency>         
@@ -22,24 +29,31 @@
          	<artifactId>master-portal-myproxy</artifactId>
          	<version>0.0.1-SNAPSHOT</version>
      	</dependency>   
+        -->
         
 		<dependency>
     		<groupId>edu.uiuc.ncsa.myproxy</groupId>
     		<artifactId>oa4mp-server-oauth2</artifactId>
-    		<version>3.3-SNAPSHOT</version>
+    		<version>3.4-SNAPSHOT</version>
             <type>war</type>
             <scope>runtime</scope>    		
 		</dependency>
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-server-loader-oauth2</artifactId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
         </dependency>
-		
+                <dependency>
+            <groupId>edu.uiuc.ncsa.myproxy</groupId>
+            <artifactId>myproxy-logon</artifactId>
+            <version>3.4-SNAPSHOT</version>
+        </dependency>
+        
+        		
         <dependency>
             <groupId>edu.uiuc.ncsa.security.delegation</groupId>
             <artifactId>ncsa-security-oauth-2.0</artifactId>
-            <version>3.3-SNAPSHOT</version>
+            <version>3.4-SNAPSHOT</version>
         </dependency>		
 		
         <dependency>
