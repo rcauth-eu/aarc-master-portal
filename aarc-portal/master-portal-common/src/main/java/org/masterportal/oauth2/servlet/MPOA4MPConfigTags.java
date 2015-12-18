@@ -1,4 +1,4 @@
-package org.masterportal.server;
+package org.masterportal.oauth2.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.server.OA4MPConfigTags;
 

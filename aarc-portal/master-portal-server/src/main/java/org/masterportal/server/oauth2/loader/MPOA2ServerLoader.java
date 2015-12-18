@@ -3,7 +3,7 @@ package org.masterportal.server.oauth2.loader;
 import javax.inject.Provider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
-import org.masterportal.server.MPOA4MPConfigTags;
+import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
 import org.masterportal.server.oauth2.MPOA2SE;
 import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
 import org.masterportal.server.oauth2.storage.MPOA2TConverter;

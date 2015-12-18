@@ -8,6 +8,13 @@
   <artifactId>master-portal-common</artifactId>
   
   <dependencies>
+  
+       	<dependency>	
+	    	<groupId>edu.uiuc.ncsa.myproxy</groupId>
+			<artifactId>oa4mp-server-api</artifactId>
+    		<version>3.4-SNAPSHOT</version>
+     	</dependency>	
+  
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>

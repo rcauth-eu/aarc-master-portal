@@ -92,11 +92,12 @@ public class MPOA2MPService extends OA2MPService {
 
 	public void putCert(AssetResponse assetResp, OA2Asset asset) throws Throwable {
 
-		//String myproxyPasswrod  = ((MPOA2ClientEnvironment)getEnvironment()).getClientId();
-		String myproxyPasswrod  = "aaaaaa";
-		long lifetime = 86000000;
+		String myproxyPasswrod  = ((MPOA2ClientEnvironment)getEnvironment()).getMyproxyPassword();
+		long lifetime = getEnvironment().getCertLifetime();
+		
 		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime, null);
 		
+		mp.setLifetime(lifetime * 1000);
 		mp.doPut( assetResp.getX509Certificates() , asset.getPrivateKey());
 		
 	}
