@@ -7,6 +7,7 @@ import java.io.IOException;
 import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
 import java.util.logging.Logger;
 
@@ -86,21 +87,26 @@ public class ProxyUtil {
 		return pKey;
 	}
 	
-	public static X509Certificate[] generateProxy(MyPKCS10CertRequest csr, PrivateKey pKey, X509Certificate[] chain) throws Throwable {
+	public static X509Certificate[] generateProxy(MyPKCS10CertRequest csr, PrivateKey pKey, X509Certificate[] chain, long lifetime) throws Throwable {
 		
-		PKCS10CertificationRequest certReq = new PKCS10CertificationRequest(csr.getEncoded());
-		
-		ProxyRequestOptions proxyReq = new ProxyRequestOptions(chain, certReq);
-		
-		return ProxyGenerator.generate(proxyReq, pKey);
+		return generateProxy(csr.getEncoded(), pKey, chain, lifetime);
 	}
 	
-	public static X509Certificate[] generateProxy(byte[] csr, PrivateKey pKey, X509Certificate[] chain) throws Throwable {
+	public static X509Certificate[] generateProxy(byte[] csr, PrivateKey pKey, X509Certificate[] chain, long lifetime) throws Throwable {
+		
+		//long hours = 24*365;
+		long five_minutes = 60000 * 5;
 		
 		PKCS10CertificationRequest certReq = new PKCS10CertificationRequest(csr);
 		
 		ProxyRequestOptions proxyReq = new ProxyRequestOptions(chain, certReq);
 		proxyReq.setProxyPathLimit( Integer.MAX_VALUE );
+		
+		long now = System.currentTimeMillis();
+		Date notBefore = new Date(now - five_minutes);
+		Date notAfter = new Date(now + lifetime);
+		
+		proxyReq.setValidityBounds(notBefore, notAfter);
 		
 		return ProxyGenerator.generate(proxyReq, pKey);
 		

@@ -116,7 +116,8 @@ public class MyProxy extends MyProxyLogon {
 	        }
 	        
 	        // generate proxy from CSR
-	        X509Certificate[] proxy = ProxyUtil.generateProxy(csr, pKey, chain);
+	        mlf.debug("Generating proxy with lifetime (seconds) : " + lifetime );
+	        X509Certificate[] proxy = ProxyUtil.generateProxy(csr, pKey, chain, ((long)lifetime) * 1000);
 
 	        if ( this.mlf != null ) {
 	        	mlf.debug("----------- Generated Proxy for MyProxy PUT -----------");
