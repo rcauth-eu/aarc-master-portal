@@ -25,7 +25,11 @@ public class MyProxyConnection implements MyProxyConnectable {
 		this.myproxy.doPut(chain, privateKey);
 	}
 	
-	
+	@Override
+	public void doStore(X509Certificate[] chain, PrivateKey privateKey) throws Throwable {
+		resetConnection();
+		this.myproxy.doStore(chain, privateKey);
+	}
 	
 	@Override
 	public String doInfo() throws MyProxyException {

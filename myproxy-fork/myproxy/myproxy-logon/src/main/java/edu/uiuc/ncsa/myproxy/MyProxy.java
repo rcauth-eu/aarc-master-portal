@@ -17,8 +17,10 @@ import javax.security.auth.login.FailedLoginException;
 import org.apache.commons.codec.binary.Base64;
 
 import edu.uiuc.ncsa.myproxy.exception.MyProxyNoUserException;
+import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
+import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 import edu.uiuc.ncsa.security.util.pkcs.ProxyUtil;
 
 public class MyProxy extends MyProxyLogon {
@@ -32,12 +34,13 @@ public class MyProxy extends MyProxyLogon {
     }
 
     public MyProxy(MyLoggingFacade myLoggingFacade, String serverDN) {
-        super(myLoggingFacade, serverDN);
+    	super(myLoggingFacade, serverDN);
     }
 	
 	protected final static String COMMAND = "COMMAND=";
 	protected final static String INFO_COMMAND = "2";	
 	protected final static String PUT_COMMAND = "1";	
+	protected final static String STORE_COMMAND = "5";		
 	
     protected static final String CRED            = "CRED_";
     protected static final String OWNER           = "OWNER=";
@@ -56,6 +59,103 @@ public class MyProxy extends MyProxyLogon {
     protected static final String CRED_RENEWER    = CRED + RENEWER;
     protected static final String CRED_NAME       = CRED + "NAME=";	
 	
+    public static String LINE_SEP;
+    public static byte[] LINE_SEP_BYTES;
+    
+    static {
+        LINE_SEP = System.getProperty("line.separator");
+        LINE_SEP_BYTES = LINE_SEP.getBytes();
+    }
+    
+    public void store() throws Throwable {
+    	
+        if (this.state != State.CONNECTED) {
+            this.connect();
+        }
+        
+        try {
+        	
+            this.socketOut.write('0');
+            this.socketOut.flush();
+            
+            this.socketOut.write(VERSION.getBytes());
+            this.socketOut.write('\n');
+            this.socketOut.write(COMMAND.getBytes());
+            this.socketOut.write(STORE_COMMAND.getBytes());
+            this.socketOut.write('\n');
+            this.socketOut.write(USERNAME.getBytes());
+            this.socketOut.write(this.username.getBytes());
+            this.socketOut.write('\n');
+            this.socketOut.write(PASSPHRASE.getBytes());
+            this.socketOut.write("".getBytes());
+            this.socketOut.write('\n');
+            this.socketOut.write(LIFETIME.getBytes());
+            this.socketOut.write(Integer.toString(this.lifetime).getBytes());
+            this.socketOut.write('\n');
+            this.socketOut.flush();
+
+            this.state = State.LOGGEDON;
+            
+        }     
+        catch (Throwable t) {
+            handleException(t, getClass().getSimpleName() + " STORE failed.");
+        }	      	
+    	
+    }
+    
+    public void doStore(X509Certificate[] chain, PrivateKey pKey) throws Throwable {
+    	
+		try {
+		    
+			// close any previously opened connection
+			if (this.state == State.LOGGEDON) {
+	            this.disconnect();
+	        }
+	        
+			// open new connection and send STORE request parameters
+	        store();
+            handleResponse();
+            
+            // send certificate , private key and the rest of the chain.
+	    	if (chain.length < 1) {
+	    		throw new GeneralException("No Certificate chain provided to the STORE method!");
+	    	}
+	    	
+	        if ( this.mlf != null ) {
+		        mlf.debug("----------- Uploading proxy with MyProxy STORE -----------");
+		        
+		        mlf.debug( CertUtil.toPEM(chain[0]) );
+		        mlf.debug( KeyUtil.toPKCS1PEM(pKey) );
+		        for (int i=1; i < chain.length; i++) {
+		        	mlf.debug( CertUtil.toPEM(chain[i]) );
+		        }
+		        mlf.debug("----------- Uploading proxy with MyProxy STORE -----------");
+	        }
+	        
+	    	this.socketOut.write( CertUtil.toPEM(chain[0]).getBytes() );
+	    	this.socketOut.write(LINE_SEP_BYTES);
+	    	
+	    	this.socketOut.write( KeyUtil.toPKCS1PEM(pKey).getBytes() );
+	    	this.socketOut.write(LINE_SEP_BYTES);
+	    	
+	    	for (int i=1; i < chain.length; i++) {
+	    		this.socketOut.write( CertUtil.toPEM(chain[i]).getBytes() );
+	    		this.socketOut.write(LINE_SEP_BYTES);
+	    	}
+	    	
+	    	this.socketOut.flush();
+	    	
+	    	handleResponse();
+	    	
+		} catch (Throwable t) {
+	           handleException(t, getClass().getSimpleName() + " failure executing PUT.");
+		}	
+		finally {
+        	this.state = State.DONE;
+        }		
+		
+    }
+    
     public void put() throws Throwable {
     	
         if (this.state != State.CONNECTED) {
@@ -248,7 +348,7 @@ public class MyProxy extends MyProxyLogon {
             }	        
             
             MyProxyCredentialInfo[] creds = new MyProxyCredentialInfo[1 + credMap.size()];
-            creds[0] = info; // defailt creds at position 0
+            creds[0] = info; // default creds at position 0
 
             if (credMap.size() > 0) {
                 int i = 1;

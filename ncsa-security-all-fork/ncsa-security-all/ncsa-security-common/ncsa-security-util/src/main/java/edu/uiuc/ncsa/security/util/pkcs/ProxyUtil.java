@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.security.PrivateKey;
+import java.security.cert.CertificateException;
 import java.security.cert.X509Certificate;
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,6 +14,8 @@ import java.util.logging.Logger;
 
 import org.bouncycastle.pkcs.PKCS10CertificationRequest;
 
+import eu.emi.security.authn.x509.proxy.ProxyChainInfo;
+import eu.emi.security.authn.x509.proxy.ProxyChainType;
 import eu.emi.security.authn.x509.proxy.ProxyGenerator;
 import eu.emi.security.authn.x509.proxy.ProxyRequestOptions;
 
@@ -112,11 +115,29 @@ public class ProxyUtil {
 		
 	}	
 	
-	
+	public static boolean isProxy(X509Certificate[] chain) {
+		
+		try {
+			
+			ProxyChainInfo chainInfo = new ProxyChainInfo(chain);
+			ProxyChainType proxyType = chainInfo.getProxyType();
+			
+			if ( proxyType != null) {
+				return true;
+			} else {
+				return false;
+			}
+			
+		} catch (CertificateException e) {
+			//no proxy found in the chain. must be an EEC
+			return false;
+		}
+	}
 	
 	public static void main(String[] args) throws IOException {
 		
-		File f = new File("/tmp/proxy");
+		//File f = new File("/tmp/proxy");
+		File f = new File("/tmp/noproxy");
 		FileInputStream stream = new FileInputStream(f);
 		
 		int limit = stream.available();
@@ -125,8 +146,15 @@ public class ProxyUtil {
 		
 		//System.out.println(new String(proxy));
 		
-		//certificatesFromProxy(proxy);
-		keyFromProxy(proxy);
+		X509Certificate[] chain =  certificatesFromProxy(proxy);
+		if ( isProxy(chain) ) {
+			System.out.println("it's a proxy!");
+		} else {
+			System.out.println("it's NOT a proxy!");
+		}
+
+		
+		//keyFromProxy(proxy);
 		
 		stream.close();
 	}

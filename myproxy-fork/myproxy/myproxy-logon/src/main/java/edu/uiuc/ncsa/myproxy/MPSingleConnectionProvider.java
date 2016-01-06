@@ -93,6 +93,11 @@ public class MPSingleConnectionProvider<T extends MyProxyConnectable> implements
 			throw new NotImplementedException();
 		}
 
+		@Override
+		public void doStore(X509Certificate[] chain, PrivateKey privateKey) throws Throwable {
+			throw new NotImplementedException();
+		}
+		
         @Override
         public String doInfo() {
         	throw new NotImplementedException();
