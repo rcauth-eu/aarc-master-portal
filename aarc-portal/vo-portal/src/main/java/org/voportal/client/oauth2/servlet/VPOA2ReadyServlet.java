@@ -26,15 +26,6 @@ import java.io.FileOutputStream;
 import java.net.URI;
 import java.security.cert.X509Certificate;
 
-/**
- * A very, very simple (as in stupid) ready servlet. This is the target of the callback uri supplied in
- * the initial request. <br><br>This example is intended to show control flow rather than be a polished application.
- * Feel free to boilerplate from it as needed. Do not deploy this in production environments.
- * <p>Created by Jeff Gaynor<br>
- * <p/>
- * on 2/10/12 at  1:43 PM
- */
-
 public class VPOA2ReadyServlet extends ClientServlet {
 	
 	protected static String PROXY_TMP_DIR = "/tmp";

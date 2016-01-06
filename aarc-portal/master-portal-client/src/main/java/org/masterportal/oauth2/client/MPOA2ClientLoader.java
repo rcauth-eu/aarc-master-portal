@@ -28,10 +28,7 @@ import java.util.LinkedList;
 import java.util.List;
 
 import javax.inject.Provider;
-/**
- * <p>Created by Jeff Gaynor<br>
- * on 4/2/15 at  2:01 PM
- */
+
 public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoader<T> {
 	
     AssetProvider assetProvider = null;
