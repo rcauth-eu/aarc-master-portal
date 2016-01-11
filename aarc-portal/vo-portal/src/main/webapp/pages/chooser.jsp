@@ -4,23 +4,32 @@
 <!DOCTYPE html PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
 <html>
 <script type="text/javascript">
-function redirect() {
+function redirect(voms) {
 
-	var host = "${redirect_host}"
-	//var redirect_url = "${redirect_url}"
-	var volist = document.getElementById("volist");
-	var vo = volist.options[volist.selectedIndex].text
-	
-	var roles = document.getElementById("roles").value;
-	var fqan;
-	if (roles) {
-		fqan = vo + ":" + roles;
-	} else {
-		fqan = vo;
-	}
-	
-	//window.location = host + "?voms_fqan=" + fqan + "&redirect_url=" + redirect_url;
-	window.location = host + "?voname=" + fqan;
+    var host = "${redirect_host}"
+    //var redirect_url = "${redirect_url}"
+
+    if (voms) {
+
+            var volist = document.getElementById("volist");
+            var vo = volist.options[volist.selectedIndex].text
+
+            var roles = document.getElementById("roles").value;
+            var fqan;
+            if (roles) {
+                    fqan = vo + ":" + roles;
+            } else {
+                    fqan = vo;
+            }
+
+            //window.location = host + "?voms_fqan=" + fqan + "&redirect_url=" + redirect_url;
+            window.location = host + "?voname=" + fqan;
+
+    } else {
+
+             window.location = host
+
+    }
 }
 </script>
 <head>
@@ -48,7 +57,12 @@ FAQN :
 
 <br><br>
 
-<button onclick="redirect()">Go Go!</button>
+<button onclick="redirect(true)">Get VOMS Proxy</button>
+
+or
+
+<button onclick="redirect(false)">Get Proxy</button>
+
 
 </body>
 </html>

@@ -28,7 +28,7 @@
 
 <body>
 
-	<h1>You now possess the following voms proxy</h1>
+	<h1>You now possess the following proxy</h1>
 	
 	<br><br>
 	
