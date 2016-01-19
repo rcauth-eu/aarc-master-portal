@@ -18,7 +18,7 @@
 
     <servlet-mapping>
         <servlet-name>VOChooser</servlet-name>
-        <url-pattern>/vos</url-pattern>
+        <url-pattern>/</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -55,12 +55,14 @@
     </servlet-mapping>
 
 
+    <!-- 
     <welcome-file-list>
         <welcome-file>
-            index.html <!--default file to be displayed at http://foo.org/client-->
+            index.html
         </welcome-file>
-
     </welcome-file-list>
+    -->
+    
     <listener>
         <listener-class>org.voportal.client.oauth2.VPOA2ClientBootstrapper</listener-class>
     </listener>

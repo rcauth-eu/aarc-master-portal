@@ -15,7 +15,6 @@ import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
 
-import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -24,7 +23,6 @@ import org.voportal.voms.VPVomsProxyInfo;
 import java.io.File;
 import java.io.FileOutputStream;
 import java.net.URI;
-import java.security.cert.X509Certificate;
 
 public class VPOA2ReadyServlet extends ClientServlet {
 	
@@ -69,14 +67,10 @@ public class VPOA2ReadyServlet extends ClientServlet {
 
         UserInfo ui = null;
         if (identifier == null) {
-            // Since this is a demo servlet, we don't blow up if there is no identifier found, just can't save anything.
-            String msg = "Error: no cookie found. Cannot save certificates";
-            warn(msg);
-            debug("No cookie found");
-            //if(asset == null) asset = new OA2Asset(BasicIdentifier.newID())
-            ATResponse2 atResponse2 = oa2MPService.getAccessToken(asset, grant);
-            ui = oa2MPService.getUserInfo(atResponse2.getAccessToken().toString());
-            assetResponse = oa2MPService.getCert(asset, atResponse2);
+            
+        	debug("No cookie found! Cannot identify session!");
+            throw new GeneralException("Unable to identify session!");
+            
         } else {
             asset = (OA2Asset) getCE().getAssetStore().get(identifier);
             if(asset.getState() == null || !asset.getState().equals(state)){
@@ -84,43 +78,9 @@ public class VPOA2ReadyServlet extends ClientServlet {
                 throw new IllegalArgumentException("Error: The state returned by the server is invalid.");
             }
             ATResponse2 atResponse2 = oa2MPService.getAccessToken(asset, grant);
-          //  ui = oa2MPService.getUserInfo(atResponse2.getAccessToken().getToken());
             ui = oa2MPService.getUserInfo(identifier);
             assetResponse = oa2MPService.getProxy(asset, atResponse2);
-
-            // The general case is to do the call with the identifier if you want the asset store managed.
-            //assetResponse = getOA4MPService().getCert(token, null, BasicIdentifier.newID(identifier));
         }
-        // The work in this call
-
-        
-        /*
-        // Again, we take the first returned cert to peel off some information to display. This
-        // just proves we got a response.
-        X509Certificate cert = assetResponse.getX509Certificates()[0];
-        
-        info("2.b. Done! Displaying success page.");
-
-        // Rest of this is putting up something for the user to see
-        request.setAttribute("certSubject", cert.getSubjectDN());
-        request.setAttribute("cert", assetResponse.getCredential().getX509CertificatesPEM() );
-        request.setAttribute("username", assetResponse.getUsername());
-        if(ui != null) {
-            request.setAttribute("userinfo", ui.toJSon());
-        }else{
-            request.setAttribute("userinfo", "no user info returned.");
-
-        }
-        // Fix in cases where the server request passes through Apache before going to Tomcat.
-
-        String contextPath = request.getContextPath();
-        if (!contextPath.endsWith("/")) {
-            contextPath = contextPath + "/";
-        }
-        request.setAttribute("action", contextPath);
-        info("2.a. Completely finished with delegation.");
-        JSPUtil.fwd(request, response, getCE().getSuccessPagePath());
-        */
         
         info("2.b. Done! Displaying VOMS INFO.");
 
@@ -137,12 +97,7 @@ public class VPOA2ReadyServlet extends ClientServlet {
 			vomsinfo = VPVomsProxyInfo.exec(tmpProxy);
 		}
 		catch (Exception e) {
-			
-			System.out.println(e);
-			e.printStackTrace();
-			
-			throw new ServletException("Unable to get voms-info! \nPartial info" + vomsinfo,e);
-			
+			throw new GeneralException("Unable to execute voms-proxy-info on the returned chain!",e);
 		}        
         
 		request.setAttribute("vomsinfo", vomsinfo);

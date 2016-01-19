@@ -15,6 +15,7 @@ import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ProxyServlet;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 
+import org.masterportal.server.oauth2.MPOA2RequestForwarder;
 import org.masterportal.server.oauth2.MPOA2SE;
 import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
 
@@ -90,7 +91,11 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
      
 		RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MP_CLIENT_FORWARD_GETCERT);
 		// use include instead of forward here so that the responses returned to the requester will be aggregated
-		dispatcher.include( request , response );        
+		// without this, the certificate will not be included into the response, since the response is already 
+		// written by the forwarding call.
+		//dispatcher.include( request , response );        
+		
+		MPOA2RequestForwarder.forwardRequest(request, response, dispatcher, true);
 		
 	    info("Ended forwarding getCert to Master Portal Client");
 	    

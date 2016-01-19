@@ -3,6 +3,8 @@ package org.masterportal.oauth2.client.servlet;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.HttpStatus;
+
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
@@ -31,6 +33,8 @@ public class MPOA2ForwardingGetCertServer extends ClientServlet {
         	ATResponse2 atResponse2 = new ATResponse2(asset.getAccessToken(), asset.getRefreshToken());
         	AssetResponse assetResponse  = oa2MPService.getCert(asset, atResponse2);
        	
+        	// set status code, so the calling OA4MP Server will know that the call sucseeded. 
+        	response.setStatus(HttpStatus.SC_OK);
         }
 		
 	}

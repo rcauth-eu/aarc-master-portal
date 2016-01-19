@@ -57,32 +57,32 @@ public class MPOA2MPService extends OA2MPService {
 		AssetResponse par = super.getCert(a, atResponse2);
 
 		logger.debug("Certificate request ended, trying to store the received cert in the Credential Store");
+
+		try {
 		
-		if ( ProxyUtil.isProxy(par.getX509Certificates()) ) {
-
-			logger.debug("Using MyProxy STORE to store credential");
-			
-			// Proxy Certificate use STORE
-			try {
+			if ( ProxyUtil.isProxy(par.getX509Certificates()) ) {
+	
+				logger.debug("Using MyProxy STORE to store credential");
+				// Proxy Certificate use STORE
 				storeProxy(par,a);
-			} catch (Throwable e) {
-				throw new GeneralException(e);
-			}	
-			
-		} else {
-
-			logger.debug("Using MyProxy PUT to store credential");
-			
-			// User EE Certificate use PUT
-			try {
+	
+			} else {
+	
+				logger.debug("Using MyProxy PUT to store credential");
+				// User EE Certificate use PUT
 				putCert(par,a);
-			} catch (Throwable e) {
+				
+			}
+	
+			return par;
+		
+		} catch (Throwable e) {
+			if (e instanceof GeneralException) {
+				throw (GeneralException) e;
+			} else {
 				throw new GeneralException(e);
 			}
-			
 		}
-
-		return par;
 	}
 
 	public void putCert(AssetResponse assetResp, OA2Asset asset) throws Throwable {

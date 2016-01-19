@@ -3,6 +3,7 @@ package org.voportal.client.oauth2;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientBootstrapper;
 import edu.uiuc.ncsa.security.core.exceptions.MyConfigurationException;
 import edu.uiuc.ncsa.security.core.util.ConfigurationLoader;
+import edu.uiuc.ncsa.security.servlet.Initialization;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
 
@@ -27,6 +28,11 @@ public class VPOA2ClientBootstrapper extends OA2ClientBootstrapper {
     @Override
     public ConfigurationLoader getConfigurationLoader(ConfigurationNode node) throws MyConfigurationException {
         return new VPOA2ClientLoader(node);
+    }
+    
+    @Override
+    public Initialization getInitialization() {
+    	return new MPOA2ClientServletInitializer();
     }
     
 }
