@@ -10,6 +10,8 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.masterportal.oauth2.MPClientContext;
+import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.client.MPOA2Asset;
 
 
@@ -32,8 +34,8 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     	// will send the code&state pair together with the authenticated username back to 
     	// the MP-Server.
  
-    	String code = (String) request.getAttribute("code");
-    	String state = (String) request.getAttribute("state");    	
+    	String code = (String) request.getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE);
+    	String state = (String) request.getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE);    	
     	
     	if (code != null && state != null) {
     		
@@ -51,10 +53,10 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     	}
     	
         // if there is a store, store something in it.
-        Cookie cookie = new Cookie(OA4MP_CLIENT_REQUEST_ID, id.getUri().toString());
+        Cookie cookie = new Cookie(MPClientContext.MP_CLIENT_REQUEST_ID, id.getUri().toString());
         cookie.setMaxAge(15 * 60); // 15 minutes
         cookie.setSecure(true);
-        cookie.setPath("/mp-oa2-client");
+        cookie.setPath(MPClientContext.MP_CLIENT_CONTEXT);
         debug("id = " + id.getUri());
         response.addCookie(cookie);
         info("1.b. Got response. Creating page with redirect for " + gtwResp.getRedirect().getHost());

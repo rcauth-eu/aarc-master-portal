@@ -15,15 +15,14 @@ import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ProxyServlet;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 
+import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.server.oauth2.MPOA2RequestForwarder;
 import org.masterportal.server.oauth2.MPOA2SE;
 import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
 
 public class MPOA2ProxyServlet extends OA2ProxyServlet {
 
-	public static final String MP_CLIENT_CONTEXT = "/mp-oa2-client";
-	public static final String MP_CLIENT_FORWARD_GETCERT = "/forwardgetcert";
-	
+
 	@Override
 	protected void checkMPConnection(OA2ServiceTransaction st) throws GeneralSecurityException {
         if (!hasMPConnection(st)) {
@@ -74,7 +73,6 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         	
         }
         		
-        		
 	}
 
 	protected void forwardRealCertRequest(ServiceTransaction trans, HttpServletRequest request, HttpServletResponse response) throws Throwable {
@@ -83,13 +81,13 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 		
 		// extract client session ID and send it along with the request
 		String clientID = ((MPOA2ServiceTransaction)trans).getClientSessionIdentifier();
-		request.setAttribute("identifier", clientID);
+		request.setAttribute(MPClientContext.MP_CLIENT_REQUEST_ID, clientID);
 		
 		// forward request to MP-Client
 		ServletContext serverContext = getServletConfig().getServletContext();
-		ServletContext clientContext = serverContext.getContext(MP_CLIENT_CONTEXT);
+		ServletContext clientContext = serverContext.getContext(MPClientContext.MP_CLIENT_CONTEXT);
      
-		RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MP_CLIENT_FORWARD_GETCERT);
+		RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_FWGETCERT_ENDPOINT);
 		// use include instead of forward here so that the responses returned to the requester will be aggregated
 		// without this, the certificate will not be included into the response, since the response is already 
 		// written by the forwarding call.

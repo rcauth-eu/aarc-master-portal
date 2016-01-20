@@ -14,6 +14,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.masterportal.oauth2.MPClientContext;
+import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.servlet.util.CookieAwareHttpServletResponse;
 import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
 
@@ -30,12 +32,6 @@ import java.util.Map;
  * <p>Created by Tamas Balogh</p>
  */
 public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
-    
-	//TODO: see if some if these constants can be moved to a more suitable location
-	public static final String MP_CLIENT_CONTEXT = "/mp-oa2-client";
-	public static final String MP_CLIENT_START_ENDPOINT = "/startRequest";
-	public static final String OA4MP_CLIENT_REQUEST_ID = "oa4mp_client_req_id";
-	
 	
 	/*
 	 * This method is called at the end of the original AuthN flow which displays an jsp expecting a username and 
@@ -56,9 +52,9 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     			
     			// forward request
     			ServletContext serverContext = getServletConfig().getServletContext();
-    			ServletContext clientContext = serverContext.getContext(MP_CLIENT_CONTEXT);
+    			ServletContext clientContext = serverContext.getContext(MPClientContext.MP_CLIENT_CONTEXT);
              
-    			RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MP_CLIENT_START_ENDPOINT);
+    			RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_START_ENDPOINT);
     			dispatcher.forward(state.getRequest(), response);
         	
     			info("Done with authorization request forwarding");
@@ -66,7 +62,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     			// extract the cookie containing the clientID 
     			// this cookie is then saved into the transaction store so that we can tie the MP-Client session to
     			// the MP-Server session in upcoming requests.
-    			String clientID = response.getCookie(OA4MP_CLIENT_REQUEST_ID);
+    			String clientID = response.getCookie(MPClientContext.MP_CLIENT_REQUEST_ID);
     			((MPOA2ServiceTransaction)aState.getTransaction()).setClientSessionIdentifier(clientID);
     			getTransactionStore().save( aState.getTransaction() );
     			
@@ -90,7 +86,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         super.prepare(state);
 
         if (state.getState() == AUTHORIZATION_ACTION_OK) {
-            String username = (String) state.getRequest().getAttribute("username");
+            String username = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME);
             ((AuthorizedState)state).getTransaction().setUsername(username);  
         }
     }

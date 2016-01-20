@@ -1,0 +1,25 @@
+package org.masterportal.oauth2;
+
+
+public interface MPServerContext {
+
+	// This value should correspond to the Master Portal OA4MP Server root context.
+	// This is derived from the deployment war name taken from the client pom.xml	
+	public static final String MP_SERVER_CONTEXT = "/mp-oauth2";
+	
+	/*
+	 *  /authorize
+	 */
+	
+	public static final String MP_SERVER_AUTHORIZE_ENDPOINT = "/authorize";
+	
+	// parameters expected when calling the /authorize endpoint after successful authentication
+	public static final String MP_SERVER_AUTHORIZE_CODE = "code";
+	public static final String MP_SERVER_AUTHORIZE_STATE = "state";
+	public static final String MP_SERVER_AUTHORIZE_USERNAME = "username";
+	public static final String MP_SERVER_AUTHORIZE_ACTION = "action";
+	
+	public static final String MP_SERVER_AUTHORIZE_ACTION_OK = "ok";
+
+	
+}

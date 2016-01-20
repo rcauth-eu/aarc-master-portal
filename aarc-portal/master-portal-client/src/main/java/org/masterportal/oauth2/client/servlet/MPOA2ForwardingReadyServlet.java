@@ -20,14 +20,13 @@ import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.client.MPOA2Asset;
 import org.masterportal.oauth2.client.MPOA2MPService;
 
 import java.net.URI;
 
 public class MPOA2ForwardingReadyServlet extends ClientServlet {
-
-	public static String PROXY_DIR = "/tmp";
 	
 	@Override
 	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
@@ -78,7 +77,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         // we need an identifier in order to be able to save things into the asset store
         if (identifier == null) {
             error("no cookie found. Cannot save certificates");
-            throw new GeneralException("no cookie found. Cannot save certificates");
+            throw new GeneralException("no session cookie found. Cannot save certificates");
         } else {
             asset = (MPOA2Asset) getCE().getAssetStore().get(identifier);
             if(!asset.getState().equals(state)){
@@ -111,17 +110,17 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             
             debug("Forwarding back to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
             
-            request.setAttribute("mpclient_session_id", identifier);
+            //request.setAttribute("mpclient_session_id", identifier);
             
-            request.setAttribute("code", reqCode);
-            request.setAttribute("state", reqState);
-            request.setAttribute("username", userSubject);
-            request.setAttribute("action", "ok");
+            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE, reqCode);
+            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE, reqState);
+            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME, userSubject);
+            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_ACTION, MPServerContext.MP_SERVER_AUTHORIZE_ACTION_OK);
             
             ServletContext serverContext = getServletConfig().getServletContext();
-            ServletContext clientContext = serverContext.getContext("/mp-oauth2");
+            ServletContext clientContext = serverContext.getContext(MPServerContext.MP_SERVER_CONTEXT);
              
-            RequestDispatcher dispatcher = clientContext.getRequestDispatcher("/authorize");
+            RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPServerContext.MP_SERVER_AUTHORIZE_ENDPOINT);
             dispatcher.forward(request, response);
             
         }

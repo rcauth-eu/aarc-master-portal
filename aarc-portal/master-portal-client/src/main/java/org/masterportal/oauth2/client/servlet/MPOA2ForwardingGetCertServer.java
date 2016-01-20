@@ -4,6 +4,7 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpStatus;
+import org.masterportal.oauth2.MPClientContext;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
@@ -18,7 +19,7 @@ public class MPOA2ForwardingGetCertServer extends ClientServlet {
 		
 		OA2MPService oa2MPService = (OA2MPService) getOA4MPService();
 		
-		String identifier = (String) request.getAttribute("identifier");
+		String identifier = (String) request.getAttribute(MPClientContext.MP_CLIENT_REQUEST_ID);
 		
 		if (identifier == null) {
             
