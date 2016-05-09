@@ -31,6 +31,11 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 		super(node);
 	}
 
+	@Override
+	public String getVersionString() {
+		return "Master Portal OAuth2/OIDC server configuration loader version " + VERSION_NUMBER;
+	}
+	
     @Override
     public T createInstance() {
         try {

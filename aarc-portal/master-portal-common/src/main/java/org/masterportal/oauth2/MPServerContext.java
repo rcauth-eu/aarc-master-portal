@@ -5,7 +5,7 @@ public interface MPServerContext {
 
 	// This value should correspond to the Master Portal OA4MP Server root context.
 	// This is derived from the deployment war name taken from the client pom.xml	
-	public static final String MP_SERVER_CONTEXT = "/mp-oauth2";
+	public static final String MP_SERVER_CONTEXT = "/mp-oa2-server";
 	
 	/*
 	 *  /authorize

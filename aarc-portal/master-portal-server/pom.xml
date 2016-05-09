@@ -86,7 +86,7 @@
                 </configuration>
             </plugin>
         </plugins>
-        <finalName>mp-oauth2</finalName>
+        <finalName>mp-oa2-server</finalName>
     </build>
    
 </project>
