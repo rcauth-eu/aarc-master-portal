@@ -6,7 +6,11 @@ import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.servlet.TransactionState;
+import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 import edu.uiuc.ncsa.security.servlet.PresentableState;
 
 import javax.servlet.RequestDispatcher;
@@ -17,8 +21,11 @@ import javax.servlet.http.HttpServletResponse;
 import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.servlet.util.CookieAwareHttpServletResponse;
+import org.masterportal.server.oauth2.MPOA2RequestForwarder;
 import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
 
+import java.io.PrintWriter;
+import java.io.StringWriter;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -33,9 +40,92 @@ import java.util.Map;
  */
 public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
 	
+	
+	@Override
+	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
+		try {
+			super.doIt(request, response);
+		} catch (Throwable t) {
+			
+			System.out.println( t.getMessage() );			
+			t.printStackTrace();
+			
+			//  The authorize endpoint handles exceptions differently, because it's called from the
+			//  browser directly (through a redirect)
+			 
+			String redirect_uri = request.getParameter(OA2Constants.REDIRECT_URI);
+			String code  = (String) request.getAttribute(OA2Constants.AUTHORIZATION_CODE);
+
+			if ( redirect_uri == null && code != null ) {
+
+				AuthorizationGrant grant = MyProxyDelegationServlet.getServiceEnvironment().getTokenForge().getAuthorizationGrant(code);
+		        ServiceTransaction trans = MyProxyDelegationServlet.getServiceEnvironment().getTransactionStore().get(grant);	
+				
+		        redirect_uri = trans.getCallback().toString();
+			}
+			
+			if ( redirect_uri != null ) {
+
+				 //In case we find a redirect uri, try to forward the error to the VO Portal
+				 
+
+				if ( t instanceof OA2GeneralError ) {
+					throw new OA2RedirectableError(OA2Errors.SERVER_ERROR,((OA2GeneralError)t).getDescription(),
+							                       new String("" + ((OA2GeneralError)t).getHttpStatus()),redirect_uri);
+				} else if ( t instanceof OA2RedirectableError ) {
+					throw t;
+				} else {
+					throw new OA2RedirectableError(OA2Errors.SERVER_ERROR,t.getMessage(),"",redirect_uri);
+				}
+				
+			} else if ( code != null ) {
+			
+		        
+			} else {
+					
+				 // Forward caught error massages to a local error servlet endpoint which
+				 // will then take care of displaying them. This is handled locally for the
+				 // \/authorize endpoint because this endpoint is called from the browser directly
+
+				StringBuffer buffer = new StringBuffer();
+				buffer.append(MPServerContext.MP_SERVER_CONTEXT + "/error?");
+				
+				String clientID = request.getParameter(OA2Constants.CLIENT_ID);
+				if (  clientID != null ) {
+					buffer.append("identifier="+ clientID +"&");
+				}
+				
+				buffer.append("cause="+ t.getClass().getSimpleName()  +"&");				
+				
+				buffer.append("message="+ t.getMessage() +"&");			
+				
+				StringWriter errors = new StringWriter();
+				t.printStackTrace(new PrintWriter(errors));
+				buffer.append("stackTrace="+errors.toString());
+				
+				response.sendRedirect(buffer.toString());
+			}
+		}
+	}
+	
+	/*
+	@Override
+	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
+		try {
+			super.doIt(request, response);
+		} catch(Throwable t) {
+			
+			request.setAttribute("exception", t);
+			RequestDispatcher dispatcher = getServletConfig().getServletContext().getRequestDispatcher(MPServerContext.MP_SERVER_CONTEXT + "/error");
+			MPOA2RequestForwarder.forwardRequest(request, response, dispatcher, false);
+			
+		}
+	}
+	*/
+	
 	/*
 	 * This method is called at the end of the original AuthN flow which displays an jsp expecting a username and 
-	 * password. Here we override this with a simple forward to the right endpoint in case of a new authN request.
+	 * password. Here we override this with a simple forward to the /startRequest endpoint in case of a new authN request.
 	 */
     @Override
     public void present(PresentableState state) throws Throwable {
@@ -45,7 +135,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     	switch (aState.getState()) {
     		case AUTHORIZATION_ACTION_START:
         	
-    			info("Forwarding authorization request to master-portal-client (/startRequest)");
+    			info("Forwarding authorization request to MP-Client (/startRequest)");
     			    			
     			// wrap the response object so that we can look at the cookies going to the browser
     			CookieAwareHttpServletResponse response = new CookieAwareHttpServletResponse(state.getResponse());
@@ -54,8 +144,17 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     			ServletContext serverContext = getServletConfig().getServletContext();
     			ServletContext clientContext = serverContext.getContext(MPClientContext.MP_CLIENT_CONTEXT);
              
-    			RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_START_ENDPOINT);
-    			dispatcher.forward(state.getRequest(), response);
+    			try { 
+    				RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_START_ENDPOINT);
+    				MPOA2RequestForwarder.forwardRequest(state.getRequest(), response, dispatcher, false);
+    				//dispatcher.forward(state.getRequest(), response);
+    			} catch (Throwable t) {
+    				if (t instanceof GeneralException) {
+    					throw t;
+    				} else {
+    					throw new GeneralException("Faild to redirect authnetication request to MasterPortal Client!",t);
+    				}
+    			}
         	
     			info("Done with authorization request forwarding");
     			
@@ -87,6 +186,11 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
 
         if (state.getState() == AUTHORIZATION_ACTION_OK) {
             String username = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME);
+            
+            if (username == null) {
+            	throw new GeneralException("Username was not found in authentication reply!");
+            }
+            
             ((AuthorizedState)state).getTransaction().setUsername(username);  
         }
     }

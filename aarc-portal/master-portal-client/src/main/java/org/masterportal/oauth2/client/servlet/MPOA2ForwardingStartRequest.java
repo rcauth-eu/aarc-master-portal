@@ -5,11 +5,13 @@ import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetStoreUtil;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.HttpStatus;
 import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.client.MPOA2Asset;
@@ -43,13 +45,12 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     		MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
     		asset.setRequest_code(code);
     		asset.setRequest_state(state);
-    		
-    		//asset.set
-    		
+    	
     		getCE().getAssetStore().save(asset);
     		
     	} else {
     		error("No code&state pair received! MP-Server will be unable to continue its pending auth request!");
+    		throw new OA2RedirectableError("No code or state received! MP-Server will be unable to continue its pending auth request!");
     	}
     	
         // if there is a store, store something in it.
@@ -61,6 +62,7 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
         response.addCookie(cookie);
         info("1.b. Got response. Creating page with redirect for " + gtwResp.getRedirect().getHost());
         
+        response.setStatus(HttpStatus.SC_OK);
         response.sendRedirect(gtwResp.getRedirect().toString());
     }
 

@@ -71,7 +71,8 @@
 
     <servlet>
         <servlet-name>error</servlet-name>
-        <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.ErrorServlet</servlet-class>
+        <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.ErrorServlet</servlet-class> -->
+        <servlet-class>org.masterportal.server.oauth2.servlet.MPOA2ErrorServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>error</servlet-name>
