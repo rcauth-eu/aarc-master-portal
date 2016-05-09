@@ -11,11 +11,11 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.servlet.OA2ClientExceptionHandler;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 
-public class MPOA2ClientExceptionHandler extends OA2ClientExceptionHandler {
+public class VPOA2ClientExceptionHandler extends OA2ClientExceptionHandler {
 
     MyLoggingFacade logger;
 
-    public MPOA2ClientExceptionHandler(ClientServlet clientServlet, MyLoggingFacade myLogger) {
+    public VPOA2ClientExceptionHandler(ClientServlet clientServlet, MyLoggingFacade myLogger) {
         super(clientServlet, myLogger);
         this.logger = myLogger;
     }

@@ -43,6 +43,7 @@ function redirect(voms) {
 
 <br><br>
 
+<!--
 Choose your vo from the list, followed by the desired roles and capabilities:
 
 <br>
@@ -60,6 +61,7 @@ FAQN :
 <button onclick="redirect(true)">Get VOMS Proxy</button>
 
 or
+-->
 
 <button onclick="redirect(false)">Get Proxy</button>
 

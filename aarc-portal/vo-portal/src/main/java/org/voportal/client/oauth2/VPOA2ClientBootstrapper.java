@@ -32,7 +32,7 @@ public class VPOA2ClientBootstrapper extends OA2ClientBootstrapper {
     
     @Override
     public Initialization getInitialization() {
-    	return new MPOA2ClientServletInitializer();
+    	return new VPOA2ClientServletInitializer();
     }
     
 }
