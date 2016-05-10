@@ -4,7 +4,6 @@ import edu.uiuc.ncsa.myproxy.oa4mp.client.OA4MPResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetStoreUtil;
 import edu.uiuc.ncsa.security.core.Identifier;
-import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 
 import javax.servlet.http.Cookie;
@@ -16,7 +15,20 @@ import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.client.MPOA2Asset;
 
-
+/**
+ * Simple /startRequest implementation that supports session keeping between the 
+ * MP Server and MP Client. It strips the 'code' and 'server' received as request
+ * attributes and saves them for the purpose of session keeping on the MP Server.
+ * In case any of the above mentioned attributes are missing the request will fail
+ * since the originating MP Server session can no longer be identified by the 
+ * MP Client.  
+ * <p>
+ * Afterwards, it continues to redirect to the service url of the configured
+ * Delegation Server, just like a normal /startRequest would.
+ * 
+ * @author "Tamás Balogh"
+ *
+ */
 public class MPOA2ForwardingStartRequest extends ClientServlet {
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
@@ -28,6 +40,8 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
        
         Identifier id = AssetStoreUtil.createID();
         gtwResp = getOA4MPService().requestCert(id);
+        
+        /* EXTRACT 'code' AND 'state' */
         
     	// The MP-Server has to be able to identify its pending authentication session when
     	// the MP-Client returns an authenticated username. For this reason, the code&state 
@@ -52,6 +66,8 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     		error("No code&state pair received! MP-Server will be unable to continue its pending auth request!");
     		throw new OA2RedirectableError("No code or state received! MP-Server will be unable to continue its pending auth request!");
     	}
+
+        /* CONTINUE WITH REGULAR REDIRECT TO DELEGATION SERVER */
     	
         // if there is a store, store something in it.
         Cookie cookie = new Cookie(MPClientContext.MP_CLIENT_REQUEST_ID, id.getUri().toString());

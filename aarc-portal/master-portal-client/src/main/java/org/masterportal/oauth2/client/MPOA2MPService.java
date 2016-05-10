@@ -18,6 +18,8 @@ import edu.uiuc.ncsa.security.util.pkcs.ProxyUtil;
 
 public class MPOA2MPService extends OA2MPService {
 
+	/* SERVICE LOADER */
+	
 	public static class MPOA2MPProvider extends OA4MPServiceProvider {
 		public MPOA2MPProvider(ClientEnvironment clientEnvironment) {
 			super(clientEnvironment);
@@ -29,6 +31,8 @@ public class MPOA2MPService extends OA2MPService {
 		}
 	}
 
+	/* CONSTRUCTOR */
+	
 	protected MyLoggingFacade logger = null;
 
 	public MPOA2MPService(ClientEnvironment environment) {
@@ -42,16 +46,19 @@ public class MPOA2MPService extends OA2MPService {
 			logger = new MyLoggingFacade("NOENV-MasterPortal");
 		}
 	}
-
-	protected MyProxyConnectable createMPConnection(Identifier identifier, String userName, String password,
-			long lifetime, String loa) throws GeneralSecurityException {
-		
-		MPConnectionProvider facades = new MPConnectionProvider(logger, 
-																((MPOA2ClientEnvironment)getEnvironment()).getMyProxyServices() );
-		MyProxyConnectable mpc = facades.findConnection(identifier, userName, password, loa, lifetime);
-		return mpc;
-	}
 	
+	/* OVERRIDEN METHODS */
+	
+	/**
+	 *  Extended /getcert request. This executes the regular /getcert request (just as
+	 *  the normal OA4MP Client would) but instead of passing the resulting credential,
+	 *  instead it stores it in the form of a long lived proxy certificate.
+	 *  <p> 
+	 *  This method accounts for checking whether the retrieved credential is an 
+	 *  EEC or a Proxy. In case of an EEC a proxy is created via the MyProxy PUT command.
+	 *  In case of the Proxy the MyProxy STORE command is used instead.
+	 * 
+	 */
 	@Override
 	public AssetResponse getCert(OA2Asset a, ATResponse2 atResponse2) {
 		AssetResponse par = super.getCert(a, atResponse2);
@@ -60,6 +67,7 @@ public class MPOA2MPService extends OA2MPService {
 
 		try {
 		
+			// see if the result is a proxy or an EEC
 			if ( ProxyUtil.isProxy(par.getX509Certificates()) ) {
 	
 				logger.debug("Using MyProxy STORE to store credential");
@@ -84,29 +92,71 @@ public class MPOA2MPService extends OA2MPService {
 			}
 		}
 	}
+	
+	/* MYPROXY COMMANDS */
 
+	/**
+	 * Use MyProxy PUT command to store a Long Lived Proxy certificate made from the 
+	 * EEC found in the assetResp. Call this in case /getcert returns an EEC.
+	 * 
+	 * @param assetResp The asset response of a /getcert request
+	 * @param asset The asset created to identify the ongoing session
+	 * @throws Throwable MyProxy related exceptions 
+	 */
 	public void putCert(AssetResponse assetResp, OA2Asset asset) throws Throwable {
 
 		String myproxyPasswrod  = ((MPOA2ClientEnvironment)getEnvironment()).getMyproxyPassword();
 		long lifetime = getEnvironment().getCertLifetime();
 		
-		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime, null);
+		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime);
 		
 		mp.setLifetime(lifetime * 1000);
 		mp.doPut( assetResp.getX509Certificates() , asset.getPrivateKey());
 		
 	}
-	
+
+	/**
+	 * Use MyProxy STORE command to store the Proxy certificate found in the assetResp. 
+	 * Call this in case /getcert returns a Proxy.  
+	 * 
+	 * @param assetResp The asset response of a /getcert request
+	 * @param asset The asset created to identify the ongoing session
+	 * @throws Throwable MyProxy related exceptions 
+	 */
 	public void storeProxy(AssetResponse assetResp, OA2Asset asset) throws Throwable {
 
 		String myproxyPasswrod  = ((MPOA2ClientEnvironment)getEnvironment()).getMyproxyPassword();
 		long lifetime = getEnvironment().getCertLifetime();
 		
-		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime, null);
+		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime);
 		
 		mp.setLifetime(lifetime * 1000);
 		mp.doStore( assetResp.getX509Certificates() , asset.getPrivateKey());
 		
 	}	
 
+	/* HELPER METHODS */
+
+	/**
+	 * Create a connection to a MyProxy Server. This method uses the MyProxy Server 
+	 * connection configuration, and is written after the MyProxy Connection model 
+	 * in the OA4MP Server component. 
+	 * 
+	 * @param identifier The asset(session) identifier to identify the connection by 
+	 * @param userName The username used in the MyProxy connection
+	 * @param password The password used in the MyProxy connection
+	 * @param lifetime The lifetime used in the MyProxy connection
+	 * @return The established MyProxy connection
+	 * @throws GeneralSecurityException In case a connection could not be established.
+	 */
+	protected MyProxyConnectable createMPConnection(Identifier identifier, String userName, String password,
+			long lifetime) throws GeneralSecurityException {
+		
+		MPConnectionProvider facades = new MPConnectionProvider(logger, 
+																((MPOA2ClientEnvironment)getEnvironment()).getMyProxyServices() );
+		// use null for the LOA since we are not supporting any at the moment
+		MyProxyConnectable mpc = facades.findConnection(identifier, userName, password, null, lifetime);
+		return mpc;
+	}
+	
 }

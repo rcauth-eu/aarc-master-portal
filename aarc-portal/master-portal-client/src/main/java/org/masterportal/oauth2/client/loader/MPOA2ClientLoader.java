@@ -3,15 +3,12 @@ package org.masterportal.oauth2.client.loader;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.MyProxyFacadeProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.OA4MPConfigTags;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2AssetConverter;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2AssetSerializationKeys;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientLoader;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2SQLAssetStoreProvider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
+import org.masterportal.oauth2.client.MPOA2Asset;
 import org.masterportal.oauth2.client.MPOA2ClientEnvironment;
 import org.masterportal.oauth2.client.MPOA2MPService;
-import org.masterportal.oauth2.client.MPOA2MPService.MPOA2MPProvider;
 import org.masterportal.oauth2.client.storage.MPOA2AssetConverter;
 import org.masterportal.oauth2.client.storage.MPOA2AssetSerializationKeys;
 import org.masterportal.oauth2.client.storage.impl.MPOA2AssetProvider;
@@ -36,10 +33,16 @@ import java.util.List;
 
 import javax.inject.Provider;
 
+/**
+ *  Load and configure the MP Client. This loader got extended with the following capabilities:
+ *  <p>
+ *  - support for creating extended asset store ( {@link MPOA2Asset} );
+ *  <p>
+ *  - support the loading of myproxy connection configuration from the config file;   
+ *  @author Tamás Balogh
+ */
 public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoader<T> {
 	
-    AssetProvider assetProvider = null;
-
     public MPOA2ClientLoader(ConfigurationNode node) {
         super(node);
     }
@@ -54,17 +57,6 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
         return "Master Portal OAuth2/OIDC client configuration loader version " + VERSION_NUMBER;
     }
 
-    
-    
-    
-    /**
-     * Factory method. Override this to create the actual instance as needed.
-     *
-     * @param tokenForgeProvider
-     * @param clientProvider
-     * @param constants
-     * @return
-     */
     public T createInstance(Provider<TokenForge> tokenForgeProvider,
                             Provider<Client> clientProvider,
                             HashMap<String, String> constants) {
@@ -102,6 +94,9 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
         }
     }    
     
+    /* ASSET EXTENSION */
+
+    AssetProvider assetProvider = null;
     
     @Override
     public AssetProvider getAssetProvider() {
@@ -110,10 +105,10 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
         }
         return assetProvider;
     }
-    
 
-    /*
-     * Overrides the creation of AssetStore related classes to MPOA4Asset*
+    /**
+     *  Overrides the creation of AssetStore related classes. Instead of OA2Asset object, use
+     *  the extended MPOA2Asset
      */
     @Override
     protected Provider<AssetStore> getAssetStoreProvider() {
@@ -154,6 +149,8 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
         }
         return assetStoreProvider;
     }    
+    
+    /* MYPROXY SERVER CONNECTOR */
     
     
     protected LinkedList<MyProxyFacadeProvider> mfp = null;

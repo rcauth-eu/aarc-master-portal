@@ -8,8 +8,10 @@ import javax.servlet.ServletContext;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
 
-/*
+/**
  *  Bootstraps Master Portal OA4MP Client
+ *  
+ *  @author Tamás Balogh
  */
 public class MPOA2ClientBootstrapper extends OA2ClientBootstrapper {
 	
