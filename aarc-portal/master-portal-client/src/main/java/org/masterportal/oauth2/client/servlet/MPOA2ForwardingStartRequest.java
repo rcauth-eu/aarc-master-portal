@@ -14,7 +14,7 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpStatus;
 import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.MPServerContext;
-import org.masterportal.oauth2.client.storage.MPOA2Asset;
+import org.masterportal.oauth2.client.MPOA2Asset;
 
 
 public class MPOA2ForwardingStartRequest extends ClientServlet {

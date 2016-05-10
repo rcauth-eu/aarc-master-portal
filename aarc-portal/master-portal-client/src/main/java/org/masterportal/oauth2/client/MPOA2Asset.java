@@ -1,4 +1,4 @@
-package org.masterportal.oauth2.client.storage;
+package org.masterportal.oauth2.client;
 
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.security.core.Identifier;

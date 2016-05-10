@@ -1,5 +1,7 @@
 package org.masterportal.oauth2.client.storage;
 
+import org.masterportal.oauth2.client.MPOA2Asset;
+
 import edu.uiuc.ncsa.myproxy.oa4mp.client.Asset;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2AssetConverter;

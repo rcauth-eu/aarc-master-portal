@@ -21,8 +21,8 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.masterportal.oauth2.MPServerContext;
+import org.masterportal.oauth2.client.MPOA2Asset;
 import org.masterportal.oauth2.client.MPOA2MPService;
-import org.masterportal.oauth2.client.storage.MPOA2Asset;
 
 import java.net.URI;
 
