@@ -43,8 +43,8 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     		
     		info("Saving code&state into asset store for later forwarding !");
     		MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
-    		asset.setRequest_code(code);
-    		asset.setRequest_state(state);
+    		asset.setMPServerRequestCode(code);
+    		asset.setMPServerRequestState(state);
     	
     		getCE().getAssetStore().save(asset);
     		

@@ -65,7 +65,7 @@
 
     </welcome-file-list>
     <listener>
-        <listener-class>org.masterportal.oauth2.client.MPOA2ClientBootstrapper</listener-class>
+        <listener-class>org.masterportal.oauth2.client.loader.MPOA2ClientBootstrapper</listener-class>
     </listener>
 
     <!--

@@ -4,7 +4,8 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.security.core.Identifier;
 
 /*
- * Master Portal Asset extension includes voms_fqan for every transaction asset
+ * Master Portal Asset extension includes the original request 
+ * code & status as a session identifier for the MP Server Component.
  */
 public class MPOA2Asset extends OA2Asset {
 
@@ -12,23 +13,23 @@ public class MPOA2Asset extends OA2Asset {
 		super(identifier);
 	}
 	
-	String request_state;
-	String request_code;
+	String MPServerRequestState;
+	String MPServerRequestCode;
 	
-	public String getRequest_state() {
-		return request_state;
+	public String getMPServerRequestState() {
+		return MPServerRequestState;
 	}
 	
-	public String getRequest_code() {
-		return request_code;
+	public String getMPServerRequestCode() {
+		return MPServerRequestCode;
 	}
 	
-	public void setRequest_state(String request_state) {
-		this.request_state = request_state;
+	public void setMPServerRequestState(String request_state) {
+		this.MPServerRequestState = request_state;
 	}
 	
-	public void setRequest_code(String request_code) {
-		this.request_code = request_code;
+	public void setMPServerRequestCode(String request_code) {
+		this.MPServerRequestCode = request_code;
 	}
 	
 }

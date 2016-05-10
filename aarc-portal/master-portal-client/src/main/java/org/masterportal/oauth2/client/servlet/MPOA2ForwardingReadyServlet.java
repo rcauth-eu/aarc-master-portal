@@ -105,8 +105,8 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             //info("2.a. Getting the cert(s) from the service");
             //assetResponse = oa2MPService.getCert(asset, atResponse2);
             
-            String reqState = asset.getRequest_state();
-            String reqCode = asset.getRequest_code();
+            String reqState = asset.getMPServerRequestState();
+            String reqCode = asset.getMPServerRequestCode();
             
             debug("Forwarding back to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
             

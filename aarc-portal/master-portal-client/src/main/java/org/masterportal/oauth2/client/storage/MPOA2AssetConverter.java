@@ -21,8 +21,8 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 	public Asset fromMap(ConversionMap<String, Object> map, Asset asset) {
 		MPOA2Asset a = (MPOA2Asset) super.fromMap(map,asset);
 		
-		a.setRequest_state(map.getString(getASK().request_state()));
-		a.setRequest_code(map.getString(getASK().request_code()));
+		a.setMPServerRequestState(map.getString(getASK().mp_server_request_state()));
+		a.setMPServerRequestCode(map.getString(getASK().mp_server_request_code()));
 		
 		return a;
 	}
@@ -33,11 +33,11 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 		
 		MPOA2Asset a = (MPOA2Asset) super.fromMap(map,asset);
 
-		if (a.getRequest_code() != null) {
-			map.put(getASK().request_code(), a.getRequest_code());
+		if (a.getMPServerRequestCode() != null) {
+			map.put(getASK().mp_server_request_code(), a.getMPServerRequestCode());
 		}
-		if (a.getRequest_state() != null) {
-			map.put(getASK().request_state(), a.getRequest_state());
+		if (a.getMPServerRequestState() != null) {
+			map.put(getASK().mp_server_request_state(), a.getMPServerRequestState());
 		}		
 	}
 	

@@ -15,6 +15,7 @@ import org.masterportal.oauth2.client.MPOA2MPService.MPOA2MPProvider;
 import org.masterportal.oauth2.client.storage.MPOA2AssetConverter;
 import org.masterportal.oauth2.client.storage.MPOA2AssetSerializationKeys;
 import org.masterportal.oauth2.client.storage.impl.MPOA2AssetProvider;
+import org.masterportal.oauth2.client.storage.sql.MPOA2SQLAssetStoreProvider;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
@@ -118,16 +119,23 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
     protected Provider<AssetStore> getAssetStoreProvider() {
         if (assetStoreProvider == null) {
             MultiAssetStoreProvider masp = new MultiAssetStoreProvider(cn, isDefaultStoreDisabled(), (MyLoggingFacade) loggerProvider.get());
-            OA2AssetSerializationKeys keys = new MPOA2AssetSerializationKeys();
-            OA2AssetConverter assetConverter = new MPOA2AssetConverter(keys, getAssetProvider());
+            MPOA2AssetSerializationKeys keys = new MPOA2AssetSerializationKeys();
+            MPOA2AssetConverter assetConverter = new MPOA2AssetConverter(keys, getAssetProvider());
             assetStoreProvider = masp;
+            
+            // File storage 
             masp.addListener(new FSAssetStoreProvider(cn, getAssetProvider(), assetConverter));
-            masp.addListener(new OA2SQLAssetStoreProvider(cn, ClientXMLTags.POSTGRESQL_STORE, getPgConnectionPoolProvider(),
+
+            // Database storage
+            masp.addListener(new MPOA2SQLAssetStoreProvider(cn, ClientXMLTags.MYSQL_STORE, getMySQLConnectionPoolProvider(),
                     getAssetProvider(), assetConverter));
-            masp.addListener(new OA2SQLAssetStoreProvider(cn, ClientXMLTags.MYSQL_STORE, getMySQLConnectionPoolProvider(),
-                    getAssetProvider(), assetConverter));
-            masp.addListener(new OA2SQLAssetStoreProvider(cn, ClientXMLTags.MARIADB_STORE, getMariaDBConnectionPoolProvider(),
+            masp.addListener(new MPOA2SQLAssetStoreProvider(cn, ClientXMLTags.MARIADB_STORE, getMariaDBConnectionPoolProvider(),
                                 getAssetProvider(), assetConverter));
+
+            // this is experimental. it might just work out of the box
+            //masp.addListener(new OA2SQLAssetStoreProvider(cn, ClientXMLTags.POSTGRESQL_STORE, getPgConnectionPoolProvider(),
+            //        getAssetProvider(), assetConverter));
+            
             // and a memory store, So only if one is requested it is available.
             masp.addListener(new TypedProvider<MemoryAssetStore>(cn, ClientXMLTags.MEMORY_STORE, ClientXMLTags.ASSET_STORE) {
                 @Override
