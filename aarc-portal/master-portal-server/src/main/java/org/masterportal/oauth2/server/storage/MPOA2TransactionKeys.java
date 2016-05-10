@@ -8,10 +8,10 @@ public class MPOA2TransactionKeys extends OA2TransactionKeys {
 		super();
 	}
 	
-    protected String clientSessionIdentifier = "client_session_identifier";
+    protected String mp_client_session_identifier = "mp_client_session_identifier";
 	
-    public String clientSessionIdentifier(String... x) {
-        if (0 < x.length) clientSessionIdentifier = x[0];
-        return clientSessionIdentifier;
+    public String mp_client_session_identifier(String... x) {
+        if (0 < x.length) mp_client_session_identifier = x[0];
+        return mp_client_session_identifier;
     }
 }

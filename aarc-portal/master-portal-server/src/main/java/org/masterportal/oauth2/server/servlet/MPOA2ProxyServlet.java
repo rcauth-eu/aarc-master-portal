@@ -80,7 +80,7 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 		info("Forwarding getCert request to Master Portal Client");
 		
 		// extract client session ID and send it along with the request
-		String clientID = ((MPOA2ServiceTransaction)trans).getClientSessionIdentifier();
+		String clientID = ((MPOA2ServiceTransaction)trans).getMPClientSessionIdentifier();
 		request.setAttribute(MPClientContext.MP_CLIENT_REQUEST_ID, clientID);
 		
 		// forward request to MP-Client

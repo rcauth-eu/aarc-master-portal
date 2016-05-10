@@ -21,7 +21,7 @@ public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConv
     	
     	MPOA2TransactionKeys tck = (MPOA2TransactionKeys) getTCK();
 
-   		st.setClientSessionIdentifier( map.getString(tck.clientSessionIdentifier) );
+   		st.setMPClientSessionIdentifier( map.getString(tck.mp_client_session_identifier) );
     	
     	return st;
     }
@@ -33,8 +33,8 @@ public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConv
     	
     	MPOA2TransactionKeys tck = (MPOA2TransactionKeys) getTCK();
  
-    	if (t.getClientSessionIdentifier() != null) {    		
-    		map.put(tck.clientSessionIdentifier, t.getClientSessionIdentifier());
+    	if (t.getMPClientSessionIdentifier() != null) {    		
+    		map.put(tck.mp_client_session_identifier, t.getMPClientSessionIdentifier());
     	}
     }
     

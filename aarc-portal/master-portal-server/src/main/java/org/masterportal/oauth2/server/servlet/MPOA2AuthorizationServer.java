@@ -162,7 +162,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     			// this cookie is then saved into the transaction store so that we can tie the MP-Client session to
     			// the MP-Server session in upcoming requests.
     			String clientID = response.getCookie(MPClientContext.MP_CLIENT_REQUEST_ID);
-    			((MPOA2ServiceTransaction)aState.getTransaction()).setClientSessionIdentifier(clientID);
+    			((MPOA2ServiceTransaction)aState.getTransaction()).setMPClientSessionIdentifier(clientID);
     			getTransactionStore().save( aState.getTransaction() );
     			
     			break;

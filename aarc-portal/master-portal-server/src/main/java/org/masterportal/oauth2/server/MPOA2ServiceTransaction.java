@@ -14,14 +14,14 @@ public class MPOA2ServiceTransaction extends OA2ServiceTransaction {
         super(identifier);
     }
 
-    String clientSessionIdentifier;
+    String MPClientSessionIdentifier;
     
-    public String getClientSessionIdentifier() {
-		return clientSessionIdentifier;
+    public String getMPClientSessionIdentifier() {
+		return MPClientSessionIdentifier;
 	}
     
-    public void setClientSessionIdentifier(String clientSessionIdentifier) {
-		this.clientSessionIdentifier = clientSessionIdentifier;
+    public void setMPClientSessionIdentifier(String clientSessionIdentifier) {
+		this.MPClientSessionIdentifier = clientSessionIdentifier;
 	}
     
 }

@@ -7,11 +7,14 @@ import org.masterportal.oauth2.server.MPOA2SE;
 import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
 import org.masterportal.oauth2.server.storage.MPOA2TConverter;
 import org.masterportal.oauth2.server.storage.MPOA2TransactionKeys;
+import org.masterportal.oauth2.server.storage.sql.MPOA2SQLTransactionStoreProvider;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2ConfigurationLoader;
+import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2SQLTransactionStoreProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.*;
+import edu.uiuc.ncsa.myproxy.oa4mp.server.storage.MultiDSClientStoreProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider;
 import edu.uiuc.ncsa.security.core.IdentifiableProvider;
 import edu.uiuc.ncsa.security.core.Identifier;
@@ -19,7 +22,10 @@ import edu.uiuc.ncsa.security.core.configuration.Configurations;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.IdentifierProvider;
 import edu.uiuc.ncsa.security.delegation.storage.TransactionStore;
-
+import edu.uiuc.ncsa.security.delegation.token.TokenForge;
+import edu.uiuc.ncsa.security.storage.data.MapConverter;
+import edu.uiuc.ncsa.security.storage.sql.ConnectionPool;
+import edu.uiuc.ncsa.security.storage.sql.ConnectionPoolProvider;
 
 import static edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider.TRANSACTION_ID;
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME;
@@ -94,4 +100,16 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         return getTSP(tp,  tc);
     }
 	
+
+    @Override
+    protected OA2SQLTransactionStoreProvider createSQLTSP(ConfigurationNode config,
+													      ConnectionPoolProvider<? extends ConnectionPool> cpp,
+													      String type,
+													      MultiDSClientStoreProvider clientStoreProvider,
+													      Provider<? extends OA2ServiceTransaction> tp,
+													      Provider<TokenForge> tfp,
+													      MapConverter converter){
+    	return new MPOA2SQLTransactionStoreProvider(config,cpp,type,clientStoreProvider,tp,tfp,converter);
+    }
+    
 }
