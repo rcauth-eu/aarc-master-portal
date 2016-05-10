@@ -1,4 +1,4 @@
-package org.masterportal.server.oauth2;
+package org.masterportal.oauth2.server;
 
 import java.util.Collection;
 import java.util.HashMap;

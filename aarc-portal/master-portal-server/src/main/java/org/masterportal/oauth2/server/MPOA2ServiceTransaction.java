@@ -1,4 +1,4 @@
-package org.masterportal.server.oauth2;
+package org.masterportal.oauth2.server;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.security.core.Identifier;

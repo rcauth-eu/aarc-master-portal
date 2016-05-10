@@ -1,4 +1,4 @@
-package org.masterportal.server.oauth2.servlet;
+package org.masterportal.oauth2.server.servlet;
 
 
 import java.security.GeneralSecurityException;
@@ -16,9 +16,9 @@ import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ProxyServlet;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 
 import org.masterportal.oauth2.MPClientContext;
-import org.masterportal.server.oauth2.MPOA2RequestForwarder;
-import org.masterportal.server.oauth2.MPOA2SE;
-import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
+import org.masterportal.oauth2.server.MPOA2RequestForwarder;
+import org.masterportal.oauth2.server.MPOA2SE;
+import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
 
 public class MPOA2ProxyServlet extends OA2ProxyServlet {
 

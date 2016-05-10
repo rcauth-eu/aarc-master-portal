@@ -1,6 +1,6 @@
-package org.masterportal.server.oauth2.storage;
+package org.masterportal.oauth2.server.storage;
 
-import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
+import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2TConverter;
 import edu.uiuc.ncsa.security.core.IdentifiableProvider;

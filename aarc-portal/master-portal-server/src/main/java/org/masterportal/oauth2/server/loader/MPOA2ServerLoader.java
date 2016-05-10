@@ -1,13 +1,13 @@
-package org.masterportal.server.oauth2.loader;
+package org.masterportal.oauth2.server.loader;
 
 import javax.inject.Provider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
+import org.masterportal.oauth2.server.MPOA2SE;
+import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
+import org.masterportal.oauth2.server.storage.MPOA2TConverter;
+import org.masterportal.oauth2.server.storage.MPOA2TransactionKeys;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
-import org.masterportal.server.oauth2.MPOA2SE;
-import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
-import org.masterportal.server.oauth2.storage.MPOA2TConverter;
-import org.masterportal.server.oauth2.storage.MPOA2TransactionKeys;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2ConfigurationLoader;

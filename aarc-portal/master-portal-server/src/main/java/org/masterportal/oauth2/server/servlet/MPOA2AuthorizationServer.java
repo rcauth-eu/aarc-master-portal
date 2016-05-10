@@ -1,4 +1,4 @@
-package org.masterportal.server.oauth2.servlet;
+package org.masterportal.oauth2.server.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizationServer;
@@ -20,9 +20,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.MPServerContext;
+import org.masterportal.oauth2.server.MPOA2RequestForwarder;
+import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
 import org.masterportal.oauth2.servlet.util.CookieAwareHttpServletResponse;
-import org.masterportal.server.oauth2.MPOA2RequestForwarder;
-import org.masterportal.server.oauth2.MPOA2ServiceTransaction;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;

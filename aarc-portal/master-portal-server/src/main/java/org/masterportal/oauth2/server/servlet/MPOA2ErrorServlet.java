@@ -1,4 +1,4 @@
-package org.masterportal.server.oauth2.servlet;
+package org.masterportal.oauth2.server.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
 import edu.uiuc.ncsa.security.core.exceptions.UnknownClientException;

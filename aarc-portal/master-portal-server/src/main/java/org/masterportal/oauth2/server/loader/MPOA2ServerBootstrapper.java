@@ -1,4 +1,4 @@
-package org.masterportal.server.oauth2.loader;
+package org.masterportal.oauth2.server.loader;
 
 import javax.servlet.ServletContext;
 

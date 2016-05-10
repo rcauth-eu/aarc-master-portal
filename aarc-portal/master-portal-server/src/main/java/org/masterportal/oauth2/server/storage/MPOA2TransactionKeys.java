@@ -1,4 +1,4 @@
-package org.masterportal.server.oauth2.storage;
+package org.masterportal.oauth2.server.storage;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2TransactionKeys;
 
