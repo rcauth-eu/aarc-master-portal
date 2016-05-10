@@ -17,7 +17,6 @@
   	<module>vo-portal</module>
   	
   	<module>master-portal-common</module>
-  	<module>master-portal-myproxy</module>
   	<module>master-portal-client</module>
   	<module>master-portal-server</module>
   	
