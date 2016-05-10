@@ -1,4 +1,4 @@
-package org.masterportal.oauth2.client;
+package org.masterportal.oauth2.client.loader;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.MyProxyFacadeProvider;
@@ -9,6 +9,12 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientLoader;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2SQLAssetStoreProvider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
+import org.masterportal.oauth2.client.MPOA2ClientEnvironment;
+import org.masterportal.oauth2.client.MPOA2MPService;
+import org.masterportal.oauth2.client.MPOA2MPService.MPOA2MPProvider;
+import org.masterportal.oauth2.client.storage.MPOA2AssetConverter;
+import org.masterportal.oauth2.client.storage.MPOA2AssetSerializationKeys;
+import org.masterportal.oauth2.client.storage.impl.MPOA2AssetProvider;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;

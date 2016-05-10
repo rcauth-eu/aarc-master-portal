@@ -1,4 +1,4 @@
-package org.masterportal.oauth2.client;
+package org.masterportal.oauth2.client.storage;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.Asset;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
@@ -21,8 +21,8 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 	public Asset fromMap(ConversionMap<String, Object> map, Asset asset) {
 		MPOA2Asset a = (MPOA2Asset) super.fromMap(map,asset);
 		
-		a.setRequest_state(map.getString(getASK().request_state));
-		a.setRequest_code(map.getString(getASK().request_code));
+		a.setRequest_state(map.getString(getASK().request_state()));
+		a.setRequest_code(map.getString(getASK().request_code()));
 		
 		return a;
 	}

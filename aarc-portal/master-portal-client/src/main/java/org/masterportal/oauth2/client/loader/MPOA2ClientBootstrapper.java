@@ -1,4 +1,4 @@
-package org.masterportal.oauth2.client;
+package org.masterportal.oauth2.client.loader;
 
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientBootstrapper;
 import edu.uiuc.ncsa.security.core.exceptions.MyConfigurationException;
