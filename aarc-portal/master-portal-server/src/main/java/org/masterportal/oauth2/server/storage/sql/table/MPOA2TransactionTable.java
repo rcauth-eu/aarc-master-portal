@@ -17,8 +17,11 @@ public class MPOA2TransactionTable extends OA2TransactionTable {
     @Override
     public void createColumnDescriptors() {
     	super.createColumnDescriptors();
+    	getColumnDescriptor().add(new ColumnDescriptorEntry( ((MPOA2TransactionKeys)getOA2Keys()).claims(), 
+				 											 Types.LONGVARCHAR));
     	getColumnDescriptor().add(new ColumnDescriptorEntry( ((MPOA2TransactionKeys)getOA2Keys()).mp_client_session_identifier(), 
     														 Types.LONGVARCHAR));
+    	
     }	
 	
 }

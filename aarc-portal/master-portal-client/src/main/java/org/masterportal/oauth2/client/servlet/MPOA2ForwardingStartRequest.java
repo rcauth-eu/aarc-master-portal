@@ -4,7 +4,12 @@ import edu.uiuc.ncsa.myproxy.oa4mp.client.OA4MPResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetStoreUtil;
 import edu.uiuc.ncsa.security.core.Identifier;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
+
+import java.util.Enumeration;
+import java.util.HashMap;
+import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -34,14 +39,33 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
     	
     	info("1.a. Starting transaction");
-        
-        OA4MPResponse gtwResp = null;
-        // Drumroll please: here is the work for this call.
+    	// Drumroll please: here is the work for this call.
        
+    	/* EXTRACT RELEVANT REQUEST PARAMETERS */
+
+    	Map requestParameterMap = new HashMap();
+    	
+    	//printAllParameters(request);
+    	
+    	// TODO: extract every non-oauth2 specific parameter for forwarding 
+    	
+    	// extract scope 
+    	
+    	String MPServerRequestScopes = request.getParameter(OA2Constants.SCOPE); 
+    	
+    	if ( MPServerRequestScopes == null || MPServerRequestScopes.isEmpty() ) {
+    		// fall back on regular scope and WARN
+    		warn("No SCOPE parameter found in the forwarded authorization request from the MP Server! Falling back on static SCOPE list");
+    	} else {
+    		requestParameterMap.put(OA2Constants.SCOPE, MPServerRequestScopes);
+    	}
+    	
+    	// create session Asset and Authorization Request 
+    	
         Identifier id = AssetStoreUtil.createID();
-        gtwResp = getOA4MPService().requestCert(id);
+    	OA4MPResponse gtwResp = getOA4MPService().requestCert(id,requestParameterMap);
         
-        /* EXTRACT 'code' AND 'state' */
+        // extract 'code' & 'state'
         
     	// The MP-Server has to be able to identify its pending authentication session when
     	// the MP-Client returns an authenticated username. For this reason, the code&state 
@@ -68,7 +92,7 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     	}
 
         /* CONTINUE WITH REGULAR REDIRECT TO DELEGATION SERVER */
-    	
+    			
         // if there is a store, store something in it.
         Cookie cookie = new Cookie(MPClientContext.MP_CLIENT_REQUEST_ID, id.getUri().toString());
         cookie.setMaxAge(15 * 60); // 15 minutes
@@ -82,4 +106,68 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
         response.sendRedirect(gtwResp.getRedirect().toString());
     }
 
+
+	protected void printAllParameters(HttpServletRequest request) {
+		
+		
+		String reqUrl = request.getRequestURL().toString();
+        String queryString = request.getQueryString();   // d=789
+        if (queryString != null) {
+            reqUrl += "?" + queryString;
+        }
+        
+        System.out.println("Request parameters for '" + reqUrl + "'");
+
+        if (request.getParameterMap() == null || request.getParameterMap().isEmpty()) {
+        	System.out.println("  (none)");
+        } else {
+            for (Object key : request.getParameterMap().keySet()) {
+                String[] values = request.getParameterValues(key.toString());
+                System.out.println(" " + key + ":");
+                if (values == null || values.length == 0) {
+                	System.out.println("   (no values)");
+                } else {
+                    for (String x : values) {
+                    	System.out.println("   " + x);
+                    }
+                }
+            }
+        }
+        System.out.println("Cookies:");
+        if (request.getCookies() == null) {
+        	System.out.println(" (none)");
+        } else {
+            for (javax.servlet.http.Cookie c : request.getCookies()) {
+            	System.out.println(" " + c.getName() + "=" + c.getValue());
+            }
+        }
+        System.out.println("Headers:");
+        Enumeration e = request.getHeaderNames();
+        if (!e.hasMoreElements()) {
+        	System.out.println(" (none)");
+        } else {
+            while (e.hasMoreElements()) {
+                String name = e.nextElement().toString();
+                System.out.println(" " + name);
+                System.out.println("   " + request.getHeader(name));
+            }
+        }
+		
+
+        System.out.println("Attributes:");
+        Enumeration attr = request.getAttributeNames();
+        if (!e.hasMoreElements()) {
+        	System.out.println(" (none)");
+        } else {
+            while (attr.hasMoreElements()) {
+                String name = attr.nextElement().toString();
+                System.out.println(" " + name);
+                System.out.println("   " + request.getAttribute(name));
+            }
+        }
+        
+	}
+
+
+    
 }

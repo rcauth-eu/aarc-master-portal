@@ -16,16 +16,34 @@ import edu.uiuc.ncsa.security.servlet.JSPUtil;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.client.MPOA2Asset;
-import org.masterportal.oauth2.client.MPOA2MPService;
 
 import java.net.URI;
 
+/**
+ * This servlet acts as a simple 'redirect_uri' for the Delegation Server. 
+ * Just like the sample OA4MP Ready Servlet, this will also issue requests
+ * to the /token and the /userinfo endpoints of the Delegation Server with 
+ * using the received authorization grant. It does not, however, call 
+ * the /getcert endpoint (this is done via {@link MPOA2ForwardingGetCertServer}.
+ * <p> 
+ * After successfully executing the /token and /userinfo requests this servlet
+ * will forward the pending request to the MP Server with relevant information
+ * about the authenticated user, such as:
+ * <ul>
+ * <li> The MP Server request code for identifying the MP Server session </li>
+ * <li> The MP Server request state for identifying the MP Server session </li>  
+ * <li> The username (subject) of the authenticated user </li>
+ * <li> The claims received from the Delegation Server </li>
+ * <li> An action parameter asserting the success of the authentication </li> 
+ * </ul>
+ * @author "Tamás Balogh"
+ *
+ */
 public class MPOA2ForwardingReadyServlet extends ClientServlet {
 	
 	@Override
@@ -70,9 +88,6 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         AssetResponse assetResponse = null;
         UserInfo userInfo = null;
         OA2MPService oa2MPService = (OA2MPService) getOA4MPService();
-        
-        //MPCredStoreService mpCredStoreService =  MPCredStoreService.getMPCredStoreService();
-       // GlobusGSSCredentialImpl userProxy = null;
 
         // we need an identifier in order to be able to save things into the asset store
         if (identifier == null) {
@@ -102,20 +117,23 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             String userSubject = userInfo.getSub();
             asset.setUsername(userSubject);
             
-            //info("2.a. Getting the cert(s) from the service");
-            //assetResponse = oa2MPService.getCert(asset, atResponse2);
+            
             
             String reqState = asset.getMPServerRequestState();
             String reqCode = asset.getMPServerRequestCode();
             
             debug("Forwarding back to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
             
-            //request.setAttribute("mpclient_session_id", identifier);
+            // setting parameters for the MP Server. use Attributes for passing parameters since 
+            // these are only transfered within the web container.
             
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE, reqCode);
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE, reqState);
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME, userSubject);
+            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS, userInfo.toJSon().toString() );
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_ACTION, MPServerContext.MP_SERVER_AUTHORIZE_ACTION_OK);
+            
+            // do the actual forwarding to the MP Server /authorize endpoint
             
             ServletContext serverContext = getServletConfig().getServletContext();
             ServletContext clientContext = serverContext.getContext(MPServerContext.MP_SERVER_CONTEXT);

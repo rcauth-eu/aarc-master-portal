@@ -18,6 +18,7 @@ public interface MPServerContext {
 	public static final String MP_SERVER_AUTHORIZE_STATE = "state";
 	public static final String MP_SERVER_AUTHORIZE_USERNAME = "username";
 	public static final String MP_SERVER_AUTHORIZE_ACTION = "action";
+	public static final String MP_SERVER_AUTHORIZE_CLAIMS = "claims";
 	
 	public static final String MP_SERVER_AUTHORIZE_ACTION_OK = "ok";
 

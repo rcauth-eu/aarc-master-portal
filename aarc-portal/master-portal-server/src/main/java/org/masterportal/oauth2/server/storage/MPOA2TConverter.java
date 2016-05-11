@@ -1,6 +1,9 @@
 package org.masterportal.oauth2.server.storage;
 
+import java.util.Map;
+
 import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
+import org.masterportal.oauth2.server.util.JSONConverter;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2TConverter;
 import edu.uiuc.ncsa.security.core.IdentifiableProvider;
@@ -22,7 +25,12 @@ public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConv
     	MPOA2TransactionKeys tck = (MPOA2TransactionKeys) getTCK();
 
    		st.setMPClientSessionIdentifier( map.getString(tck.mp_client_session_identifier) );
-    	
+
+    	String jsonClaims = map.getString(tck.claims);
+    	if ( jsonClaims != null ) {
+    		st.setClaims( (Map<String, Object>) JSONConverter.fromJSONObject(jsonClaims) );
+    	}   		
+   		
     	return st;
     }
 
@@ -35,6 +43,10 @@ public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConv
  
     	if (t.getMPClientSessionIdentifier() != null) {    		
     		map.put(tck.mp_client_session_identifier, t.getMPClientSessionIdentifier());
+    	}
+    	
+    	if ( t.getClaims() != null ) {
+    		map.put( tck.claims , JSONConverter.toJSONObject( t.getClaims() ).toJSONString() );
     	}
     }
     

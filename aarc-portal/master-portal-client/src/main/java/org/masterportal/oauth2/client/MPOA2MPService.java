@@ -1,10 +1,11 @@
 package org.masterportal.oauth2.client;
 
 import java.security.GeneralSecurityException;
-
+import java.util.Map;
 
 import edu.uiuc.ncsa.myproxy.MPConnectionProvider;
 import edu.uiuc.ncsa.myproxy.MyProxyConnectable;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.Asset;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.OA4MPServiceProvider;
@@ -13,6 +14,7 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.util.pkcs.ProxyUtil;
 
@@ -90,6 +92,31 @@ public class MPOA2MPService extends OA2MPService {
 			} else {
 				throw new GeneralException(e);
 			}
+		}
+	}
+
+	/**
+	 * This extended method makes sure that the SCOPE parameter 
+	 * provided in the parameter map is not getting overwritten 
+	 * by any subsequent pre-processing.
+	 * <p>
+	 * This method will only have effect if the provided parameter 
+	 * map has its SCOPE parameter set before this method is called.
+	 * 
+	 * @param asset The current session asset
+	 * @param parameters The parameter map that will end up in the authorize request 
+	 */
+	@Override
+	public void preRequestCert(Asset asset, Map parameters) {
+	
+		if ( parameters.get(OA2Constants.SCOPE) != null ) {
+			// save original SCOPE parameter
+			String originalScopes = (String) parameters.get(OA2Constants.SCOPE);
+			
+			super.preRequestCert(asset, parameters);
+			
+			// make sure the original SCOPE parameter is set
+			parameters.put(OA2Constants.SCOPE, originalScopes);
 		}
 	}
 	

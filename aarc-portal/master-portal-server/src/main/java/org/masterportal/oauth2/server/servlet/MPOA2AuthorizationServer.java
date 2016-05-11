@@ -22,6 +22,7 @@ import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.server.MPOA2RequestForwarder;
 import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
+import org.masterportal.oauth2.server.util.JSONConverter;
 import org.masterportal.oauth2.servlet.util.CookieAwareHttpServletResponse;
 
 import java.io.PrintWriter;
@@ -40,7 +41,7 @@ import java.util.Map;
  */
 public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
 	
-	
+	/*
 	@Override
 	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
 		try {
@@ -107,6 +108,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
 			}
 		}
 	}
+	*/
 	
 	/*
 	@Override
@@ -185,13 +187,28 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         super.prepare(state);
 
         if (state.getState() == AUTHORIZATION_ACTION_OK) {
-            String username = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME);
+
+        	MPOA2ServiceTransaction trans =  (MPOA2ServiceTransaction) ((AuthorizedState)state).getTransaction();
+        	
+        	// get authorized username and save it into the transaction
+        	
+        	String username = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME);
             
             if (username == null) {
             	throw new GeneralException("Username was not found in authentication reply!");
             }
             
-            ((AuthorizedState)state).getTransaction().setUsername(username);  
+            trans.setUsername(username);  
+            
+            // get claims issued by the delegation server and save it into the transaction
+            
+            String jsonClaims = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS);
+            
+            if (jsonClaims == null) {
+            	warn("No claims returned by the Delegation Server! Check if the right SCOPES are sent by the Master Portal!");
+            }
+            
+            trans.setClaims( (Map<String, Object>) JSONConverter.fromJSONObject(jsonClaims) );            
         }
     }
 
