@@ -48,6 +48,12 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     	//printAllParameters(request);
     	
     	// TODO: extract every non-oauth2 specific parameter for forwarding 
+    	for ( Object key : request.getParameterMap().keySet() ) {
+    		String paramKey = (String) key;
+    		if ( ! isOA2Parameter(paramKey) ) {
+    			requestParameterMap.put( paramKey , request.getParameter(paramKey) );
+    		}
+    	}
     	
     	// extract scope 
     	
@@ -106,7 +112,44 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
         response.sendRedirect(gtwResp.getRedirect().toString());
     }
 
-
+    /**
+     * Check if a parameter is an OpenID Connect specific Authorization Request 
+     * parameter or not.  
+     * @see https://docs.google.com/document/d/1cs3peO9FxA81KN-1RC6Z-auEFIwRbJpZ-SFuKbQzS50/pub#h.cfm05rlw4qy3
+     * 
+     * @param key The parameter name to test 
+     * @return true if parameter is a standard OIDC Authorization parameter, false otherwise.
+     */
+    protected boolean isOA2Parameter(String key) {
+    	
+    	if ( key.equals( OA2Constants.RESPONSE_TYPE ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.CLIENT_ID ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.SCOPE ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.REDIRECT_URI ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.STATE ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.NONCE ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.PROMPT ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.MAX_AGE ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.ID_TOKEN_HINT ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.REQUEST ) ) {
+    		return true;
+    	} else if ( key.equals( OA2Constants.REQUEST_URI ) ) {
+    		return true;
+    	}
+    	
+    	return false;
+    }
+    
+    
 	protected void printAllParameters(HttpServletRequest request) {
 		
 		
