@@ -21,6 +21,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.client.MPOA2Asset;
+import org.masterportal.oauth2.client.MPOA2ClientEnvironment;
 
 import java.net.URI;
 
@@ -109,14 +110,15 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             	throw new GeneralException("User subject could not be extracted! The userinfo endpoint returned null!");
             }
 
-            // Something is already setting the Asset username to the value returned by the userinfo endpoint.
-            // Look for getAdditionalInformation() calls in getCert requests. This here might be redundant.
-            // With the current implementation the getCert request returns the username in the additional
-            // information map.
             debug("2.a Getting username from /userInfo");
             String userSubject = userInfo.getSub();
-            asset.setUsername(userSubject);
             
+            // save username into asset! Without this the following /forwardGetCert call will not know what username
+            // to store the returned certificate under in the MyProxy store.
+            //asset.setUsername(userSubject);
+            
+            //System.out.println("SAVING ASSET WITH USERNAME : " + asset.getUsername());
+            //getCE().getAssetStore().save(asset);
             
             
             String reqState = asset.getMPServerRequestState();

@@ -47,7 +47,6 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     	
     	//printAllParameters(request);
     	
-    	// TODO: extract every non-oauth2 specific parameter for forwarding 
     	for ( Object key : request.getParameterMap().keySet() ) {
     		String paramKey = (String) key;
     		if ( ! isOA2Parameter(paramKey) ) {

@@ -15,6 +15,7 @@ import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
+import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 import edu.uiuc.ncsa.security.util.pkcs.ProxyUtil;
 
@@ -118,6 +119,20 @@ public class MPOA2MPService extends OA2MPService {
 			// make sure the original SCOPE parameter is set
 			parameters.put(OA2Constants.SCOPE, originalScopes);
 		}
+	}
+	
+	@Override
+	public UserInfo getUserInfo(String identifier) {
+		UserInfo info = super.getUserInfo(identifier);
+		
+		Asset asset = getEnvironment().getAssetStore().get(identifier);
+		asset.setUsername( info.getSub() );
+		
+		//TODO: BUG this asset here is not saving the username.. why?
+		System.out.println("SAVING ASSET WITH USERNAME IN GETUSER REQ : " + asset.getUsername());
+		getEnvironment().getAssetStore().save(identifier, asset);
+		
+		return info;
 	}
 	
 	/* MYPROXY COMMANDS */
