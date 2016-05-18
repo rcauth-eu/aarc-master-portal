@@ -115,10 +115,8 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             
             // save username into asset! Without this the following /forwardGetCert call will not know what username
             // to store the returned certificate under in the MyProxy store.
-            //asset.setUsername(userSubject);
-            
-            //System.out.println("SAVING ASSET WITH USERNAME : " + asset.getUsername());
-            //getCE().getAssetStore().save(asset);
+            asset.setUsername(userSubject);
+            getCE().getAssetStore().save(asset);
             
             
             String reqState = asset.getMPServerRequestState();

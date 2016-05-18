@@ -32,15 +32,16 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 	@Override
 	public void toMap(Asset asset, ConversionMap<String, Object> map) {
 		super.toMap(asset, map);
-		
-		MPOA2Asset a = (MPOA2Asset) super.fromMap(map,asset);
 
+		MPOA2Asset a = (MPOA2Asset) asset;
+		
 		if (a.getMPServerRequestCode() != null) {
 			map.put(getASK().mp_server_request_code(), a.getMPServerRequestCode());
 		}
 		if (a.getMPServerRequestState() != null) {
 			map.put(getASK().mp_server_request_state(), a.getMPServerRequestState());
-		}		
+		}	
+		
 	}
 	
 }

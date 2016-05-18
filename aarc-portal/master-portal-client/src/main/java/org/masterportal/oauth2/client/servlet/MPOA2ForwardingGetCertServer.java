@@ -48,8 +48,6 @@ public class MPOA2ForwardingGetCertServer extends ClientServlet {
         	
         	OA2Asset asset = (OA2Asset) getCE().getAssetStore().get(identifier);
         	
-        	System.out.println("ASSET USERNAME BEFORE CALLING /getcert : " + asset.getUsername());
-        	
         	ATResponse2 atResponse2 = new ATResponse2(asset.getAccessToken(), asset.getRefreshToken());
         	AssetResponse assetResponse  = oa2MPService.getCert(asset, atResponse2);
        	
