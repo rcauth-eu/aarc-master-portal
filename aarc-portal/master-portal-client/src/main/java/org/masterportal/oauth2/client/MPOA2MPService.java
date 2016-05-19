@@ -17,6 +17,7 @@ import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
+import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 import edu.uiuc.ncsa.security.util.pkcs.ProxyUtil;
 
 public class MPOA2MPService extends OA2MPService {
@@ -66,25 +67,33 @@ public class MPOA2MPService extends OA2MPService {
 	public AssetResponse getCert(OA2Asset a, ATResponse2 atResponse2) {
 		AssetResponse par = super.getCert(a, atResponse2);
 
-		logger.debug("Certificate request ended, trying to store the received cert in the Credential Store");
+		logger.info("3.b Certificate request ended, trying to store the received cert in the Credential Store");
 
 		try {
 		
 			// see if the result is a proxy or an EEC
 			if ( ProxyUtil.isProxy(par.getX509Certificates()) ) {
 	
-				logger.debug("Using MyProxy STORE to store credential");
+				logger.info("3.b Using MyProxy STORE to store credential");
 				// Proxy Certificate use STORE
 				storeProxy(par,a);
 	
 			} else {
 	
-				logger.debug("Using MyProxy PUT to store credential");
+				logger.info("3.b Using MyProxy PUT to store credential");
 				// User EE Certificate use PUT
 				putCert(par,a);
 				
 			}
-	
+			
+			
+			//There is not much we can do to properly destroy the privatekey object here. 
+			//The .destroy() method is not implemented, and the .getEncoded() method returns 
+			//a byte[] copy, so no point in adding 0-s there. 
+			//TODO: maybe come up with a better method. for now set it 'null' in hopes of 
+			//      garbage collection.
+			a.setPrivateKey(null);
+			
 			return par;
 		
 		} catch (Throwable e) {

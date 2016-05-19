@@ -33,6 +33,8 @@ public class MPOA2ForwardingGetCertServer extends ClientServlet {
 	@Override
 	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
 		
+		info("3.a Starting /getcert call to the Delegation Server");
+    	
 		OA2MPService oa2MPService = (OA2MPService) getOA4MPService();
 		
 		// get the session identifier from the request
@@ -44,13 +46,15 @@ public class MPOA2ForwardingGetCertServer extends ClientServlet {
 			
         } else {
         	
-        	info("Received a session identifier : " + identifier);
+        	info("3.a Received a session identifier : " + identifier);
         	
         	OA2Asset asset = (OA2Asset) getCE().getAssetStore().get(identifier);
         	
         	ATResponse2 atResponse2 = new ATResponse2(asset.getAccessToken(), asset.getRefreshToken());
         	AssetResponse assetResponse  = oa2MPService.getCert(asset, atResponse2);
        	
+        	info("3.c Successfuly completed /getcert call");
+        	
         	// set status code, so the calling OA4MP Server will know that the call succeeded. 
         	response.setStatus(HttpStatus.SC_OK);
         }

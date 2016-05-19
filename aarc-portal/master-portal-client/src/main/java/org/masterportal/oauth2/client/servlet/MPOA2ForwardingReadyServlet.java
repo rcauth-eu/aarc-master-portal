@@ -49,7 +49,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
 	
 	@Override
 	protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-
+		
        if (request.getParameterMap().containsKey(OA2Constants.ERROR)) {
             throw new OA2RedirectableError(request.getParameter(OA2Constants.ERROR),
                     request.getParameter(OA2Constants.ERROR_DESCRIPTION),
@@ -110,7 +110,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             	throw new GeneralException("User subject could not be extracted! The userinfo endpoint returned null!");
             }
 
-            debug("2.a Getting username from /userInfo");
+            info("2.a Getting username from /userInfo");
             String userSubject = userInfo.getSub();
             
             // save username into asset! Without this the following /forwardGetCert call will not know what username
@@ -122,7 +122,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             String reqState = asset.getMPServerRequestState();
             String reqCode = asset.getMPServerRequestCode();
             
-            debug("Forwarding back to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
+            info("2.a Returning to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
             
             // setting parameters for the MP Server. use Attributes for passing parameters since 
             // these are only transfered within the web container.

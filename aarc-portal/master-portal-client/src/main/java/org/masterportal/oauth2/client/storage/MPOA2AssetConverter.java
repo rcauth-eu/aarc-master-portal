@@ -42,6 +42,9 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 			map.put(getASK().mp_server_request_state(), a.getMPServerRequestState());
 		}	
 		
+		// remove the private key from the map, so that it will never get serialized
+		map.remove( getASK().privateKey() );
+		
 	}
 	
 }
