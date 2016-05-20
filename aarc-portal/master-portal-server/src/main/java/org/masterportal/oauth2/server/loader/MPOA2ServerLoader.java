@@ -66,17 +66,34 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     getScopes(),
                     getScopeHandler(),
                     isRefreshTokenEnabled(),
-                    getMyProxyPassword());
+                    getMyProxyPassword(),
+                    getMyProxyDefaultLifetime(),
+                    getMyProxyMaximumLifetime());
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new GeneralException("Error: Could not create the runtime environment", e);
         }
     }	
 	
+    /* ADDITIONAL MYPROXY SERVER CONFIGURATIONS */
+    
     protected String getMyProxyPassword() {
     	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
     	return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
     }
     
+    protected long getMyProxyDefaultLifetime() {
+    	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+    	ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
+    	return Long.parseLong( lifetimeNode.getValue().toString() );
+    }
+    
+    protected long getMyProxyMaximumLifetime() {
+    	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+    	ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_MAXIMUM_LIFETIME);
+    	return Long.parseLong( lifetimeNode.getValue().toString() );
+    }    
+    
+    /* CUSTOM TRANSACTION */
 
     public static class MPST2Provider extends DSTransactionProvider<OA2ServiceTransaction> {
 

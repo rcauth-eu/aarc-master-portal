@@ -15,6 +15,14 @@ public class MPOA2RequestForwarder {
 	 *  Forward requests to another endpoint. This method is used by the OA4MP-Server to forward 
 	 *  calls to the OA4MP-Client. This method abstract error handling based on returned status
 	 *  codes.
+	 *  
+	 *  @param request The original request object being forwarded
+	 *  @param response The original response object
+	 *  @param dispatcher The request dispatcher taking care of switching contexts
+	 *  @param aggregateResponse Decides whether to aggregate the response coming from the forwarding 
+	 *  with the original response object or not. 
+	 *  
+	 *  @throws Throwable for general errors
 	 */
 	public static void forwardRequest(HttpServletRequest request, HttpServletResponse response, 
 									  RequestDispatcher dispatcher, boolean aggregateResponse)  throws Throwable {
