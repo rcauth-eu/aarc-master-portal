@@ -88,5 +88,63 @@
         </plugins>
         <finalName>mp-oa2-server</finalName>
     </build>
+    
+  <!--
+        Using the 'cli' profile you can build the oa2-cli.jar tool, that
+        can be used for client approvals. You need to build this tool 
+        here if you're planning to use it with the Delegation Server!
+        To build the cli:
+        
+        1. Change pom packaging from 'war' to 'jar'. This is because 
+        the classes defined in this project should end up in the CLI 
+        
+        2. Execute: mvn clean package -P cli   
+    -->
+    
+    
+  <profiles>
+    <profile>
+
+      <dependencies>
+        <dependency>
+          <groupId>edu.uiuc.ncsa.myproxy</groupId>
+          <artifactId>oa4mp-server-admin-oauth2</artifactId>
+          <version>3.4-SNAPSHOT</version>
+        </dependency>
+      </dependencies>
+
+      <id>cli</id>
+
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.dstovall</groupId>
+            <artifactId>onejar-maven-plugin</artifactId>
+            <version>1.4.5</version>
+            <executions>
+              <execution>
+                <configuration>
+                  <mainClass>edu.uiuc.ncsa.myproxy.oauth2.tools.OA2Commands</mainClass>
+                  <filename>oa2-cli.jar</filename>
+                </configuration>
+                <goals>
+                  <goal>one-jar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
+      </build>
+
+    </profile>
+  </profiles>
+
+  <pluginRepositories>
+    <pluginRepository>
+      <id>onejar-maven-plugin.googlecode.com</id>
+      <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
+    </pluginRepository>
+  </pluginRepositories>
+    
    
 </project>
