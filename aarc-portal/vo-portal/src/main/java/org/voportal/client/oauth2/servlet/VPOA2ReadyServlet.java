@@ -8,6 +8,7 @@ import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPProxyService;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
+import edu.uiuc.ncsa.security.delegation.token.MyX509Proxy;
 import edu.uiuc.ncsa.security.delegation.token.impl.AuthorizationGrantImpl;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
@@ -84,9 +85,16 @@ public class VPOA2ReadyServlet extends ClientServlet {
         
         info("2.b. Done! Displaying VOMS INFO.");
 
-        String username = ui.getSub();
+        String username = ui.getSub().replaceAll("/", "X");
         String tmpProxy = PROXY_TMP_DIR + "/" + username + ".proxy";
-		String proxyString = assetResponse.getCredential().getX509CertificatesPEM();
+		String proxyString = null;
+		
+		if ( assetResponse.getCredential() instanceof MyX509Proxy ) {
+			proxyString = ((MyX509Proxy)assetResponse.getCredential()).getX509ProxyPEM();
+		} else {
+			proxyString = assetResponse.getCredential().getX509CertificatesPEM();
+		}
+		
         String vomsinfo = null;
 		
 		try {
