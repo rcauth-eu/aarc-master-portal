@@ -102,7 +102,7 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
         Cookie cookie = new Cookie(MPClientContext.MP_CLIENT_REQUEST_ID, id.getUri().toString());
         cookie.setMaxAge(15 * 60); // 15 minutes
         cookie.setSecure(true);
-        cookie.setPath(MPClientContext.MP_CLIENT_CONTEXT);
+        cookie.setPath("/");
         debug("id = " + id.getUri());
         response.addCookie(cookie);
         info("1.b. Got response. Creating page with redirect for " + gtwResp.getRedirect().getHost());
