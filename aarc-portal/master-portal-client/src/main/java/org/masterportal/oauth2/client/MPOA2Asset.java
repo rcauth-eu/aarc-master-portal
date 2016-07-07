@@ -5,8 +5,8 @@ import edu.uiuc.ncsa.security.core.Identifier;
 
 /**
  * MP Client Asset extension includes the original request 
- * code & status as a session identifier for the MP Server Component.
- * This session identifier (code & status) is sent back to the 
+ * code and status as a session identifier for the MP Server Component.
+ * This session identifier (code and status) is sent back to the 
  * MP Server once authentication has completed in order to 
  * identify the ongoing session.
  * 

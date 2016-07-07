@@ -108,9 +108,6 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	        debug(info.toString());
 	        debug("--- INFO ---");
 	        
-	        // validate the remaining proxy lifetime against the requested proxy lifetime
-	        validateRequestLifetime( request.getParameter(OA2Constants.PROXY_LIFETIME) , info);
-	        
 	        // execute request validator in order 
 	        for ( GetProxyRequestValidator validator : se.getValidators()) {
 	        	validator.validate(trans, request, response, info);
@@ -156,59 +153,7 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	/* HELPER METHODS */
 	
 	/**
-	 * Validate the requested proxy lifetime against the actual proxy lifetime remaining in the 
-	 * MyProxy Credential Store. This method will check against invalid proxy lifetime requests 
-	 * that exceed server maximum, and against proxy lifetime requests that are larger than the 
-	 * time left in the stored proxy. 
-	 * <p>
-	 * An empty reqLifetime is considered a valid request lifetime. 
-	 * 
-	 * @param reqLifetime The requested proxy lifetime expressed in seconds.  
-	 * @param info The info object resulting from a MyProxy INFO command.
-	 * 
-	 * @throws InvalidRequesLifetimeException In case the requested proxy lifetime exceeds the
-	 * server maximum.
-	 * @throws ShortProxyLifetimeException In case the proxy lifetime requests is larger than the 
-	 * remaining time left in the proxy from the Credential Store. 
-	 */
-	protected void validateRequestLifetime(String reqLifetime, MyProxyCredentialInfo info) throws InvalidRequesLifetimeException, 
-																								  ShortProxyLifetimeException  {
-		
-		debug("Validating requested lifetime value");
-		MPOA2SE se =  (MPOA2SE) getServiceEnvironment();
-		
-        if ( reqLifetime != null ) {
-        	
-	        // requested lifetime is in seconds
-        	long requestedLifetime = Long.parseLong( reqLifetime );
-        	
-        	// check against server maximum
-        	if ( requestedLifetime > se.getMyproxyMaximumLfetime() ) {
-        		warn("Requested proxy lifetime (" + requestedLifetime + ") is bigger then the server side"
-        				+ " maximum (" + se.getMyproxyMaximumLfetime() + "). Certificate will not get renewed." );
-        		throw new InvalidRequesLifetimeException("Requested lifetime exceeds server maximum");
-        	}
-        	
-        	// check against remaining proxy lifetime 
-        	// calculate the remaining max lifetime based on the store proxy validity
-	        long now = System.currentTimeMillis();
-	        long proxyEndTime = info.getEndTime();
-	        long maxLifetimeLeft = (proxyEndTime - now) / 1000;
-	        
-	        // compare values
-	        if ( maxLifetimeLeft < requestedLifetime ) {
-	        	warn("Requested lifetime (" + requestedLifetime + ") is larger that the remaining"
-	        			+ " proxy valitity time (" + maxLifetimeLeft + "). Renewing certificate! "); 
-        		throw new ShortProxyLifetimeException("Requested lifetime is bigger than remaining proxy lifetime");
-	        }
-	    
-        } else {
-        	debug("No requested lifetime value found! Server will fall back on configured default");
-        }
-	}
-	
-	/**
-	 * Forward the currently pending request to the Master Portal Client's {@link MP_CLIENT_FWGETCERT_ENDPOINT}
+	 * Forward the currently pending request to the Master Portal Client's MP_CLIENT_FWGETCERT_ENDPOINT
 	 * endpoint. This method should be called if a new certificate is needed in the Credential Store, since
 	 * this will set of a /getcert call to the Delegation Server. 
 	 * 

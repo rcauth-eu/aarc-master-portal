@@ -114,7 +114,7 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     /**
      * Check if a parameter is an OpenID Connect specific Authorization Request 
      * parameter or not.  
-     * @see https://docs.google.com/document/d/1cs3peO9FxA81KN-1RC6Z-auEFIwRbJpZ-SFuKbQzS50/pub#h.cfm05rlw4qy3
+     * @see <a href="https://docs.google.com/document/d/1cs3peO9FxA81KN-1RC6Z-auEFIwRbJpZ-SFuKbQzS50/pub#h.cfm05rlw4qy3">MyProxy OpenID Connect</a>
      * 
      * @param key The parameter name to test 
      * @return true if parameter is a standard OIDC Authorization parameter, false otherwise.

@@ -18,12 +18,12 @@ import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
  * <p>
  * Calling this endpoint initiates a /getcert request issued to the Delegation Server.
  * Note that for this to work, you need to have a valid session identified by the 
- * {@link MP_CLIENT_REQUEST_ID}. On success, this endpoint will take care of storing 
+ * MPClientContext.MP_CLIENT_REQUEST_ID. On success, this endpoint will take care of storing 
  * a Long Lived Proxy Certificate derived from the certificate returned from the 
  * Delegation Server, and return a success code to the MP Server. No actual credential is 
  * returned by this endpoint.
  * 
- * @see https://wiki.nikhef.nl/grid/Master_Portal_Internals
+ * @see <a href="https://wiki.nikhef.nl/grid/Master_Portal_Internals">wiki</a>
  * 
  * @author "Tamás Balogh"
  *

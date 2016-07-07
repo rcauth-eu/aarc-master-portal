@@ -69,7 +69,6 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     isRefreshTokenEnabled(),
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
-                    getMyProxyMaximumLifetime(),
                     getValidators());
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new GeneralException("Error: Could not create the runtime environment", e);
@@ -88,12 +87,6 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     	ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
     	return Long.parseLong( lifetimeNode.getValue().toString() );
     }
-    
-    protected long getMyProxyMaximumLifetime() {
-    	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
-    	ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_MAXIMUM_LIFETIME);
-    	return Long.parseLong( lifetimeNode.getValue().toString() );
-    }    
     
     /* GETCERT REQUEST VALIDATORS */
     

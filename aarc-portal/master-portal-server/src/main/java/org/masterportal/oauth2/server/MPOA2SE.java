@@ -31,7 +31,7 @@ public class MPOA2SE extends OA2SE {
 			Provider<AGIssuer> agip, Provider<ATIssuer> atip, Provider<PAIssuer> paip, Provider<TokenForge> tfp,
 			HashMap<String, String> constants, AuthorizationServletConfig ac, UsernameTransformer usernameTransformer,
 			boolean isPingable, int clientSecretLength, Collection<String> scopes, ScopeHandler scopeHandler,
-			boolean isRefreshTokenEnabled, String myproxyPassword, long myproxyDefaultLifetime, long myproxyMaximumLfetime,
+			boolean isRefreshTokenEnabled, String myproxyPassword, long myproxyDefaultLifetime, 
 			GetProxyRequestValidator[] validators) {
 		
 		super(logger, tsp, csp, maxAllowedNewClientRequests, rtLifetime, casp, mfp, mup, messagesProvider, agip, atip, paip,
@@ -40,7 +40,6 @@ public class MPOA2SE extends OA2SE {
 		
 		this.myproxyPassword = myproxyPassword;
 		this.myproxyDefaultLifetime = myproxyDefaultLifetime;
-		this.myproxyMaximumLfetime = myproxyMaximumLfetime;
 		
 		this.validators = validators;
 	}
@@ -62,14 +61,9 @@ public class MPOA2SE extends OA2SE {
 	}
     
     long myproxyDefaultLifetime;
-    long myproxyMaximumLfetime;
     
     public long getMyproxyDefaultLifetime() {
 		return myproxyDefaultLifetime;
-	}
-    
-    public long getMyproxyMaximumLfetime() {
-		return myproxyMaximumLfetime;
 	}
     
 }

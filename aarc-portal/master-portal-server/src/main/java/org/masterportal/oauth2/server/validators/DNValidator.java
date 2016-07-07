@@ -17,6 +17,20 @@ import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import eu.emi.security.authn.x509.impl.OpensslNameUtils;
 
+/**
+ * The DN of the store proxy is checked against a configurable claim 
+ * returned by the Delegation Server. In case of mismatch the stored 
+ * proxy is deemed invalid.
+ * <p>
+ * The required input configuration parameters are:
+ * <ul>
+ * <li>input_claim: the name of the claim containing the certificate DN</li>  
+ * </ul> 
+ *  
+ * 
+ * @author "Tamás Balogh"
+ *
+ */
 public class DNValidator implements GetProxyRequestValidator {
 
 	/* configuration input */
