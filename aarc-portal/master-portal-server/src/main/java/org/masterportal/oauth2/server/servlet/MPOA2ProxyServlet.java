@@ -23,8 +23,10 @@ import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.server.MPOA2RequestForwarder;
 import org.masterportal.oauth2.server.MPOA2SE;
 import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
+import org.masterportal.oauth2.server.exception.InvalidDNException;
 import org.masterportal.oauth2.server.exception.InvalidRequesLifetimeException;
 import org.masterportal.oauth2.server.exception.ShortProxyLifetimeException;
+import org.masterportal.oauth2.server.validators.GetProxyRequestValidator;
 
 public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	
@@ -85,7 +87,8 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	protected void prepare(ServiceTransaction transaction, HttpServletRequest request, HttpServletResponse response) throws Throwable {
 		super.prepare(transaction, request, response);
 		
-		OA2ServiceTransaction trans = (OA2ServiceTransaction)transaction;
+		MPOA2SE se = (MPOA2SE) getServiceEnvironment();
+		MPOA2ServiceTransaction trans = (MPOA2ServiceTransaction)transaction;
 		
 		// establish a myproxy connection so that we can execute an INFO command
 		checkMPConnection(trans);
@@ -108,31 +111,41 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	        // validate the remaining proxy lifetime against the requested proxy lifetime
 	        validateRequestLifetime( request.getParameter(OA2Constants.PROXY_LIFETIME) , info);
 	        
+	        // execute request validator in order 
+	        for ( GetProxyRequestValidator validator : se.getValidators()) {
+	        	validator.validate(trans, request, response, info);
+	        }
+	        
 	        // everything seems to be in order
 	     	userProxyValid = true;
 	        
         } catch (MyProxyNoUserException e) {
         	debug("No user found in MyProxy Credential Store!");
+        	debug(e.getMessage());
         	userProxyValid = false;
-        }
-        catch (MyProxyCertExpiredExcpetion e) {
+        } catch (MyProxyCertExpiredExcpetion e) {
         	debug("User certificate from MyProxy Credential Store is expired!");
+        	debug(e.getMessage());
         	userProxyValid = false;
-        }
-        catch (ShortProxyLifetimeException e) {
+        } catch (ShortProxyLifetimeException e) {
         	debug("The requested lifetime exceends remaining proxy lifetime!");
+        	debug(e.getMessage());
         	userProxyValid = false;
-        }
-        catch (InvalidRequesLifetimeException e) {
+        } catch (InvalidRequesLifetimeException e) {
         	debug("The requested lifetime exceends server maximum!");
+        	debug(e.getMessage());
         	// don't request new certificate in this case!
         	userProxyValid = true;
         	//TODO: or fail instead?
-        }        
+        } catch (InvalidDNException e) {
+        	debug("Invalid Proxy! The cached proxy DN does not match the DN returned by the Delegation Server!");
+        	debug(e.getMessage());
+        	userProxyValid = false;
+        }
         
         if (!userProxyValid) {
         
-        	info("2.a. Proxy retrieval failed! Creating new user certificate ...");
+        	info("2.a. Proxy retrieval failed! Asking for a new user certificate ...");
         	// call /forwardetproxy on the Master Portal Client component
         	forwardRealCertRequest(trans, request, response);
         	

@@ -12,4 +12,10 @@ public interface MPOA4MPConfigTags extends OA4MPConfigTags {
 	public static final String MYPROXY_DEFAULT_LIFETIME = "defaultLifetime";
 	public static final String MYPROXY_MAXIMUM_LIFETIME = "maximumLifetime";
 	
+	// validators
+	public static final String MYPROXY_REQ_VALIDATORS = "validators";
+	public static final String MYPROXY_REQ_VALIDATOR = "validator";
+	public static final String MYPROXY_REQ_VALIDATOR_HANDLER = "handler";
+	public static final String MYPROXY_REQ_VALIDATOR_INPUT = "input";
+	public static final String MYPROXY_REQ_VALIDATOR_INPUT_NAME = "name";
 }

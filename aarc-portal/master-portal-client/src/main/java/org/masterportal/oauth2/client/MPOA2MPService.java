@@ -1,6 +1,7 @@
 package org.masterportal.oauth2.client;
 
 import java.security.GeneralSecurityException;
+import java.security.cert.X509Certificate;
 import java.util.Map;
 
 import edu.uiuc.ncsa.myproxy.MPConnectionProvider;
@@ -15,10 +16,10 @@ import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
-import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
 import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
-import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 import edu.uiuc.ncsa.security.util.pkcs.ProxyUtil;
+import eu.emi.security.authn.x509.impl.OpensslNameUtils;
+import eu.emi.security.authn.x509.proxy.ProxyUtils;
 
 public class MPOA2MPService extends OA2MPService {
 
@@ -70,22 +71,9 @@ public class MPOA2MPService extends OA2MPService {
 		logger.info("3.b Certificate request ended, trying to store the received cert in the Credential Store");
 
 		try {
-		
-			// see if the result is a proxy or an EEC
-			if ( ProxyUtil.isProxy(par.getX509Certificates()) ) {
-	
-				logger.info("3.b Using MyProxy STORE to store credential");
-				// Proxy Certificate use STORE
-				storeProxy(par,a);
-	
-			} else {
-	
-				logger.info("3.b Using MyProxy PUT to store credential");
-				// User EE Certificate use PUT
-				putCert(par,a);
-				
-			}
 			
+			// upload certificate to Credential Store
+			uploadCert(par, a);
 			
 			//There is not much we can do to properly destroy the privatekey object here. 
 			//The .destroy() method is not implemented, and the .getEncoded() method returns 
@@ -133,26 +121,12 @@ public class MPOA2MPService extends OA2MPService {
 	/* MYPROXY COMMANDS */
 
 	/**
+	 * Upload the certificate chain from the AssetResponse and its matching key from 
+	 * the OA2Asset into the MyProxy Credential Store. 
+	 * <p>
 	 * Use MyProxy PUT command to store a Long Lived Proxy certificate made from the 
 	 * EEC found in the assetResp. Call this in case /getcert returns an EEC.
-	 * 
-	 * @param assetResp The asset response of a /getcert request
-	 * @param asset The asset created to identify the ongoing session
-	 * @throws Throwable MyProxy related exceptions 
-	 */
-	public void putCert(AssetResponse assetResp, OA2Asset asset) throws Throwable {
-
-		String myproxyPasswrod  = ((MPOA2ClientEnvironment)getEnvironment()).getMyproxyPassword();
-		long lifetime = getEnvironment().getCertLifetime();
-		
-		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime);
-		
-		mp.setLifetime(lifetime * 1000);
-		mp.doPut( assetResp.getX509Certificates() , asset.getPrivateKey());
-		
-	}
-
-	/**
+	 * <p>
 	 * Use MyProxy STORE command to store the Proxy certificate found in the assetResp. 
 	 * Call this in case /getcert returns a Proxy.  
 	 * 
@@ -160,18 +134,41 @@ public class MPOA2MPService extends OA2MPService {
 	 * @param asset The asset created to identify the ongoing session
 	 * @throws Throwable MyProxy related exceptions 
 	 */
-	public void storeProxy(AssetResponse assetResp, OA2Asset asset) throws Throwable {
-
+	public void uploadCert(AssetResponse assetResp, OA2Asset asset) throws Throwable {
+		
 		String myproxyPasswrod  = ((MPOA2ClientEnvironment)getEnvironment()).getMyproxyPassword();
 		long lifetime = getEnvironment().getCertLifetime();
 		
 		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime);
 		
 		mp.setLifetime(lifetime * 1000);
-		mp.doStore( assetResp.getX509Certificates() , asset.getPrivateKey());
 		
-	}	
+		// Get the end entity certificate DN in openssl format. The openssl format is 
+		// necessary because that's what MyProxy Server expects. 
+		X509Certificate eec = ProxyUtils.getEndUserCertificate( assetResp.getX509Certificates() );
+		String rfcDN = eec.getSubjectDN().getName();		
+		String opensslDN = OpensslNameUtils.convertFromRfc2253( rfcDN , false);
+		
+		// This enables users with an existing valid proxy to renew their proxy
+		mp.setRenewer(opensslDN);
+		
+		// see if the result is a proxy or an EEC
+		if ( ProxyUtil.isProxy(assetResp.getX509Certificates()) ) {
 
+			logger.info("3.b Using MyProxy STORE to store credential");
+			// Proxy Certificate use STORE
+			mp.doStore( assetResp.getX509Certificates() , asset.getPrivateKey());
+
+		} else {
+
+			logger.info("3.b Using MyProxy PUT to store credential");
+			// User EE Certificate use PUT
+			mp.doPut( assetResp.getX509Certificates() , asset.getPrivateKey());	
+			
+		}
+				
+	}
+	
 	/* HELPER METHODS */
 
 	/**

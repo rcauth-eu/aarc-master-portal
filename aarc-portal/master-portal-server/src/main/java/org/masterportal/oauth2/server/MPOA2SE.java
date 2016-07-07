@@ -6,6 +6,8 @@ import java.util.List;
 
 import javax.inject.Provider;
 
+import org.masterportal.oauth2.server.validators.GetProxyRequestValidator;
+
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2SE;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.MyProxyFacadeProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.AuthorizationServletConfig;
@@ -29,7 +31,8 @@ public class MPOA2SE extends OA2SE {
 			Provider<AGIssuer> agip, Provider<ATIssuer> atip, Provider<PAIssuer> paip, Provider<TokenForge> tfp,
 			HashMap<String, String> constants, AuthorizationServletConfig ac, UsernameTransformer usernameTransformer,
 			boolean isPingable, int clientSecretLength, Collection<String> scopes, ScopeHandler scopeHandler,
-			boolean isRefreshTokenEnabled, String myproxyPassword, long myproxyDefaultLifetime, long myproxyMaximumLfetime) {
+			boolean isRefreshTokenEnabled, String myproxyPassword, long myproxyDefaultLifetime, long myproxyMaximumLfetime,
+			GetProxyRequestValidator[] validators) {
 		
 		super(logger, tsp, csp, maxAllowedNewClientRequests, rtLifetime, casp, mfp, mup, messagesProvider, agip, atip, paip,
 				tfp, constants, ac, usernameTransformer, isPingable, clientSecretLength, scopes, scopeHandler,
@@ -38,6 +41,14 @@ public class MPOA2SE extends OA2SE {
 		this.myproxyPassword = myproxyPassword;
 		this.myproxyDefaultLifetime = myproxyDefaultLifetime;
 		this.myproxyMaximumLfetime = myproxyMaximumLfetime;
+		
+		this.validators = validators;
+	}
+	
+	protected GetProxyRequestValidator[] validators;
+	
+	public GetProxyRequestValidator[] getValidators() {
+		return validators;
 	}
 	
     protected String myproxyPassword;
