@@ -15,6 +15,7 @@ import edu.uiuc.ncsa.myproxy.exception.MyProxyCertExpiredExcpetion;
 import edu.uiuc.ncsa.myproxy.exception.MyProxyNoUserException;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ProxyServlet;
+import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
@@ -138,6 +139,12 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         	debug("Invalid Proxy! The cached proxy DN does not match the DN returned by the Delegation Server!");
         	debug(e.getMessage());
         	userProxyValid = false;
+        } catch (Throwable e) {
+        	if ( e instanceof GeneralException ) {
+        		throw e;
+        	} else {
+        		throw new GeneralException("User proxy validation error", e);
+        	}
         }
         
         if (!userProxyValid) {
