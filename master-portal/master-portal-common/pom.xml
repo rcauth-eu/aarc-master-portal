@@ -2,16 +2,18 @@
   <modelVersion>4.0.0</modelVersion>
   <parent>
     <groupId>nikhef.oa4mp.oauth2</groupId>
-    <artifactId>aarc-portal</artifactId>
+    <artifactId>master-portal</artifactId>
     <version>0.0.1-SNAPSHOT</version>
   </parent>
   <artifactId>master-portal-common</artifactId>
+
+  <name>Master Portal Common</name>
   
   <dependencies>
   
        	<dependency>	
 	    	<groupId>edu.uiuc.ncsa.myproxy</groupId>
-			<artifactId>oa4mp-server-api</artifactId>
+		<artifactId>oa4mp-server-api</artifactId>
     		<version>3.4-SNAPSHOT</version>
      	</dependency>	
   
