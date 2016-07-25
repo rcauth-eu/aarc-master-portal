@@ -13,8 +13,9 @@ public interface MPClientContext {
 	
 	public static final String MP_CLIENT_START_ENDPOINT = "/startRequest";
 	// Variable used to identify client session from cookies. 
-	// Matches edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.OA4MP_CLIENT_REQUEST_ID  
-	public static final String MP_CLIENT_REQUEST_ID = "oa4mp_client_req_id";
+	// does not match edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.OA4MP_CLIENT_REQUEST_ID
+	// bacause that would collide with co-located VO Portals.
+	public static final String MP_CLIENT_REQUEST_ID = "master_portal_client_req_id";
 	
 	/*
 	 *  /forwardgetcert

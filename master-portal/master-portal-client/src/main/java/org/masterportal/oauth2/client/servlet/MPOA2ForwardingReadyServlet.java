@@ -20,8 +20,9 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.masterportal.oauth2.MPServerContext;
+import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.client.MPOA2Asset;
-import org.masterportal.oauth2.client.MPOA2ClientEnvironment;
+import org.masterportal.oauth2.servlet.util.CookieUtils;
 
 import java.net.URI;
 
@@ -74,7 +75,8 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
 
         AuthorizationGrant grant = new AuthorizationGrantImpl(URI.create(token));
         //String identifier = getIdentifierCookie(request, response);
-        String identifier = clearCookie(request, response);
+        String identifier = CookieUtils.clearCookie(request, response, MPClientContext.MP_CLIENT_REQUEST_ID);
+        
         MPOA2Asset asset = null;
         if (identifier == null) {
         	System.out.println("Getting Asset from token: " + token);
@@ -146,5 +148,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         return;
 		
 	}
+	
+
 	
 }
