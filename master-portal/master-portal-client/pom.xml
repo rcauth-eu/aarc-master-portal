@@ -19,19 +19,7 @@
          	<artifactId>master-portal-common</artifactId>
          	<version>0.0.1-SNAPSHOT</version>
      	</dependency>
-		
-		<dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
-        </dependency>
         
-        <dependency>
-            <groupId>edu.uiuc.ncsa.myproxy</groupId>
-            <artifactId>oa4mp-client-api</artifactId>
-            <version>3.4-SNAPSHOT</version>
-        </dependency>
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-client-oauth2</artifactId>
@@ -39,34 +27,24 @@
             <type>war</type>
             <scope>runtime</scope>
         </dependency>
+
+        <dependency>
+            <groupId>edu.uiuc.ncsa.myproxy</groupId>
+            <artifactId>oa4mp-client-loader-oauth2</artifactId>
+            <version>3.4-SNAPSHOT</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>servlet-api</artifactId>
             <version>2.5</version>
             <scope>provided</scope>
         </dependency>
-        <dependency>
-            <groupId>edu.uiuc.ncsa.myproxy</groupId>
-            <artifactId>oa4mp-client-loader-oauth2</artifactId>
-            <version>3.4-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <groupId>edu.uiuc.ncsa.security.delegation</groupId>
-            <artifactId>ncsa-security-delegation-common</artifactId>
-            <version>3.4-SNAPSHOT</version>
-        </dependency>
-        <dependency>
-            <artifactId>ncsa-security-util</artifactId>
-            <groupId>edu.uiuc.ncsa.security</groupId>
-            <version>3.4-SNAPSHOT</version>
-            <type>test-jar</type>
-            <scope>test</scope>
-        </dependency>
-        <dependency>
-            <artifactId>ncsa-security-delegation-common</artifactId>
-            <groupId>edu.uiuc.ncsa.security.delegation</groupId>
-            <version>3.4-SNAPSHOT</version>
-            <type>test-jar</type>
+
+		<dependency>
+            <groupId>junit</groupId>
+            <artifactId>junit</artifactId>
+            <version>4.10</version>
             <scope>test</scope>
         </dependency>
 
