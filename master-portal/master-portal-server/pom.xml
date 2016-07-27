@@ -106,9 +106,11 @@
       <build>
         <plugins>
           <plugin>
-            <groupId>org.dstovall</groupId>
+            <!--groupId>org.dstovall</groupId-->
+            <groupId>com.jolira</groupId>
             <artifactId>onejar-maven-plugin</artifactId>
-            <version>1.4.5</version>
+            <!--version>1.4.5</version-->
+            <version>1.4.4</version>
             <executions>
               <execution>
                 <configuration>
@@ -127,12 +129,12 @@
     
   </profiles>
 
-  <pluginRepositories>
+  <!--pluginRepositories>
     <pluginRepository>
       <id>onejar-maven-plugin.googlecode.com</id>
       <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
     </pluginRepository>
-  </pluginRepositories>
+  </pluginRepositories-->
     
    
 </project>
