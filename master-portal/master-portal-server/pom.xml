@@ -104,37 +104,38 @@
       </properties>
 
       <build>
-        <plugins>
-          <plugin>
-            <!--groupId>org.dstovall</groupId-->
-            <groupId>com.jolira</groupId>
-            <artifactId>onejar-maven-plugin</artifactId>
-            <!--version>1.4.5</version-->
-            <version>1.4.4</version>
-            <executions>
-              <execution>
-                <configuration>
-                  <mainClass>edu.uiuc.ncsa.myproxy.oauth2.tools.OA2Commands</mainClass>
-                  <filename>oa2-cli.jar</filename>
-                </configuration>
-                <goals>
-                  <goal>one-jar</goal>
-                </goals>
-              </execution>
-            </executions>
-          </plugin>
-        </plugins>
+	    <plugins>
+		<plugin>
+		    <artifactId>maven-assembly-plugin</artifactId>
+		    <configuration>
+			<archive>
+			    <manifest>
+				<addClasspath>true</addClasspath>
+				<mainClass>edu.uiuc.ncsa.myproxy.oauth2.tools.OA2Commands</mainClass>
+			    </manifest>
+			</archive>
+			<descriptorRefs>
+			    <descriptorRef>jar-with-dependencies</descriptorRef>
+			</descriptorRefs>
+			<appendAssemblyId>false</appendAssemblyId>
+			<attach>false</attach>
+			<finalName>oa2-cli</finalName>
+		    </configuration>
+		    <executions>
+			<execution>
+			    <id>make-my-jar-with-dependencies</id>
+			    <phase>package</phase>
+			    <goals>
+				<goal>single</goal>
+			    </goals>
+			</execution>
+		    </executions>
+		</plugin>
+	    </plugins>
       </build>
+
     </profile>
     
   </profiles>
 
-  <!--pluginRepositories>
-    <pluginRepository>
-      <id>onejar-maven-plugin.googlecode.com</id>
-      <url>http://onejar-maven-plugin.googlecode.com/svn/mavenrepo</url>
-    </pluginRepository>
-  </pluginRepositories-->
-    
-   
 </project>
