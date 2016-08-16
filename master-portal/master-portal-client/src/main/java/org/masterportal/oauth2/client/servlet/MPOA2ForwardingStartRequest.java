@@ -82,7 +82,8 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     	String code = (String) request.getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE);
     	String state = (String) request.getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE);    	
     	
-    	if (code != null && state != null) {
+    	if (code != null && !code.isEmpty() && 
+    		state != null && !state.isEmpty()) {
     		
     		info("1.a. Saving code&state into asset store for later forwarding !");
     		MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
@@ -154,7 +155,7 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
 		
 		String reqUrl = request.getRequestURL().toString();
         String queryString = request.getQueryString();   // d=789
-        if (queryString != null) {
+        if (queryString != null && !queryString.isEmpty()) {
             reqUrl += "?" + queryString;
         }
         

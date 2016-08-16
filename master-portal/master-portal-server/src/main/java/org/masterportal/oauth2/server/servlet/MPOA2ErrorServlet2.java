@@ -51,7 +51,7 @@ public class MPOA2ErrorServlet2 extends MyProxyDelegationServlet {
         request.setAttribute(MESSAGE, URLDecoder.decode(request.getParameter(MESSAGE), "UTF-8"));
         request.setAttribute(STACK_TRACE, stackTrace);
 
-        if (identifier != null) {
+        if (identifier != null && !identifier.isEmpty()) {
         	Client client = getClient(BasicIdentifier.newID(identifier));
         	request.setAttribute("client", client);
         }

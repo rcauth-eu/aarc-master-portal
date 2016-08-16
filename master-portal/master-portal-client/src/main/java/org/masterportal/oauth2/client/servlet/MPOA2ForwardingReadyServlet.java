@@ -77,7 +77,9 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         //String identifier = getIdentifierCookie(request, response);
         String identifier = CookieUtils.clearCookie(request, response, MPClientContext.MP_CLIENT_REQUEST_ID);
         
+        
         MPOA2Asset asset = null;
+        /*
         if (identifier == null) {
         	System.out.println("Getting Asset from token: " + token);
             asset = (MPOA2Asset) getCE().getAssetStore().getByToken(BasicIdentifier.newID(token));
@@ -87,6 +89,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
                 System.out.println("Getting identifier: " + identifier);
             }
         }
+        */
         
         AssetResponse assetResponse = null;
         UserInfo userInfo = null;

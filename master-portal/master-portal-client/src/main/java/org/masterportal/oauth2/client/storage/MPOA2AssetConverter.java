@@ -35,11 +35,14 @@ public class MPOA2AssetConverter extends OA2AssetConverter {
 
 		MPOA2Asset a = (MPOA2Asset) asset;
 		
-		if (a.getMPServerRequestCode() != null) {
-			map.put(getASK().mp_server_request_code(), a.getMPServerRequestCode());
+		String reqCode = a.getMPServerRequestCode();
+		if (reqCode != null && !reqCode.isEmpty()) {
+			map.put(getASK().mp_server_request_code(), reqCode);
 		}
-		if (a.getMPServerRequestState() != null) {
-			map.put(getASK().mp_server_request_state(), a.getMPServerRequestState());
+		
+		String reqState = a.getMPServerRequestState();
+		if (reqState != null && !reqState.isEmpty()) {
+			map.put(getASK().mp_server_request_state(), reqState);
 		}	
 		
 		// remove the private key from the map, so that it will never get serialized

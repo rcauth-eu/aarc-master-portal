@@ -96,7 +96,7 @@ public class LifetimeValidator implements GetProxyRequestValidator {
 		String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
 		long maxLifetime = maxProxyLifetime - tolerance;
 		
-        if ( reqLifetime != null ) {
+        if ( reqLifetime != null && ! reqLifetime.isEmpty() ) {
         	
 	        // requested lifetime is in seconds
         	long requestedLifetime = Long.parseLong( reqLifetime );

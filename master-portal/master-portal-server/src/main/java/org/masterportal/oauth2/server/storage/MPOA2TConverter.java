@@ -27,7 +27,7 @@ public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConv
    		st.setMPClientSessionIdentifier( map.getString(tck.mp_client_session_identifier) );
 
     	String jsonClaims = map.getString(tck.claims);
-    	if ( jsonClaims != null ) {
+    	if ( jsonClaims != null && !jsonClaims.isEmpty() ) {
     		st.setClaims( (Map<String, Object>) JSONConverter.fromJSONObject(jsonClaims) );
     	}   		
    		
@@ -41,8 +41,9 @@ public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConv
     	
     	MPOA2TransactionKeys tck = (MPOA2TransactionKeys) getTCK();
  
-    	if (t.getMPClientSessionIdentifier() != null) {    		
-    		map.put(tck.mp_client_session_identifier, t.getMPClientSessionIdentifier());
+    	String clientSessionID = t.getMPClientSessionIdentifier();
+    	if (clientSessionID != null && !clientSessionID.isEmpty()) {    		
+    		map.put(tck.mp_client_session_identifier, clientSessionID);
     	}
     	
     	if ( t.getClaims() != null ) {

@@ -100,6 +100,9 @@ public class MPOA2MPService extends OA2MPService {
 	 * <p>
 	 * This method will only have effect if the provided parameter 
 	 * map has its SCOPE parameter set before this method is called.
+	 * <p>
+	 * The SCOPE parameter is being forwarded from the MP Server,
+	 * and it needs to be preserved by the MP Client.
 	 * 
 	 * @param asset The current session asset
 	 * @param parameters The parameter map that will end up in the authorize request 
@@ -107,12 +110,16 @@ public class MPOA2MPService extends OA2MPService {
 	@Override
 	public void preRequestCert(Asset asset, Map parameters) {
 	
+		String originalScopes = null;
 		if ( parameters.get(OA2Constants.SCOPE) != null ) {
 			// save original SCOPE parameter
-			String originalScopes = (String) parameters.get(OA2Constants.SCOPE);
-			
-			super.preRequestCert(asset, parameters);
-			
+			originalScopes = (String) parameters.get(OA2Constants.SCOPE);
+		}
+		
+		// call super method. this might overwrite the SCOPE parameter
+		super.preRequestCert(asset, parameters);
+		
+		if (originalScopes != null && ! originalScopes.isEmpty()) {
 			// make sure the original SCOPE parameter is set
 			parameters.put(OA2Constants.SCOPE, originalScopes);
 		}

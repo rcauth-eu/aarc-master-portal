@@ -220,7 +220,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         String rawrtl = request.getParameter(AUTHORIZATION_REFRESH_TOKEN_LIFETIME_KEY);
         OA2ServiceTransaction st2 = (OA2ServiceTransaction) trans;
         try {
-            if (rawrtl != null) {
+            if (rawrtl != null && !rawrtl.isEmpty()) {
                 st2.setRefreshTokenLifetime(Long.parseLong(rawrtl) * 1000);
             }
         } catch (Throwable t) {
@@ -266,11 +266,13 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         Object oo = request.getAttribute(key);
         if (oo != null) {
             x = oo.toString();
-            return x;
+            if ( ! x.isEmpty() ) {
+            	return x;
+            }
         }
 
         x = request.getParameter(key);
-        if (x != null) {
+        if (x != null && ! x.isEmpty()) {
         	return x;
         }
         
