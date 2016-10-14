@@ -1,16 +1,17 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
 
-
 <html>
+
 <head>
-    <title>MyProxy Delegation Service Client Registration Page</title>
+    <title>Master Portal Client Registration Page</title>
 </head>
+
 <body>
 <form action="${actionToTake}" method="post">
-    <h2>Welcome to the MyProxy Delegation Service Client Registration Page</h2>
+    <h2>Welcome to the Master Portal Client Registration Page</h2>
 
     <p>This page allows you to register your client with the
-        MyProxy delegation service that supports the OIDC/OAuth 2. To get your client approved,
+        Master Portal that supports the OIDC/OAuth 2. To get your client approved,
         please fill out the form below. Your request will be evaluated for approval. For more information,
         please make sure you read the
         <a href="http://grid.ncsa.illinois.edu/myproxy/oauth/client/manuals/registering-with-an-oauth2-server.xhtml"
@@ -36,14 +37,12 @@
         </tr>
         <tr>
             <td></td>
-            <td><input type="checkbox" name="${clientProxyLimited}" ${clientProxyLimitedValue} /><span
-                    title="Check this box for delegation of limited proxy certificates for use with Globus Toolkit GridFTP servers. Leave this box unchecked
-                    for delegation of general-use X.509 certificates." >Use Limited Proxy Certificates?</span>
+            <td><input type="hidden" name="${clientProxyLimited}" ${clientProxyLimitedValue} />
             </td>
         </tr>
 
 
-        <tr>
+        <tr style="vertical-align: top">
             <td>Callback URLs:</td>
             <td>
                 <textarea id="${callbackURI}" rows="10" cols="80"
