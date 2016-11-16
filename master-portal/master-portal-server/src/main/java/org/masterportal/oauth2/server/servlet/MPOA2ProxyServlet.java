@@ -20,6 +20,10 @@ import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 
+import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
+import org.apache.http.HttpStatus;
+
 import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.server.MPOA2RequestForwarder;
 import org.masterportal.oauth2.server.MPOA2SE;
@@ -67,7 +71,7 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	protected void checkMPConnection(OA2ServiceTransaction st) throws GeneralSecurityException {
         if (!hasMPConnection(st)) {
         	String myproxyPasswrod  = ((MPOA2SE)getServiceEnvironment()).getMyproxyPassword();
-        	debug("Creting new MP connection with username: " + st.getUsername() + " and lifetime: " + st.getLifetime());
+        	debug("Creating new MP connection with username: " + st.getUsername() + " and lifetime: " + st.getLifetime());
             createMPConnection(st.getIdentifier(), st.getUsername(), myproxyPasswrod, st.getLifetime());
         }
 	}
@@ -126,19 +130,19 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         	debug(e.getMessage());
         	userProxyValid = false;
         } catch (ShortProxyLifetimeException e) {
-        	debug("The requested lifetime exceends remaining proxy lifetime!");
+        	debug("The requested lifetime exceeds remaining proxy lifetime!");
         	debug(e.getMessage());
         	userProxyValid = false;
-        } catch (InvalidRequesLifetimeException e) {
-        	debug("The requested lifetime exceends server maximum!");
-        	debug(e.getMessage());
-        	// don't request new certificate in this case!
-        	userProxyValid = true;
-        	//TODO: or fail instead?
         } catch (InvalidDNException e) {
         	debug("Invalid Proxy! The cached proxy DN does not match the DN returned by the Delegation Server!");
         	debug(e.getMessage());
         	userProxyValid = false;
+        } catch (InvalidRequesLifetimeException e) {
+        	debug("The requested lifetime exceeds server maximum!");
+			String mesg=e.getMessage();
+//        	debug(mesg);
+        	// don't request new certificate in this case, it's a user error
+			throw new OA2GeneralError(mesg, OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
         } catch (Throwable e) {
         	if ( e instanceof GeneralException ) {
         		throw e;

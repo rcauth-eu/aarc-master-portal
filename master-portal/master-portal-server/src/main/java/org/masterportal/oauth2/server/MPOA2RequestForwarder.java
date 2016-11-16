@@ -7,7 +7,8 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpStatus;
 import org.masterportal.oauth2.servlet.util.ContentAwareHttpServletResponse;
 
-import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
 
 public class MPOA2RequestForwarder {
 
@@ -36,16 +37,21 @@ public class MPOA2RequestForwarder {
 			dispatcher.forward(request, responseWrapper );
 		}
         
-        if (responseWrapper.getStatus() == HttpStatus.SC_NO_CONTENT) {
-        	throw new GeneralException("Master Portal (OA4MP Client) returned an empty response");
-        }
-
-        String x = responseWrapper.getRawResponse();
-        
-        // everything other than OK will trigger an exception in the OA4MP Server
+        // everything other than OK will trigger an exception in the OA4MP Server.
         if (responseWrapper.getStatus() != HttpStatus.SC_OK) {
+			String mesg;
+			if (responseWrapper.getStatus() == HttpStatus.SC_NO_CONTENT)
+				mesg="Master Portal (OA4MP Client) returned an empty response";
+			else
+				mesg="Master Portal (OA4MP Client) returned an unexpected HTTP Status "+
+					 responseWrapper.getStatus()+
+					 ", raw response: "+
+					 responseWrapper.getRawResponse();
 
-            throw new GeneralException(x);
+			throw new OA2GeneralError(mesg,
+									  OA2Errors.SERVER_ERROR,
+									  "Internal server error",
+									  HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 		
 	}
