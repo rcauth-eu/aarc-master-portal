@@ -154,7 +154,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     				if (t instanceof GeneralException) {
     					throw t;
     				} else {
-    					throw new GeneralException("Faild to redirect authnetication request to MasterPortal Client!",t);
+    					throw new GeneralException("Faild to redirect authentication request to MasterPortal Client!",t);
     				}
     			}
         	
