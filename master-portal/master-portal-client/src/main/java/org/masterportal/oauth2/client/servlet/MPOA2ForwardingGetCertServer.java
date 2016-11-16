@@ -42,7 +42,13 @@ public class MPOA2ForwardingGetCertServer extends ClientServlet {
 		
 		if (identifier == null) {
             
-			error("Identifier not found in cookies! Cannot get the transaction asset");	
+			error("Identifier not found in cookies! Cannot get the transaction asset");
+			response.sendError(HttpStatus.SC_INTERNAL_SERVER_ERROR);
+			// This is not very clean: we should probably send headers and
+			// format too, but at least we can get the error accross to the
+			// server-side.
+			response.getWriter().write("Identifier not found in cookies! Cannot get the transaction asset");
+			response.getWriter().flush();
 			
         } else {
         	
