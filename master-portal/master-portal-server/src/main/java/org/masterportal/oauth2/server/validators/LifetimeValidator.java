@@ -91,7 +91,7 @@ public class LifetimeValidator implements GetProxyRequestValidator {
 	public void validate(MPOA2ServiceTransaction transaction, HttpServletRequest request, HttpServletResponse response,
 			MyProxyCredentialInfo info) throws Throwable {
 		
-		logger.debug("Staring Validator: " + this.getClass().getCanonicalName());
+		logger.debug("Starting Validator: " + this.getClass().getCanonicalName());
 
 		String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
 		long maxLifetime = maxProxyLifetime - tolerance;
