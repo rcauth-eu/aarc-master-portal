@@ -120,7 +120,14 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	        
 	        // everything seems to be in order
 	     	userProxyValid = true;
-	        
+	
+        } catch (InvalidRequesLifetimeException e) {
+			// Note: need to catch this one first, since the rest will try
+			// to retrieve a new cert and then succeed
+        	debug("The requested lifetime exceeds server maximum!");
+			String mesg=e.getMessage();
+        	// don't request new certificate in this case, it's a user error
+			throw new OA2GeneralError(mesg, OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
         } catch (MyProxyNoUserException e) {
         	debug("No user found in MyProxy Credential Store!");
         	debug(e.getMessage());
@@ -137,12 +144,6 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         	debug("Invalid Proxy! The cached proxy DN does not match the DN returned by the Delegation Server!");
         	debug(e.getMessage());
         	userProxyValid = false;
-        } catch (InvalidRequesLifetimeException e) {
-        	debug("The requested lifetime exceeds server maximum!");
-			String mesg=e.getMessage();
-//        	debug(mesg);
-        	// don't request new certificate in this case, it's a user error
-			throw new OA2GeneralError(mesg, OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
         } catch (Throwable e) {
         	if ( e instanceof GeneralException ) {
         		throw e;
