@@ -7,7 +7,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
-import org.masterportal.oauth2.server.exception.InvalidRequesLifetimeException;
+import org.masterportal.oauth2.server.exception.InvalidRequestLifetimeException;
 import org.masterportal.oauth2.server.exception.ShortProxyLifetimeException;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
 
@@ -103,21 +103,25 @@ public class LifetimeValidator implements GetProxyRequestValidator {
         	
         	// check against server maximum
         	if ( requestedLifetime > maxLifetime ) {
-        		throw new InvalidRequesLifetimeException("Requested proxy lifetime (" + requestedLifetime + ") is bigger then the server side"
+        		throw new InvalidRequestLifetimeException("Requested proxy lifetime (" + requestedLifetime + ") is bigger then the server side"
         				+ " maximum (" + maxLifetime + "). Certificate will not get renewed." );
         	}
-        	
-        	// check against remaining proxy lifetime 
-        	// calculate the remaining max lifetime based on the store proxy validity
-	        long now = System.currentTimeMillis();
-	        long proxyEndTime = info.getEndTime();
-	        long maxLifetimeLeft = (proxyEndTime - now) / 1000;
-	        
-	        // compare values
-	        if ( maxLifetimeLeft < requestedLifetime ) {
-	        	throw new ShortProxyLifetimeException("Requested lifetime (" + requestedLifetime + ") is larger that the remaining"
-	        			+ " proxy valitity time (" + maxLifetimeLeft + "). Renewing certificate! "); 
-	        }
+       
+			// Only do remaining proxy lifetime verification if we already have
+			// one (i.e. if the MyProxy server returned a valid answer)
+			if (info != null)	{
+				// check against remaining proxy lifetime 
+				// calculate the remaining max lifetime based on the store proxy validity
+				long now = System.currentTimeMillis();
+				long proxyEndTime = info.getEndTime();
+				long maxLifetimeLeft = (proxyEndTime - now) / 1000;
+				
+				// compare values
+				if ( maxLifetimeLeft < requestedLifetime ) {
+					throw new ShortProxyLifetimeException("Requested lifetime (" + requestedLifetime + ") is larger that the remaining"
+							+ " proxy validity time (" + maxLifetimeLeft + "). Renewing certificate! "); 
+				}
+			}
 	    
 	        logger.debug("Validation OK");
 	        

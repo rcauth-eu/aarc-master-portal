@@ -77,8 +77,15 @@ public class DNValidator implements GetProxyRequestValidator {
 	public void validate(MPOA2ServiceTransaction trans, HttpServletRequest request, HttpServletResponse response,
 			MyProxyCredentialInfo info) throws Throwable {
 		
-		logger.debug("Staring Validator: " + this.getClass().getCanonicalName());
-		
+		logger.debug("Starting Validator: " + this.getClass().getCanonicalName());
+
+		// Only run when there is something to validate
+		if (info == null)	{
+			logger.debug("No (valid) proxy yet, skipping validation");
+
+			return;
+		}
+
 		// The DN we have
 		String storedDN = info.getRenewers();
 		

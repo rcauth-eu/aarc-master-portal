@@ -10,11 +10,11 @@ import edu.uiuc.ncsa.myproxy.MyProxyCredentialInfo;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 
 /**
- *GetProxy Request Validator Interface
- *<p>
- *Implement this interface if you want to validate the MyProxy INFO
- *of the existing proxy certificate before executing the MyProxy GET
- *to return it.
+ * GetProxy Request Validator Interface
+ * <p>
+ * Implement this interface if you want to validate the request parameters or
+ * MyProxy INFO of the existing proxy certificate before executing the MyProxy
+ * GET to return it.
  * 
  * @author "Tamás Balogh"
  *
@@ -45,7 +45,8 @@ public interface GetProxyRequestValidator {
 	/**
 	 * Validator method being called after returning MyProxy INFO. This method is expected
 	 * to implement the validation logic and return in case of success. In case of failure
-	 * it is expected to return an Exception. 
+	 * it is expected to return an Exception. It MUST allow an null valued
+	 * MyProxyCredentialInfo.
 	 * 
 	 * @param transaction The current transaction
 	 * @param request The current session request

@@ -4,6 +4,8 @@ import java.io.IOException;
 import java.security.GeneralSecurityException;
 import java.util.Map;
 
+import java.security.KeyPair;
+
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
@@ -11,7 +13,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import edu.uiuc.ncsa.myproxy.MyProxyConnectable;
 import edu.uiuc.ncsa.myproxy.MyProxyCredentialInfo;
-import edu.uiuc.ncsa.myproxy.exception.MyProxyCertExpiredExcpetion;
+import edu.uiuc.ncsa.myproxy.exception.MyProxyCertExpiredException;
 import edu.uiuc.ncsa.myproxy.exception.MyProxyNoUserException;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ProxyServlet;
@@ -19,6 +21,10 @@ import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
+
+import edu.uiuc.ncsa.security.util.pkcs.MyPKCS10CertRequest;
+import edu.uiuc.ncsa.security.util.pkcs.CertUtil;
+import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 
 import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
@@ -29,7 +35,7 @@ import org.masterportal.oauth2.server.MPOA2RequestForwarder;
 import org.masterportal.oauth2.server.MPOA2SE;
 import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
 import org.masterportal.oauth2.server.exception.InvalidDNException;
-import org.masterportal.oauth2.server.exception.InvalidRequesLifetimeException;
+import org.masterportal.oauth2.server.exception.InvalidRequestLifetimeException;
 import org.masterportal.oauth2.server.exception.ShortProxyLifetimeException;
 import org.masterportal.oauth2.server.validators.GetProxyRequestValidator;
 
@@ -77,10 +83,13 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 	}
 	
 	/**
-	 *  Prepare for the upcoming /getproxy request. In order to assure that the MyProxy GET command will succeed, first 
-	 *  this method will make sure that the MyProxy Credential Store has a valid proxy for the user, by executing
-	 *  a MyProxy INFO command first. If the results of the MyProxy INFO are unsatisfactory, this method will forward 
-	 *  a /getcert request to the Delegation Server (via the Master Portal Client).  
+	 *  Prepare for the upcoming /getproxy request. In order to assure that the
+	 *  MyProxy GET command will succeed, first this method will make sure that
+	 *  the MyProxy Credential Store has a valid proxy for the user, by
+	 *  executing a MyProxy INFO command first. If the results of the MyProxy
+	 *  INFO are unsatisfactory, this method will forward a /getcert request to
+	 *  the Delegation Server (via the Master Portal Client). Once that all
+	 *  succeeds, a new proxy key+CSR is created.
 	 * 
 	 *  @param transaction The current service transaction
 	 *  @param request The original /getproxy request object
@@ -99,66 +108,100 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 		checkMPConnection(trans);
         MyProxyConnectable mpc = getMPConnection(trans);
         
-        // track if the user proxy is in a valid state or not
-	    boolean userProxyValid = false;
-	    
+        // track if we need to forward the request and obtain a new long-lived
+		// proxy
+	    boolean requestNewCert = true;
+	   
+		// Need to split the try-catch blocks into two: the validators are
+		// expected to run AFTER the myproxy info call, but at that stage, we
+		// still might need to fail on the input request parameters such as the
+		// requested proxy lifetime. This is certainly not ideal, but we
+		// currently have only one type of validator.
+		MyProxyCredentialInfo mpc_info = null;
         try {
 	        
         	// executing MyProxy INFO
         	info("Executing MyProxy INFO");
-        	MyProxyCredentialInfo info = mpc.doInfo();
+        	mpc_info = mpc.doInfo();
 	        debug("Valid user certificate found!");
+			// set flag to false for now, it might still change after running the
+			// validators
+			requestNewCert = false;
 	        
 	        debug("--- INFO ---");
-	        debug(info.toString());
+	        debug(mpc_info.toString());
 	        debug("--- INFO ---");
-	        
-	        // execute request validator in order 
-	        for ( GetProxyRequestValidator validator : se.getValidators()) {
-	        	validator.validate(trans, request, response, info);
-	        }
-	        
-	        // everything seems to be in order
-	     	userProxyValid = true;
-	
-        } catch (InvalidRequesLifetimeException e) {
-			// Note: need to catch this one first, since the rest will try
-			// to retrieve a new cert and then succeed
-        	debug("The requested lifetime exceeds server maximum!");
-			String mesg=e.getMessage();
-        	// don't request new certificate in this case, it's a user error
-			throw new OA2GeneralError(mesg, OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
+
         } catch (MyProxyNoUserException e) {
         	debug("No user found in MyProxy Credential Store!");
         	debug(e.getMessage());
-        	userProxyValid = false;
-        } catch (MyProxyCertExpiredExcpetion e) {
+        	requestNewCert = true;
+        } catch (MyProxyCertExpiredException e) {
         	debug("User certificate from MyProxy Credential Store is expired!");
         	debug(e.getMessage());
-        	userProxyValid = false;
-        } catch (ShortProxyLifetimeException e) {
-        	debug("The requested lifetime exceeds remaining proxy lifetime!");
-        	debug(e.getMessage());
-        	userProxyValid = false;
-        } catch (InvalidDNException e) {
-        	debug("Invalid Proxy! The cached proxy DN does not match the DN returned by the Delegation Server!");
-        	debug(e.getMessage());
-        	userProxyValid = false;
+        	requestNewCert = true;
         } catch (Throwable e) {
+			// myproxy info failed for some unknown reason: don't try to fix
         	if ( e instanceof GeneralException ) {
         		throw e;
         	} else {
-        		throw new GeneralException("User proxy validation error", e);
+        		throw new GeneralException("MyProxy info failed", e);
         	}
         }
+	  
+		try {
+			// execute request validator in order. Note that some validators
+			// will not do anything in case of empty mpc_info, but we should
+			// still run them now.
+			for ( GetProxyRequestValidator validator : se.getValidators()) {
+				validator.validate(trans, request, response, mpc_info);
+			}
+		} catch (ShortProxyLifetimeException e) {
+			debug("The requested lifetime exceeds remaining proxy lifetime!");
+			debug(e.getMessage());
+			requestNewCert = true;
+		} catch (InvalidDNException e) {
+			debug("Invalid Proxy! The cached proxy DN does not match the DN returned by the Delegation Server!");
+			debug(e.getMessage());
+			requestNewCert = true;
+		} catch (InvalidRequestLifetimeException e) {	// Fail on this one
+			debug("The requested lifetime exceeds server maximum!");
+			String mesg=e.getMessage();
+			// don't request new certificate in this case, it's a user error
+			throw new OA2GeneralError(mesg, OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
+		} catch (Throwable e) {
+			if ( e instanceof GeneralException ) {
+				throw e;
+			} else {
+				throw new GeneralException("Validation of /getproxy request failed", e);
+			}
+		}
         
-        if (!userProxyValid) {
-        
+        if (requestNewCert) {
         	info("2.a. Proxy retrieval failed! Asking for a new user certificate ...");
-        	// call /forwardetproxy on the Master Portal Client component
+        	// call /forwardgetcert on the Master Portal Client component
         	forwardRealCertRequest(trans, request, response);
-        	
         }
+
+		// When we get here, we have either successfully forwarded or there is
+		// a valid proxy in the myproxy store.
+		debug("6.a. Generating keypair for proxy creation");
+		// create keypair
+		KeyPair keyPair = null;
+		MyPKCS10CertRequest certReq = null;
+        try {
+        	keyPair = KeyUtil.generateKeyPair();
+            certReq = CertUtil.createCertRequest(keyPair, trans.getUsername());
+        } catch (Throwable e) {
+            if (e instanceof RuntimeException) {
+                throw (RuntimeException) e;
+            }
+            throw new GeneralException("Could not create cert request", e);
+        }
+        
+        // insert a CSR and generated keypair into the transaction 
+        trans.setCertReq(certReq);
+        trans.setKeypair(keyPair);
         		
 	}
 
