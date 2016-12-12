@@ -95,41 +95,67 @@ public class LifetimeValidator implements GetProxyRequestValidator {
 
 		String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
 		long maxLifetime = maxProxyLifetime - tolerance;
-		
-        if ( reqLifetime != null && ! reqLifetime.isEmpty() ) {
-        	
+
+		long requestedLifetime;
+		String lifetimelabel="Requested";
+		// If no lifetime is requested, use the default lifetime
+		if ( reqLifetime == null || reqLifetime.isEmpty()	)	{
+			// Override the label
+			lifetimelabel="Default";
+
+			// No requested lifetime, using default lifetime instead.
+			// Is set in MPOA2ProxyServlet.verifyAndGet() in milliseconds, see
+			// further MPOA2ServerLoader<>.createInstance().
+
+			// have access, and perhaps at some point every transaction will get
+			// a different default lifetime.
+			requestedLifetime = transaction.getLifetime() / 1000;
+        	logger.debug("No requested lifetime value found! " +
+						 "Server will fall back on configured default (" +
+						 requestedLifetime + ")");
+
+        	// check against server maximum
+			if ( requestedLifetime > maxLifetime ) {
+				throw new GeneralException(
+					"Inconsistency: default proxy lifetime (" +
+					MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME + ": " +
+					requestedLifetime + ") is larger than maximum lifetime (" +
+					INPUT_MAX_PROXY_LIFETIME + ": " + maxLifetime + ")");
+			}
+
+		} else	{
 	        // requested lifetime is in seconds
-        	long requestedLifetime = Long.parseLong( reqLifetime );
-        	
+			requestedLifetime = Long.parseLong( reqLifetime );
+
         	// check against server maximum
         	if ( requestedLifetime > maxLifetime ) {
-        		throw new InvalidRequestLifetimeException("Requested proxy lifetime (" + requestedLifetime + ") is bigger then the server side"
-        				+ " maximum (" + maxLifetime + "). Certificate will not get renewed." );
+        		throw new InvalidRequestLifetimeException(
+					"Requested proxy lifetime (" + requestedLifetime +
+					") is bigger then the server side maximum (" +
+					maxLifetime + "). Certificate will not get renewed." );
         	}
+		}
        
-			// Only do remaining proxy lifetime verification if we already have
-			// one (i.e. if the MyProxy server returned a valid answer)
-			if (info != null)	{
-				// check against remaining proxy lifetime 
-				// calculate the remaining max lifetime based on the store proxy validity
-				long now = System.currentTimeMillis();
-				long proxyEndTime = info.getEndTime();
-				long maxLifetimeLeft = (proxyEndTime - now) / 1000;
-				
-				// compare values
-				if ( maxLifetimeLeft < requestedLifetime ) {
-					throw new ShortProxyLifetimeException("Requested lifetime (" + requestedLifetime + ") is larger that the remaining"
-							+ " proxy validity time (" + maxLifetimeLeft + "). Renewing certificate! "); 
-				}
+		// Only do remaining proxy lifetime verification if we already have
+		// one (i.e. if the MyProxy server returned a valid answer)
+		if (info != null)	{
+			// check against remaining proxy lifetime 
+			// calculate the remaining max lifetime based on the store proxy validity
+			long now = System.currentTimeMillis();
+			long proxyEndTime = info.getEndTime();
+			long maxLifetimeLeft = (proxyEndTime - now) / 1000;
+			
+			// compare values
+			if ( maxLifetimeLeft < requestedLifetime ) {
+				throw new ShortProxyLifetimeException(
+					lifetimelabel + " lifetime (" + requestedLifetime +
+					") is larger that the remaining" + " proxy validity time ("
+					+ maxLifetimeLeft + "). Renewing certificate! "); 
 			}
+		}
 	    
-	        logger.debug("Validation OK");
+		logger.debug("Validation OK");
 	        
-        } else {
-        	logger.debug("No requested lifetime value found! Server will fall back on configured default. Nothing to validate");
-        }
-
-		
 	}
 
 }
