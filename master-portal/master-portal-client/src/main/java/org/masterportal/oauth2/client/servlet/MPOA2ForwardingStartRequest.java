@@ -5,7 +5,8 @@ import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetStoreUtil;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
+//import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
+import edu.uiuc.ncsa.security.servlet.ServiceClientHTTPException;
 
 import java.util.Enumeration;
 import java.util.HashMap;
@@ -94,7 +95,10 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     		
     	} else {
     		error("No code&state pair received! MP-Server will be unable to continue its pending auth request!");
-    		throw new OA2RedirectableError("No code or state received! MP-Server will be unable to continue its pending auth request!");
+		
+		ServiceClientHTTPException e=new ServiceClientHTTPException("No code or state received! MP-Server will be unable to continue its pending auth request!");
+		e.setStatus(HttpStatus.SC_BAD_REQUEST);
+		throw e;
     	}
 
         /* CONTINUE WITH REGULAR REDIRECT TO DELEGATION SERVER */

@@ -18,6 +18,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import org.apache.http.HttpStatus;
+
 import org.masterportal.oauth2.MPClientContext;
 import org.masterportal.oauth2.MPServerContext;
 import org.masterportal.oauth2.server.MPOA2RequestForwarder;
@@ -136,6 +138,11 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     	
     	switch (aState.getState()) {
     		case AUTHORIZATION_ACTION_START:
+				// Check we have a state parameter, or we cannot keep track of
+				// the redirect to the client part
+				if (getParam(aState.getRequest(), "state") == null)	{
+					throw new OA2RedirectableError(OA2Errors.INVALID_REQUEST, "Need state parameter in request", "");
+				}
         	
     			info("Forwarding authorization request to MP-Client (/startRequest)");
     			    			
@@ -154,7 +161,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     				if (t instanceof GeneralException) {
     					throw t;
     				} else {
-    					throw new GeneralException("Faild to redirect authentication request to MasterPortal Client!",t);
+    					throw new GeneralException("Failed to redirect authentication request to MasterPortal Client!",t);
     				}
     			}
         	
