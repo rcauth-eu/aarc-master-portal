@@ -34,15 +34,15 @@ import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME_SPECIFI
 
 public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2ConfigurationLoader<T> {
 
-	public MPOA2ServerLoader(ConfigurationNode node) {
-		super(node);
-	}
+    public MPOA2ServerLoader(ConfigurationNode node) {
+	super(node);
+    }
 
-	@Override
-	public String getVersionString() {
-		return "Master Portal OAuth2/OIDC server configuration loader version " + VERSION_NUMBER;
-	}
-	
+    @Override
+    public String getVersionString() {
+	return "Master Portal OAuth2/OIDC server configuration loader version " + VERSION_NUMBER;
+    }
+    
     @Override
     public T createInstance() {
         try {
@@ -73,58 +73,61 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new GeneralException("Error: Could not create the runtime environment", e);
         }
-    }	
-	
+    }
+
     /* ADDITIONAL MYPROXY SERVER CONFIGURATIONS */
     
     protected String getMyProxyPassword() {
-    	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
-    	return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
+	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+	return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
     }
     
     protected long getMyProxyDefaultLifetime() {
-    	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
-    	ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
-    	return Long.parseLong( lifetimeNode.getValue().toString() );
+	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+	ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
+	if (lifetimeNode==null)	{
+	    throw new GeneralException("Missing "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME+" in node "+node.getName());
+	}
+	return Long.parseLong( lifetimeNode.getValue().toString() );
     }
     
     /* GETCERT REQUEST VALIDATORS */
     
     protected GetProxyRequestValidator[] getValidators() {
-    	
-    	// get the list of all validators
-    	ConfigurationNode mpNode =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
-    	ConfigurationNode validatorsNode =  Configurations.getFirstNode(mpNode, MPOA4MPConfigTags.MYPROXY_REQ_VALIDATORS);
-    	
-    	if ( validatorsNode != null ) {
-    		
-    		// count validators
-    		int validatorCnt = validatorsNode.getChildrenCount( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR );
-    		GetProxyRequestValidator[] validators = new GetProxyRequestValidator[ validatorCnt ];
-    		int i = 0;
+	
+	// get the list of all validators
+	ConfigurationNode mpNode =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+	ConfigurationNode validatorsNode =  Configurations.getFirstNode(mpNode, MPOA4MPConfigTags.MYPROXY_REQ_VALIDATORS);
+	
+	if ( validatorsNode != null ) {
+	    
+	    // count validators
+	    int validatorCnt = validatorsNode.getChildrenCount( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR );
+	    GetProxyRequestValidator[] validators = new GetProxyRequestValidator[ validatorCnt ];
+	    int i = 0;
 
-    		for ( Object node : validatorsNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR ) ) {
-    			
-    			// get the validator handler class name
-    			ConfigurationNode validatorNode = (ConfigurationNode) node;
-    			String validatorClass = Configurations.getFirstAttribute(validatorNode, 
-    																	 MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_HANDLER);
+	    for ( Object node : validatorsNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR ) ) {
+		
+		// get the validator handler class name
+		ConfigurationNode validatorNode = (ConfigurationNode) node;
+		String validatorClass = Configurations.getFirstAttribute(validatorNode, 
+									 MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_HANDLER);
 
-    			if ( validatorClass == null || validatorClass.isEmpty() ) {
-    				throw new GeneralException("Invalid validator configuration! Missing validator handler!");
-    			} else {
-    				
-    				try {
-    					
-    					// create new class instance of validator
+		if ( validatorClass == null || validatorClass.isEmpty() ) {
+		    throw new GeneralException("Invalid validator configuration! Missing validator handler!");
+		} else {
+		    
+		    try {
+			    
+			// create new class instance of validator
                         Class<?> k = Class.forName(validatorClass);
                         Object x = k.newInstance();
                         
                         if ( ! (x instanceof GetProxyRequestValidator) ) {
-                        	throw new Exception("Invalid validator handler " + validatorClass + " ! Every validator class should "
+			    throw new Exception("Invalid validator handler " + validatorClass + " ! Every validator class should "
                         			+ "implement the " + GetProxyRequestValidator.class.getCanonicalName() + " interface");
                         }
-    					
+
                         // cast and init class with required input
                         GetProxyRequestValidator v = (GetProxyRequestValidator) x;
                         v.init(validatorNode, loggerProvider.get());
@@ -133,14 +136,14 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                         validators[i] = v;
                         i++;
                         
-    				} catch (Exception e)  {
-    					throw new GeneralException("Invalid validator configuration! Cannot create instance of handler " + validatorClass,e);
-    				}
-    				
-    			}
+		    } catch (Exception e)  {
+			throw new GeneralException("Invalid validator configuration! Cannot create instance of handler " + validatorClass,e);
+		    }
+		    
     		}
-    		// return validators, empty or not
-    		return validators;
+    	    }
+    	    // return validators, empty or not
+    	    return validators;
     	}
     	// return empty validators 
     	return new GetProxyRequestValidator[0];
@@ -156,7 +159,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 
         @Override
         public OA2ServiceTransaction get(boolean createNewIdentifier) {
-        	return new MPOA2ServiceTransaction(createNewId(createNewIdentifier));
+	    return new MPOA2ServiceTransaction(createNewId(createNewIdentifier));
         }
         
     }
@@ -169,17 +172,17 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         MPOA2TConverter<MPOA2ServiceTransaction> tc = new MPOA2TConverter<MPOA2ServiceTransaction>(keys, tp, getTokenForgeProvider().get(), getClientStoreProvider().get());
         return getTSP(tp,  tc);
     }
-	
+
 
     @Override
     protected OA2SQLTransactionStoreProvider createSQLTSP(ConfigurationNode config,
-													      ConnectionPoolProvider<? extends ConnectionPool> cpp,
-													      String type,
-													      MultiDSClientStoreProvider clientStoreProvider,
-													      Provider<? extends OA2ServiceTransaction> tp,
-													      Provider<TokenForge> tfp,
-													      MapConverter converter){
-    	return new MPOA2SQLTransactionStoreProvider(config,cpp,type,clientStoreProvider,tp,tfp,converter);
+							  ConnectionPoolProvider<? extends ConnectionPool> cpp,
+							  String type,
+							  MultiDSClientStoreProvider clientStoreProvider,
+							  Provider<? extends OA2ServiceTransaction> tp,
+							  Provider<TokenForge> tfp,
+							  MapConverter converter){
+	return new MPOA2SQLTransactionStoreProvider(config,cpp,type,clientStoreProvider,tp,tfp,converter);
     }
     
 }

@@ -23,14 +23,14 @@ public class MPOA2ServerBootstrapper extends OA2Bootstrapper {
         return MP_OA2_CONFIG_NAME_KEY;
     }	
 	
-	@Override
-	public ConfigurationLoader getConfigurationLoader(ConfigurationNode node) throws MyConfigurationException {
-		return new MPOA2ServerLoader(node);
-	}
+    @Override
+    public ConfigurationLoader getConfigurationLoader(ConfigurationNode node) throws MyConfigurationException {
+	return new MPOA2ServerLoader(node);
+    }
 	
-	@Override
-	public ConfigurationLoader getConfigurationLoader(ServletContext servletContext) throws Exception {    	
-		return super.getConfigurationLoader(servletContext);
-	}
+    @Override
+    public ConfigurationLoader getConfigurationLoader(ServletContext servletContext) throws Exception {    	
+	return super.getConfigurationLoader(servletContext);
+    }
 	
 }
