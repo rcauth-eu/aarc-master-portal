@@ -141,14 +141,15 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                 // Check we have a state parameter, or we cannot keep track of
                 // the redirect to the client part
                 HttpServletRequest request = aState.getRequest();
-                if (getParam(request, "state") == null) {
-                    error("Error: request does not contain required state parameter");
+		String stateParam=getParam(request, "state");
+                if (stateParam == null || stateParam.isEmpty()) {
+                    error("Error: request does not contain required (non-empty) state parameter");
                     String redirect_uri = request.getParameter(OA2Constants.REDIRECT_URI);
                     if (redirect_uri == null || redirect_uri.isEmpty() ) {
-                        throw new OA2RedirectableError(OA2Errors.INVALID_REQUEST, "Need state parameter in request", "");
+                        throw new OA2RedirectableError(OA2Errors.INVALID_REQUEST, "Need non-empty state parameter in request", "");
                     } else {
                         debug("Using "+OA2Constants.REDIRECT_URI+" = "+redirect_uri);
-                        throw new OA2RedirectableError(OA2Errors.INVALID_REQUEST, "Need state parameter in request", "", redirect_uri);
+                        throw new OA2RedirectableError(OA2Errors.INVALID_REQUEST, "Need non-empty state parameter in request", "", redirect_uri);
                     }
                 }
             
