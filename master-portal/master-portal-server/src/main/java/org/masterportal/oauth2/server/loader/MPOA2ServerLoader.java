@@ -15,8 +15,12 @@ import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2ConfigurationLoader;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2SQLTransactionStoreProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.*;
+// Added this one
+import edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.*;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.storage.MultiDSClientStoreProvider;
-import edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider;
+// Updated this one
+//import edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider;
+import edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.OA4MPIdentifierProvider;
 import edu.uiuc.ncsa.security.core.IdentifiableProvider;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.configuration.Configurations;
@@ -28,7 +32,9 @@ import edu.uiuc.ncsa.security.storage.data.MapConverter;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPool;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPoolProvider;
 
-import static edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider.TRANSACTION_ID;
+//import static edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider.TRANSACTION_ID;
+import static edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.OA4MPIdentifierProvider.TRANSACTION_ID;
+
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME;
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME_SPECIFIC_PART;
 
@@ -63,10 +69,15 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     getAuthorizationServletConfig(),
                     getUsernameTransformer(),
                     getPingable(),
+		    getMpp(),	// see OA2ConfigurationLoader
+		    getMacp(),	// see OA2ConfigurationLoader
                     getClientSecretLength(),
                     getScopes(),
                     getScopeHandler(),
+		    getLdapConfiguration(),
                     isRefreshTokenEnabled(),
+		    isTwoFactorSupportEnabled(),
+		    getMaxClientRefreshTokenLifetime(),
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
                     getValidators());
