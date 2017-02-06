@@ -36,11 +36,13 @@ public class MPOA2ClientEnvironment extends OA2ClientEnvironment {
 			AssetProvider assetProvider, Provider<Client> clientProvider, Provider<TokenForge> tokenForgeProvider,
 			Provider<DelegationService> delegationServiceProvider, Provider<AssetStore> assetStoreProvider,
 			boolean showRedirectPage, boolean requestProxies, String errorPagePath, String redirectPagePath,
-			String successPagePath, String secret, Collection<String> scopes, List<MyProxyFacadeProvider> mfp, String myproxyPassword) {
+			String successPagePath, String secret, Collection<String> scopes, String wellKnownURI,
+			List<MyProxyFacadeProvider> mfp, String myproxyPassword) {
 		super(logger, constants, accessTokenUri, authorizationUri, callback, initializeURI, resourceServerUri,
 				certLifetime, clientId, skin, enableAssetCleanup, maxAssetLifetime, keypairLifetime,
 				assetProvider, clientProvider, tokenForgeProvider, delegationServiceProvider, assetStoreProvider,
-				showRedirectPage, requestProxies, errorPagePath, redirectPagePath, successPagePath, secret, scopes);
+				showRedirectPage, requestProxies, errorPagePath, redirectPagePath, successPagePath, secret, scopes,
+				wellKnownURI);
 		
 		this.mfps = mfp;
 		this.myproxyPassword = myproxyPassword;

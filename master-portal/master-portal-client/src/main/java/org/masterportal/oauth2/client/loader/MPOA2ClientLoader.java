@@ -86,6 +86,7 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
                     getSuccessPagePath(),
                     getSecret(),
                     getScopes(),
+		    getWellKnownURI(),
                     getMyProxyFacadeProvider(),
                     getMyProxyPassword()
             );

@@ -25,6 +25,7 @@ import edu.uiuc.ncsa.security.oauth_2_0.server.LDAPConfiguration;
 import edu.uiuc.ncsa.security.oauth_2_0.server.ScopeHandler;
 import edu.uiuc.ncsa.security.servlet.UsernameTransformer;
 import edu.uiuc.ncsa.security.util.mail.MailUtilProvider;
+import edu.uiuc.ncsa.security.util.jwk.JSONWebKeys;
 
 public class MPOA2SE extends OA2SE {
 
@@ -55,6 +56,7 @@ public class MPOA2SE extends OA2SE {
 		       boolean isRefreshTokenEnabled,
 		       boolean twoFactorSupportEnabled,
 		       long maxClientRefreshTokenLifetime,
+		       JSONWebKeys jsonWebKeys,
 		       String myproxyPassword,
 		       long myproxyDefaultLifetime,
 		       GetProxyRequestValidator[] validators) {
@@ -84,7 +86,8 @@ public class MPOA2SE extends OA2SE {
 		      ldapConfiguration2,
 		      isRefreshTokenEnabled,
 		      twoFactorSupportEnabled,
-		      maxClientRefreshTokenLifetime);
+		      maxClientRefreshTokenLifetime,
+		      jsonWebKeys);
 		
 		this.myproxyPassword = myproxyPassword;
 		this.myproxyDefaultLifetime = myproxyDefaultLifetime;

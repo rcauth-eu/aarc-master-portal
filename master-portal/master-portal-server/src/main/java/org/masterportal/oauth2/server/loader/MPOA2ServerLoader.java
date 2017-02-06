@@ -78,6 +78,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     isRefreshTokenEnabled(),
 		    isTwoFactorSupportEnabled(),
 		    getMaxClientRefreshTokenLifetime(),
+		    getJSONWebKeys(),	// see OA2ConfigurationLoader
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
                     getValidators());
