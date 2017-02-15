@@ -1,7 +1,10 @@
 # aarc-master-portal
 
-This is a custom [OA4MP](http://grid.ncsa.illinois.edu/myproxy/oauth/client/manuals/getting-started.xhtml)
-implementation for AARC [Pre-Piloting Work](https://wiki.nikhef.nl/grid/AARC_Pilot) in particular for the
+This is a custom
+[OA4MP](http://grid.ncsa.illinois.edu/myproxy/oauth/client/manuals/getting-started.xhtml)
+implementation for AARC
+[Pre-Piloting Work](https://wiki.nikhef.nl/grid/AARC_Pilot)
+in particular for the
 [Master Portal](https://wiki.nikhef.nl/grid/Master_Portal_Internals)
 
 ## Master Portal
@@ -14,8 +17,8 @@ returns short lived proxies on demand for authenticated users via the VO Portal.
 
 ## Building
 
-In case you wish the build the Master Portal you should first build two of its
-dependencies in the following order 
+In case you wish the build the Master Portal you should first build two of
+its dependencies in the following order 
 
 1. [security-lib](https://github.com/rcauth-eu/security-lib)
 2. [OA4MP](https://github.com/rcauth-eu/OA4MP)
