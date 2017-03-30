@@ -88,6 +88,11 @@ public class DNValidator implements GetProxyRequestValidator {
 
 		// The DN we have
 		String storedDN = info.getRenewers();
+		if (storedDN == null)	{
+			throw new GeneralException("MyProxy info seems corrupt: No RENEWERS DN found");
+		} else if ( storedDN.isEmpty() )    {
+			throw new GeneralException("MyProxy info seems corrupt: Empty RENEWERS DN found in myproxy info");
+		}
 		
 		// The DN we expect
 		String claimDN = null;
