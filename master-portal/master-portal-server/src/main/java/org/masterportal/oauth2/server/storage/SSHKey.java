@@ -93,6 +93,7 @@ public class SSHKey extends IdentifiableImpl {
     @Override
     public String toString() {
 	return "SSHKey: \n" + 
+	   "	label:      " + label + "\n" +
 	   "	username:   " + userName + "\n" +
 	   "	publickey:  " + pubKey + "\n"+
 	   "	description:" + description + "\n";
