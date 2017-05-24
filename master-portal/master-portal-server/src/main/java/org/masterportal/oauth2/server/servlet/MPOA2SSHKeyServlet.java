@@ -200,7 +200,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
 	// do sanity check on pubkey
 	if (!isSSHPubKey(pubkey)) {
-	    throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Pubkey does not look like a SSH public key: "+pubkey, HttpStatus.SC_BAD_REQUEST);
+	    throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Pubkey does not look like a SSH public key", HttpStatus.SC_BAD_REQUEST);
 	}
 
 	// try to get store
@@ -210,13 +210,21 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 	    throw new GeneralException("Could not get SSH KeyStore"); 
 	}
 
+	// Create new SSHKey object
+	SSHKey key = new SSHKey(username, label, pubkey, description);
+
+	// Check whether the ssh pubkey already exists
+	if ( store.containsKey(key) )  {
+	    throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "SSH Pubkey is already registered", HttpStatus.SC_BAD_REQUEST);
+	}
+
 	// Store the new key
 	try {
 	    // when label isn't set, create one
 	    if (label==null || label.isEmpty()) {
-		label = store.createLabel(username);
+		key.setLabel(store.createLabel(username));
 	    }
-	    store.save(new SSHKey(username, label, pubkey, description));
+	    store.save(key);
 	} catch (Exception e)	{
 	    Throwable cause = e.getCause();
 	    if (cause == null)

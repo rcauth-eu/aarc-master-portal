@@ -248,18 +248,12 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
 	SSHKey out = null;
 
         Connection c = getConnection();
-	PreparedStatement stmt = null;
         try {
-//	    PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createSelectStatement() );
-	    stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createSelectStatement() );
+	    PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createSelectStatement() );
             stmt.setString(1, value.getUserName());
             stmt.setString(2, value.getLabel());
 
 	    stmt.execute();// just execute() since executeQuery(x) would throw an exception regardless of content of x as per JDBC spec.
-	} catch (SQLException e)    {
-	    throw new GeneralException("1. Error getting key: "+e.getMessage());
-	}
-	try{
 	    ResultSet rs = stmt.getResultSet();
 	    if (rs.next())  {	// Need to move to the first element (if available)
 		ColumnMap map = rsToMap(rs);
@@ -270,7 +264,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
             stmt.close();
         } catch (SQLException e) {
             destroyConnection(c);
-            throw new GeneralException("2. Error getting key: "+e.getMessage());
+            throw new GeneralException("Error getting key", e);
         } finally {
             releaseConnection(c);
         }
