@@ -37,36 +37,54 @@ import edu.uiuc.ncsa.security.core.Identifier;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
+import javax.servlet.ServletException;
 import java.io.IOException;
-//import java.util.LinkedList;
-import java.util.ArrayList;
-import java.util.List;
 import java.util.Collection;
-import java.net.URI;
-
-import java.util.Base64;
 
 import java.io.Writer;
 
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 
-import static edu.uiuc.ncsa.security.core.util.DateUtils.checkTimestamp;
 
 /**
  * <p>Created by Mischa Sall&eacute;<br>
  */
 public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
+    private MPOA2SE se;
+    private MyLoggingFacade logger;
+
+    @Override
+    public void init() throws ServletException	{
+	super.init();
+	se = (MPOA2SE)getServiceEnvironment();
+	setEnvironment(se);
+
+	// Create custom logger for exceptions and the like
+//	logger = new MyLoggingFacade(getClass().getSimpleName(), false);
+	logger = getMyLogger();
+	setExceptionHandler(new OA2ExceptionHandler(logger));
+    }
+
     @Override
     public ServiceTransaction verifyAndGet(IssuerResponse iResponse) throws IOException {
 	return null;
     }
 
     @Override
+    protected void handleException(Throwable t, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
+	// ok, if it is a strange error, print a stack if you need to.
+	// Note: getMyLogger gives logger from environment, which is configured
+	// via conf file and logs typically into mp server logs, not in
+	// /var/log/messages
+        if (logger.isDebugOn()) {
+            t.printStackTrace();
+        }
+	getExceptionHandler().handleException(t, request, response);
+    }
+
+    @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-	MyLoggingFacade logger = new MyLoggingFacade(getClass().getSimpleName(), false);
-
-	MPOA2SE se = (MPOA2SE)getServiceEnvironment();
-
+	
 	SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
 	if ( store == null) {
 	    throw new GeneralException("Could not get SSHKeyStore"); 
@@ -77,12 +95,11 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
 	Writer writer = response.getWriter();
 	for (SSHKey key : keys)    {
 	    writer.write(key.getUserName());
-	    writer.write(",");
+	    writer.write(" ");
 	    writer.write(key.getPubKey());
 	    writer.write("\n");
 	}
 	writer.flush();
 	writer.close();
     }
-
 }
