@@ -7,6 +7,8 @@ import java.util.List;
 import javax.inject.Provider;
 
 import org.masterportal.oauth2.server.validators.GetProxyRequestValidator;
+import org.masterportal.oauth2.server.storage.SSHKeyStore;
+import org.masterportal.oauth2.server.storage.SSHKey;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2SE;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.MyProxyFacadeProvider;
@@ -29,94 +31,108 @@ import edu.uiuc.ncsa.security.util.jwk.JSONWebKeys;
 
 public class MPOA2SE extends OA2SE {
 
-	public MPOA2SE(MyLoggingFacade logger,
-		       Provider<TransactionStore> tsp,
-		       Provider<ClientStore> csp,
-		       int maxAllowedNewClientRequests,
-		       long rtLifetime,
-		       Provider<ClientApprovalStore> casp,
-		       List<MyProxyFacadeProvider> mfp,
-		       MailUtilProvider mup,
-		       MessagesProvider messagesProvider,
-		       Provider<AGIssuer> agip,
-		       Provider<ATIssuer> atip,
-		       Provider<PAIssuer> paip,
-		       Provider<TokenForge> tfp,
-		       HashMap<String,
-		       String> constants,
-		       AuthorizationServletConfig ac,
-		       UsernameTransformer usernameTransformer,
-		       boolean isPingable,
-		       Provider<PermissionsStore> psp,
-		       Provider<AdminClientStore> acs,
-		       int clientSecretLength,
-		       Collection<String> scopes,
-		       ScopeHandler scopeHandler,
-		       LDAPConfiguration ldapConfiguration2,
-		       boolean isRefreshTokenEnabled,
-		       boolean twoFactorSupportEnabled,
-		       long maxClientRefreshTokenLifetime,
-		       JSONWebKeys jsonWebKeys,
-		       String myproxyPassword,
-		       long myproxyDefaultLifetime,
-		       GetProxyRequestValidator[] validators,
-		       String issuer) {
+    public MPOA2SE(MyLoggingFacade logger,
+		   Provider<TransactionStore> tsp,
+		   Provider<ClientStore> csp,
+		   Provider<SSHKeyStore> ssp,
+		   int maxAllowedNewClientRequests,
+		   long rtLifetime,
+		   Provider<ClientApprovalStore> casp,
+		   List<MyProxyFacadeProvider> mfp,
+		   MailUtilProvider mup,
+		   MessagesProvider messagesProvider,
+		   Provider<AGIssuer> agip,
+		   Provider<ATIssuer> atip,
+		   Provider<PAIssuer> paip,
+		   Provider<TokenForge> tfp,
+		   HashMap<String,
+		   String> constants,
+		   AuthorizationServletConfig ac,
+		   UsernameTransformer usernameTransformer,
+		   boolean isPingable,
+		   Provider<PermissionsStore> psp,
+		   Provider<AdminClientStore> acs,
+		   int clientSecretLength,
+		   Collection<String> scopes,
+		   ScopeHandler scopeHandler,
+		   LDAPConfiguration ldapConfiguration2,
+		   boolean isRefreshTokenEnabled,
+		   boolean twoFactorSupportEnabled,
+		   long maxClientRefreshTokenLifetime,
+		   JSONWebKeys jsonWebKeys,
+		   String myproxyPassword,
+		   long myproxyDefaultLifetime,
+		   GetProxyRequestValidator[] validators,
+		   String issuer) {
 		
-		super(logger,
-		      tsp,
-		      csp,
-		      maxAllowedNewClientRequests,
-		      rtLifetime,
-		      casp,
-		      mfp,
-		      mup,
-		      messagesProvider,
-		      agip,
-		      atip,
-		      paip,
-		      tfp,
-		      constants,
-		      ac,
-		      usernameTransformer,
-		      isPingable,
-		      psp,
-		      acs,
-		      clientSecretLength,
-		      scopes,
-		      scopeHandler,
-		      ldapConfiguration2,
-		      isRefreshTokenEnabled,
-		      twoFactorSupportEnabled,
-		      maxClientRefreshTokenLifetime,
-		      jsonWebKeys,
-		      issuer);
-		
-		this.myproxyPassword = myproxyPassword;
-		this.myproxyDefaultLifetime = myproxyDefaultLifetime;
-		
-		this.validators = validators;
-	}
+	super(logger,
+	      tsp,
+	      csp,
+	      maxAllowedNewClientRequests,
+	      rtLifetime,
+	      casp,
+	      mfp,
+	      mup,
+	      messagesProvider,
+	      agip,
+	      atip,
+	      paip,
+	      tfp,
+	      constants,
+	      ac,
+	      usernameTransformer,
+	      isPingable,
+	      psp,
+	      acs,
+	      clientSecretLength,
+	      scopes,
+	      scopeHandler,
+	      ldapConfiguration2,
+	      isRefreshTokenEnabled,
+	      twoFactorSupportEnabled,
+	      maxClientRefreshTokenLifetime,
+	      jsonWebKeys,
+	      issuer);
+	    
+	this.myproxyPassword = myproxyPassword;
+	this.myproxyDefaultLifetime = myproxyDefaultLifetime;
 	
-	protected GetProxyRequestValidator[] validators;
+	this.validators = validators;
+
+	this.ssp = ssp;
+    }
 	
-	public GetProxyRequestValidator[] getValidators() {
-		return validators;
-	}
+    protected GetProxyRequestValidator[] validators;
+    
+    public GetProxyRequestValidator[] getValidators() {
+	return validators;
+    }
 	
     protected String myproxyPassword;
     
     public void setMyproxyPassword(String myproxyPassword) {
-		this.myproxyPassword = myproxyPassword;
-	}
+	this.myproxyPassword = myproxyPassword;
+    }
     
     public String getMyproxyPassword() {
-		return myproxyPassword;
-	}
+	return myproxyPassword;
+    }
     
     long myproxyDefaultLifetime;
     
     public long getMyproxyDefaultLifetime() {
-		return myproxyDefaultLifetime;
-	}
-    
+	return myproxyDefaultLifetime;
+    }
+
+    protected Provider<SSHKeyStore> ssp;
+
+    protected SSHKeyStore<SSHKey> sshKeyStore;
+
+    public SSHKeyStore<SSHKey> getSSHKeyStore() {
+        if (sshKeyStore == null) {
+            sshKeyStore = ssp.get();
+        }
+        return sshKeyStore;
+    }
+
 }

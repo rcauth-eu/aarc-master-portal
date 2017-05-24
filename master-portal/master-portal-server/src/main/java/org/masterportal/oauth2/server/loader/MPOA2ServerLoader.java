@@ -8,6 +8,15 @@ import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
 import org.masterportal.oauth2.server.storage.MPOA2TConverter;
 import org.masterportal.oauth2.server.storage.MPOA2TransactionKeys;
 import org.masterportal.oauth2.server.storage.sql.MPOA2SQLTransactionStoreProvider;
+
+import org.masterportal.oauth2.server.storage.SSHKeyStore;
+import org.masterportal.oauth2.server.storage.SSHKeyIdentifierProvider;
+import org.masterportal.oauth2.server.storage.SSHKeyConverter;
+import org.masterportal.oauth2.server.storage.SSHKeyKeys;
+import org.masterportal.oauth2.server.storage.impl.SSHKeyProvider;
+import org.masterportal.oauth2.server.storage.impl.MultiSSHKeyStoreProvider;
+import org.masterportal.oauth2.server.storage.sql.SQLSSHKeyStoreProvider;
+
 import org.masterportal.oauth2.server.validators.GetProxyRequestValidator;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
 
@@ -55,6 +64,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
             return (T) new MPOA2SE(loggerProvider.get(),
                     getTransactionStoreProvider(),
                     getClientStoreProvider(),
+		    getSSHKeyStoreProvider(),
                     getMaxAllowedNewClientRequests(),
                     getRTLifetime(),
                     getClientApprovalStoreProvider(),
@@ -86,6 +96,41 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new GeneralException("Error: Could not create the runtime environment", e);
         }
+    }
+
+    protected MultiSSHKeyStoreProvider sshKeySP;
+
+    public Provider<SSHKeyStore> getSSHKeyStoreProvider() {
+    	if ( sshKeySP == null ) {
+	     sshKeySP = new MultiSSHKeyStoreProvider(cn, isDefaultStoreDisabled(), loggerProvider.get(), null, null);
+	     
+	     SSHKeyIdentifierProvider identifier = new SSHKeyIdentifierProvider();
+	     SSHKeyProvider provider = new SSHKeyProvider( identifier );
+	     SSHKeyConverter converter = new SSHKeyConverter( new SSHKeyKeys(), provider);
+
+	     sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
+			      getMySQLConnectionPoolProvider(),
+				      OA4MPConfigTags.MYSQL_STORE, 
+				      converter, 
+				      provider) );    
+
+	     sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
+			      getMariaDBConnectionPoolProvider(),
+				      OA4MPConfigTags.MARIADB_STORE, 
+				      converter, 
+				      provider) );      		 
+	     
+	     // TODO: The backend for this is not written. yet. But it might just work out of the box
+	     /*
+	     sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
+			      getPgConnectionPoolProvider(),
+			      OA4MPConfigTags.POSTGRESQL_STORE, 
+			      converter, 
+			      provider) );
+	     */
+    		 
+    	}
+    	return sshKeySP;
     }
 
     /* ADDITIONAL MYPROXY SERVER CONFIGURATIONS */
