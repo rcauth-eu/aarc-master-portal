@@ -30,6 +30,8 @@ import edu.uiuc.ncsa.security.oauth_2_0.OA2Utilities;
 
 import org.apache.commons.codec.digest.DigestUtils;
 
+import net.sf.json.JSONObject;
+import net.sf.json.util.JSONUtils;
 
 import static edu.uiuc.ncsa.security.oauth_2_0.OA2Constants.CLIENT_SECRET;
 import static edu.uiuc.ncsa.myproxy.oa4mp.server.ServiceConstantKeys.CONSUMER_KEY;
@@ -76,8 +78,6 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     private MPOA2SE se;
     private MyLoggingFacade logger;
 
-    private boolean initDone = false;
-
     @Override
     public void init() throws ServletException	{
 	super.init();
@@ -104,9 +104,6 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         if (logger.isDebugOn()) {
             t.printStackTrace();
         }
-	if (t.getMessage() != null) {
-	    logger.info("Handling exception for: "+t.getMessage());
-	}
 	getExceptionHandler().handleException(t, request, response);
     }
 
@@ -388,32 +385,38 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
 
     /**
-     * Writes each key to the response, using , as a separator between the
-     * columns
+     * Writes JSON-formatted array of given set of keys to the response
      */
     private void writeKeys(HttpServletResponse response, List<SSHKey> keys)    {
-	final char SEP = ',';
+	JSONObject json = new JSONObject();
+	for (SSHKey key : keys)	{
+	    JSONObject jsonKey = new JSONObject();
+	    jsonKey.put("label", key.getLabel());
+	    jsonKey.put("username", key.getUserName());
+	    jsonKey.put("pub_key", key.getPubKey());
+	    if (key.getDescription() != null)
+		jsonKey.put("description", key.getDescription());
+	    json.accumulate("ssh_keys", jsonKey);
+	}
+
+	String out = JSONUtils.valueToString(json, 1, 0);
+	response.setHeader("Content-Type", "application/json;charset=UTF-8");
 	try {
 	    Writer writer = response.getWriter();
-	    for (SSHKey key : keys)	{
-		writer.write(key.getLabel());
-		writer.append(SEP);
-		writer.write(key.getUserName());
-		writer.append(SEP);
-		writer.write(key.getPubKey());
-		writer.append(SEP);
-		if (key.getDescription()!=null)
-		    writer.write(key.getDescription());
-		writer.append('\n');
-	    }
-	    writer.flush();
+	    writer.write(out);
+	    writer.append('\n');
 	    writer.close();
+	    writer.flush();
 	} catch(IOException e)	{
 	    logger.error("Error: Cannot write keys: "+e.getMessage());
 	    throw new GeneralException("Cannot write keys");
 	}
     }
 
+    /**
+     * Does a basic sanity check on String key, whether it looks like a SSH
+     * public key
+     */
     private boolean isSSHPubKey(String key) {
 	int firstSpace=key.indexOf(' ');
 	if (firstSpace<0)   {
@@ -444,6 +447,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 	}
 	return true;
     }
+
 
     /**
      * Get access token from request, copy and paste from userinfo endpoint
@@ -554,6 +558,4 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         }
         return client;
     }
-
-
 }
