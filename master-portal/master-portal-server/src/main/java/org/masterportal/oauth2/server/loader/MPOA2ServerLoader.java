@@ -19,7 +19,6 @@ import org.masterportal.oauth2.server.storage.sql.SQLSSHKeyStoreProvider;
 
 import org.masterportal.oauth2.server.validators.GetProxyRequestValidator;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
-
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2ConfigurationLoader;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2SQLTransactionStoreProvider;
@@ -35,6 +34,7 @@ import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.configuration.Configurations;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.IdentifierProvider;
+import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.delegation.storage.TransactionStore;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
 import edu.uiuc.ncsa.security.storage.data.MapConverter;
@@ -91,6 +91,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 		    getJSONWebKeys(),	// see OA2ConfigurationLoader
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
+		    getMaxSSHKeys(),
                     getValidators(),
 		    getIssuer());   // see OA2ConfigurationLoader
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
@@ -241,6 +242,27 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 							  Provider<TokenForge> tfp,
 							  MapConverter converter){
 	return new MPOA2SQLTransactionStoreProvider(config,cpp,type,clientStoreProvider,tp,tfp,converter);
+    }
+    
+    /* SSH KEY CONFIGURATION */
+
+    protected int getMaxSSHKeys() {
+	MyLoggingFacade logger = loggerProvider.get();
+	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.SSH_KEYS);
+	String maxValue = Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MAX_SSH_KEYS);
+	int max = -1;
+	if (maxValue != null && !maxValue.isEmpty())	{
+	    try {
+		max=Integer.parseInt(maxValue);
+		logger.info("Using maximum "+max+" keys per user");
+	    } catch (Exception e)   {
+		logger.warn("Value of " + MPOA4MPConfigTags.MAX_SSH_KEYS +
+			    " in node "+node.getName()+" is not a valid integer");
+	    }
+	} else {
+	    logger.info("No (valid) maximum keys found");
+	}
+	return max;
     }
     
 }

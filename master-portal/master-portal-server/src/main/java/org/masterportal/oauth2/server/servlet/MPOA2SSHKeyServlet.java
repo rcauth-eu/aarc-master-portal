@@ -1,79 +1,71 @@
 package edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet;
 
-import org.masterportal.oauth2.server.storage.SSHKey;
-import org.masterportal.oauth2.server.storage.SSHKeyIdentifier;
-import org.masterportal.oauth2.server.storage.sql.SQLSSHKeyStore;
-
-import edu.uiuc.ncsa.security.delegation.storage.Client;
-
 import org.masterportal.oauth2.server.MPOA2SE;
 
-//import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2SE;
+import org.masterportal.oauth2.server.storage.SSHKey;
+import org.masterportal.oauth2.server.storage.sql.SQLSSHKeyStore;
+
 import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
-import edu.uiuc.ncsa.security.core.exceptions.InvalidTimestampException;
+import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ExceptionHandler;
+
+import edu.uiuc.ncsa.security.delegation.storage.Client;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
 import edu.uiuc.ncsa.security.delegation.token.AccessToken;
-import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Client;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
-
-import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ExceptionHandler;
-
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Utilities;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.ScopeHandler;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.UII2;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.UIIRequest2;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.UIIResponse2;
+import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
+import edu.uiuc.ncsa.security.core.Identifier;
+import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
+import edu.uiuc.ncsa.security.core.exceptions.InvalidTimestampException;
+import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 
-import org.apache.commons.codec.digest.DigestUtils;
+import static edu.uiuc.ncsa.myproxy.oa4mp.server.ServiceConstantKeys.CONSUMER_KEY;
+import static edu.uiuc.ncsa.security.core.util.DateUtils.checkTimestamp;
+import static edu.uiuc.ncsa.security.oauth_2_0.OA2Constants.CLIENT_SECRET;
 
 import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 
-import static edu.uiuc.ncsa.security.oauth_2_0.OA2Constants.CLIENT_SECRET;
-import static edu.uiuc.ncsa.myproxy.oa4mp.server.ServiceConstantKeys.CONSUMER_KEY;
+import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpStatus;
-
-import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
-import edu.uiuc.ncsa.security.core.Identifier;
 
 import javax.servlet.ServletException;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
-//import java.util.LinkedList;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Collection;
-import java.net.URI;
 
+import java.net.URI;
+import java.io.Writer;
+import java.io.IOException;
+import java.util.List;
 import java.util.Base64;
 
-import java.io.Writer;
-
-import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
-
-import static edu.uiuc.ncsa.security.core.util.DateUtils.checkTimestamp;
 
 /**
  * <p>Created by Mischa Sall&eacute;<br>
  */
 public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
+    // Valid request parameters
     private final String ACTION_PARAMETER = "action";
     private final String LABEL_PARAMETER = "label";
     private final String PUBKEY_PARAMETER = "pubkey";
     private final String DESCRIPTION_PARAMETER = "description";
 
+    // Valid actions
     private final String ACTION_ADD	= "add";
     private final String ACTION_UPDATE	= "update";
     private final String ACTION_REMOVE	= "remove";
     private final String ACTION_GET	= "get";
     private final String ACTION_LIST	= "list";
 
+    // SSH public key's first field should start with the following
     private final String SSH_KEY_START = "ssh-";
+    // default labels start with prefix followed by a serial
+    private final String LABEL_PREFIX="ssh-key-";
+
 
     private MPOA2SE se;
     private MyLoggingFacade logger;
@@ -112,8 +104,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 	// Get transaction for this request, based on access_token
 	ServiceTransaction transaction = getAndVerifyTransaction(request);
 
-	// Get the client_id: for PUT this is mandatory, for the others: if
-	// present it should be valid and match the access_token
+	// Get the client_id: for ADD and DELETE this is mandatory, for the
+	// others: if present it should be valid and match the access_token
 	Client client = getClient(request);
 	if (client!=null) {
 	    if (! transaction.getClient().equals(client)) {
@@ -215,19 +207,31 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 	    throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "SSH Pubkey is already registered", HttpStatus.SC_BAD_REQUEST);
 	}
 
-	// Store the new key
+	// Get existing keys: we need them either for counting or for creating
+	// the next label
+	List<SSHKey> currKeys = store.getAll(username);
+
+	// Check we don't have too many
+	int maxSSHKeys = se.getMaxSSHKeys();
+	if (maxSSHKeys > 0 && currKeys.size() >= maxSSHKeys)    {
+	    logger.info("Maximum number of keys reached for user "+username);
+	    throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Maximum number of keys >= "+maxSSHKeys+", cannot add more", HttpStatus.SC_BAD_REQUEST);
+	}
+
+	// when label isn't set, create one
+	if (label==null || label.isEmpty()) {
+	    key.setLabel(createLabel(username, currKeys));
+	}
+
+	// Now save the new key
 	try {
-	    // when label isn't set, create one
-	    if (label==null || label.isEmpty()) {
-		key.setLabel(store.createLabel(username));
-	    }
-	    store.save(key);
+	    store.register(key);
 	} catch (Exception e)	{
 	    Throwable cause = e.getCause();
 	    if (cause == null)
-		logger.error("Cannot save key: "+e.getMessage());
+		logger.error("Cannot register key: "+e.getMessage());
 	    else
-		logger.error("Cannot save key: "+e.getMessage() + " (" + cause.getMessage() + ")");
+		logger.error("Cannot register key: "+e.getMessage() + " (" + cause.getMessage() + ")");
 	    throw new OA2GeneralError(OA2Errors.SERVER_ERROR, "Cannot add entry", HttpStatus.SC_INTERNAL_SERVER_ERROR);
 	}
     }
@@ -381,6 +385,28 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 	}
     
 	return keys;
+    }
+
+
+    /**
+     * Returns new unique label for username, based on existing set of keys
+     */
+    public String createLabel(String userName, List<SSHKey> currKeys)	{
+	if (currKeys!=null) {
+	    // Loop backwards over keys until we find matching ssh-key-[0-9]\+
+	    for (int i=currKeys.size()-1; i>=0 ; i--) {
+		String label=currKeys.get(i).getLabel();
+		if (label.matches(LABEL_PREFIX+"[0-9]+"))    {
+		    // Found the last one, now get the suffix, add one and
+		    // create the new label
+		    int newSerial=1+Integer.parseInt(label.substring(LABEL_PREFIX.length()));
+		    return LABEL_PREFIX+Integer.toString(newSerial);
+		}
+	    }
+	}
+
+	// No matches, will use new default
+	return LABEL_PREFIX+"1";
     }
 
 

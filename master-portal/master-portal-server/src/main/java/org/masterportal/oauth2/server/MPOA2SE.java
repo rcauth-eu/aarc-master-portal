@@ -62,6 +62,7 @@ public class MPOA2SE extends OA2SE {
 		   JSONWebKeys jsonWebKeys,
 		   String myproxyPassword,
 		   long myproxyDefaultLifetime,
+		   int maxSSHKeys,
 		   GetProxyRequestValidator[] validators,
 		   String issuer) {
 		
@@ -100,6 +101,8 @@ public class MPOA2SE extends OA2SE {
 	this.validators = validators;
 
 	this.ssp = ssp;
+
+	this.maxSSHKeys = maxSSHKeys;
     }
 	
     protected GetProxyRequestValidator[] validators;
@@ -133,6 +136,12 @@ public class MPOA2SE extends OA2SE {
             sshKeyStore = ssp.get();
         }
         return sshKeyStore;
+    }
+
+    protected int maxSSHKeys;
+
+    public int getMaxSSHKeys()	{
+	return maxSSHKeys;
     }
 
 }

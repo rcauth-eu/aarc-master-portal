@@ -163,35 +163,6 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Returns new unique label for username
-     */
-    public String createLabel(String userName)	{
-	final String PREFIX="ssh-key-";
-
-	try {
-	    List<SSHKey> keys = getAll(userName);
-	    if (keys!=null) {
-		// Loop backwards over keys until we find matching ssh-key-[0-9]\+
-		for (int i=keys.size()-1; i>=0 ; i--) {
-		    String label=keys.get(i).getLabel();
-		    if (label.matches(PREFIX+"[0-9]+"))    {
-			// Found the last one, now get the suffix, add one and
-			// create the new label
-			int newSerial=1+Integer.parseInt(label.substring(PREFIX.length()));
-			return PREFIX+Integer.toString(newSerial);
-		    }
-		}
-	    }
-	} catch (GeneralException e)	{
-	    throw new GeneralException("Error obtaining key list: "+e.getMessage(), e.getCause());
-	} catch (Exception e)	{
-	    throw new GeneralException("Error obtaining key list", e);
-	}
-	// No matches, will use new default
-	return PREFIX+"1";
-    }
-
-    /**
      * Overrides update(V ) in SQLStore, implements update(SSHKey in SQLSSHKeyStore
      */
     @Override
