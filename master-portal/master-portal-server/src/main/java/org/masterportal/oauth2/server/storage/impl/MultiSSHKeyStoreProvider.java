@@ -1,12 +1,9 @@
 package org.masterportal.oauth2.server.storage.impl;
 
-import java.util.List;
-
 import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.masterportal.oauth2.server.storage.SSHKey;
 import org.masterportal.oauth2.server.storage.SSHKeyStore;
 
-import edu.uiuc.ncsa.security.core.configuration.provider.CfgEvent;
 import edu.uiuc.ncsa.security.core.exceptions.NotImplementedException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 

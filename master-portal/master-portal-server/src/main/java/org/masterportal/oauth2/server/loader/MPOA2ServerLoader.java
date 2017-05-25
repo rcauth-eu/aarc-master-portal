@@ -105,8 +105,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     	if ( sshKeySP == null ) {
 	     sshKeySP = new MultiSSHKeyStoreProvider(cn, isDefaultStoreDisabled(), loggerProvider.get(), null, null);
 	     
-	     SSHKeyIdentifierProvider identifier = new SSHKeyIdentifierProvider();
-	     SSHKeyProvider provider = new SSHKeyProvider( identifier );
+	     SSHKeyProvider provider = new SSHKeyProvider( new SSHKeyIdentifierProvider() );
 	     SSHKeyConverter converter = new SSHKeyConverter( new SSHKeyKeys(), provider);
 
 	     sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,

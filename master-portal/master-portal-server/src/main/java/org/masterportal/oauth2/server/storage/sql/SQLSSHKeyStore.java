@@ -12,13 +12,10 @@ import java.util.List;
 import javax.inject.Provider;
 
 import org.masterportal.oauth2.server.storage.SSHKey;
-import org.masterportal.oauth2.server.storage.SSHKeyKeys;
 import org.masterportal.oauth2.server.storage.SSHKeyStore;
 import org.masterportal.oauth2.server.storage.sql.table.SSHKeyTable;
 
-import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
-import edu.uiuc.ncsa.security.core.exceptions.NFWException;
 import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.storage.data.MapConverter;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPool;
@@ -30,8 +27,7 @@ import edu.uiuc.ncsa.security.storage.sql.internals.Table;
 import static java.sql.Types.LONGVARCHAR;
 
 public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHKey> {
-
-    public static final String DEFAULT_TABLENAME =  "ssh_keys";
+    public static final String DEFAULT_TABLENAME = "ssh_keys";
 
     private static final String USERNAME_COLUMN =   "username";
     private static final String LABEL_COLUMN =	    "label";

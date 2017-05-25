@@ -1,39 +1,14 @@
 package edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet;
 
 import org.masterportal.oauth2.server.storage.SSHKey;
-import org.masterportal.oauth2.server.storage.SSHKeyIdentifier;
 import org.masterportal.oauth2.server.storage.sql.SQLSSHKeyStore;
-
-import edu.uiuc.ncsa.security.delegation.storage.Client;
-
 import org.masterportal.oauth2.server.MPOA2SE;
 
-//import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2SE;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
-import edu.uiuc.ncsa.security.core.exceptions.InvalidTimestampException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
-import edu.uiuc.ncsa.security.delegation.token.AccessToken;
+import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2Client;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
-
-import edu.uiuc.ncsa.security.oauth_2_0.OA2Utilities;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.ScopeHandler;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.UII2;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.UIIRequest2;
-//import edu.uiuc.ncsa.security.oauth_2_0.server.UIIResponse2;
-
-import org.apache.commons.codec.digest.DigestUtils;
-
-
-import static edu.uiuc.ncsa.security.oauth_2_0.OA2Constants.CLIENT_SECRET;
-import static edu.uiuc.ncsa.myproxy.oa4mp.server.ServiceConstantKeys.CONSUMER_KEY;
-import org.apache.http.HttpStatus;
-
-import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
-import edu.uiuc.ncsa.security.core.Identifier;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
@@ -42,8 +17,6 @@ import java.io.IOException;
 import java.util.Collection;
 
 import java.io.Writer;
-
-import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 
 
 /**
@@ -60,7 +33,6 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
 	setEnvironment(se);
 
 	// Create custom logger for exceptions and the like
-//	logger = new MyLoggingFacade(getClass().getSimpleName(), false);
 	logger = getMyLogger();
 	setExceptionHandler(new OA2ExceptionHandler(logger));
     }

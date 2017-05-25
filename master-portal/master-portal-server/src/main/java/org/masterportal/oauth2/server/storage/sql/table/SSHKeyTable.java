@@ -6,8 +6,6 @@ import edu.uiuc.ncsa.security.storage.sql.internals.ColumnDescriptorEntry;
 import edu.uiuc.ncsa.security.storage.sql.internals.Table;
 
 import static java.sql.Types.VARCHAR;
-import static java.sql.Types.INTEGER;
-import static java.sql.Types.TIMESTAMP;
 
 public class SSHKeyTable extends Table {
     private final String TIME_LABEL = "import_time";
