@@ -41,42 +41,9 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Get all entries in the DB
-     */
-    public List<SSHKey> getAll()    {
-	Connection c = getConnection();
-	List<SSHKey> resultSet = new ArrayList<SSHKey>();
-	try {
-	    PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createAllSelectStatement() );
-	    stmt.executeQuery();
-	    ResultSet rs = stmt.getResultSet();
-	    
-	    // iterate over result set
-	    while ( rs.next() ) {
-		ColumnMap map = rsToMap(rs);
-		SSHKey t = create();
-		populate(map, t);
-		resultSet.add(t);
-	    }
-	    rs.close();
-	    stmt.close();
-	} catch (SQLException e) {
-	    destroyConnection(c);
-	    throw new GeneralException("Error getting SSH keys", e);
-	} finally {
-	    releaseConnection(c);
-	}
-
-	if ( resultSet.isEmpty() ) {
-	    return null;
-	} 
-	
-	return resultSet;
-    }
-
-    /**
      * Get all entries in the DB for given username
      */
+    @Override
     public List<SSHKey> getAll(String username)    {
 	Connection c = getConnection();
 	List<SSHKey> resultSet = new ArrayList<SSHKey>();

@@ -43,19 +43,6 @@ public class SSHKeyTable extends Table {
     }
 
     /**
-     * Creates statement to obtain all entries ordered by username,label
-     */
-    public String createAllSelectStatement(){
-        SSHKeyKeys x =  (SSHKeyKeys) keys;
-    	String select =  "SELECT * FROM " + getFQTablename();
-
-        select += " ORDER BY "+x.username()+","+x.label()+" ASC";
-        
-        return select;
-    }
-
-
-    /**
      * Creates statement to obtain all entries for a single username
      */
     public String createUserSelectStatement(){
