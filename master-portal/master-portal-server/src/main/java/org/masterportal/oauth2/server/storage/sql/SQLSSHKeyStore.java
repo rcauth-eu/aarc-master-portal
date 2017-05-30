@@ -70,10 +70,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
 	    releaseConnection(c);
 	}
 
-	if (  resultSet.isEmpty() ) {
-	    return null;
-	} 
-	
+	// Even return resultSet if it is an empty set
 	return resultSet;
     }
 

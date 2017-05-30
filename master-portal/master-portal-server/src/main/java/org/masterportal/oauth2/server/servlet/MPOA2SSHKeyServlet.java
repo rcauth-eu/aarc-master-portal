@@ -274,14 +274,17 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
 	// Update values
 	if (pubkey != null)    {
+	    info("Updating pubkey for key");
 	    value.setPubKey(pubkey);
 	}
 	if (description != null)    {
+	    info("Updating description for key");
 	    value.setDescription(description);
 	}
 
 	// Update the pubkey
 	try {
+	    info("Updating the entry for "+username+", "+label);
 	    store.update(value);
 	} catch (Exception e)	{
 	    Throwable cause = e.getCause();
@@ -379,12 +382,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 	    throw new GeneralException("Could not get SSH KeyStore"); 
 	}
 
-	List<SSHKey> keys = store.getAll(userName);
-	if (keys==null) {
-	    throw new OA2GeneralError("not_found", "No key found", HttpStatus.SC_NOT_FOUND);
-	}
-    
-	return keys;
+	return store.getAll(userName);
     }
 
 
