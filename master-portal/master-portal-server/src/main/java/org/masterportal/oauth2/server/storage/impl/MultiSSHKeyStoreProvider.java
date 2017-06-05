@@ -1,12 +1,17 @@
 package org.masterportal.oauth2.server.storage.impl;
 
-import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.masterportal.oauth2.server.storage.SSHKey;
 import org.masterportal.oauth2.server.storage.SSHKeyStore;
 
 import edu.uiuc.ncsa.security.core.exceptions.NotImplementedException;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 
+import org.apache.commons.configuration.tree.ConfigurationNode;
+
+/**
+ * <p>Created by Mischa Sall&eacute;<br>
+ * a {@link SSHKeyStoreProvider} without a default store.
+ */
 public class MultiSSHKeyStoreProvider<T extends SSHKey> extends SSHKeyStoreProvider<SSHKeyStore<T>> {
 
     public MultiSSHKeyStoreProvider(ConfigurationNode config, boolean disableDefaultStore, MyLoggingFacade logger, String type, String target) {

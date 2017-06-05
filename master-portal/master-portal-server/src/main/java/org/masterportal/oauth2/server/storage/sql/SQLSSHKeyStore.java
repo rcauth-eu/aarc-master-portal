@@ -1,17 +1,7 @@
 package org.masterportal.oauth2.server.storage.sql;
 
-import java.sql.Connection;
-import java.sql.PreparedStatement;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.sql.Timestamp;
-import java.util.ArrayList;
-import java.util.Date;
-import java.util.List;
-
-import javax.inject.Provider;
-
 import org.masterportal.oauth2.server.storage.SSHKey;
+import org.masterportal.oauth2.server.storage.SSHKeyKeys;
 import org.masterportal.oauth2.server.storage.SSHKeyStore;
 import org.masterportal.oauth2.server.storage.sql.table.SSHKeyTable;
 
@@ -24,15 +14,28 @@ import edu.uiuc.ncsa.security.storage.sql.internals.ColumnDescriptorEntry;
 import edu.uiuc.ncsa.security.storage.sql.internals.ColumnMap;
 import edu.uiuc.ncsa.security.storage.sql.internals.Table;
 
+import javax.inject.Provider;
+
+import java.sql.Connection;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.util.ArrayList;
+import java.util.Date;
+import java.util.List;
+
 import static java.sql.Types.LONGVARCHAR;
 
+/**
+ * <p>Created by Mischa Sall&eacute;<br>
+ * Main and SQL-based implementation of a {@link SSHKeyStore}.
+ */
 public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHKey> {
+    /** SQL table name for the SSH Keys */
     public static final String DEFAULT_TABLENAME = "ssh_keys";
 
-    private static final String USERNAME_COLUMN =   "username";
-    private static final String LABEL_COLUMN =	    "label";
 
-	
     public SQLSSHKeyStore(ConnectionPool connectionPool,
             Table table,
             Provider<SSHKey> identifiableProvider,
@@ -41,7 +44,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Get all entries in the DB for given username
+     * @return List of all {@link SSHKey} entries in the DB for given username
      */
     @Override
     public List<SSHKey> getAll(String username)    {
@@ -75,16 +78,17 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Adds key to the username
+     * Adds key to the specified username, currently just a wrapper around
+     * {@link #register(SSHKey)}.
      */
     @Override
     public void save(SSHKey value)  {
-	/* Just a wrapper around register */
 	register(value);
     }
 
     /**
-     * Adds key to the username
+     * Adds key to the specified username. The is an adapted version of
+     * {@link SQLStore#register(V)} that is based on a single-field Identifier.
      */
     @Override
     public void register(SSHKey value) {
@@ -123,11 +127,17 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Overrides update(V ) in SQLStore, implements update(SSHKey in SQLSSHKeyStore
+     * Overrides {@link SQLStore#update(V)}, implements {@link
+     * SSHKeyStore#update(SSHKey)}. We need to override since we use two columns
+     * for identification instead of one.
      */
     @Override
     public void update(SSHKey value) {
         Connection c = getConnection();
+	// Get the column headers
+	SSHKeyKeys sshKeyKeys = new SSHKeyKeys();
+	String userNameColumn = sshKeyKeys.userName();
+	String labelColumn = sshKeyKeys.label();
         try {
 	    SSHKeyTable table = (SSHKeyTable)getTable();
             PreparedStatement stmt = c.prepareStatement( table.createUpdateStatement() );
@@ -137,7 +147,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
                 // now we loop through the table and set each and every one of these
 		String name = cde.getName();
 		// Only can update the non-username, non-label entries
-                if (!name.equals(USERNAME_COLUMN) && !name.equals(LABEL_COLUMN)) {
+                if (!name.equals(userNameColumn) && !name.equals(labelColumn)) {
                     Object obj = map.get(name);
                     // Dates confuse setObject, so turn it into an SQL Timestamp object.
                     if (obj instanceof Date) {
@@ -168,7 +178,9 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Overrides get() in SQLStore
+     * Overrides {@link SQLStore#get(Object)}.
+     * We need to override since we use two columns for identification instead
+     * of one.
      */
     @Override
     public SSHKey get(Object key) {
@@ -203,7 +215,9 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Overrides remove() in SQLStore
+     * Overrides {@link SQLStore#remove(Object)}.
+     * We need to override since we use two columns for identification instead
+     * of one.
      */
     @Override
     public SSHKey remove(Object key) {
@@ -235,8 +249,8 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Returns whether the pubkey already exists
-     * Overrides containsKey() in SQLStore
+     * Returns whether the pubKey in key already exists.
+     * Overrides {@link SQLStore#containsKey(Object)}.
      */
     @Override
     public boolean containsKey(Object key) {

@@ -1,8 +1,6 @@
 package org.masterportal.oauth2.server.storage.sql;
 
-import javax.inject.Provider;
 
-import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
 import org.masterportal.oauth2.server.storage.SSHKey;
 import org.masterportal.oauth2.server.storage.SSHKeyKeys;
@@ -13,6 +11,15 @@ import edu.uiuc.ncsa.security.storage.sql.ConnectionPool;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPoolProvider;
 import edu.uiuc.ncsa.security.storage.sql.SQLStoreProvider;
 import edu.uiuc.ncsa.security.storage.sql.internals.Table;
+
+import org.apache.commons.configuration.tree.ConfigurationNode;
+
+import javax.inject.Provider;
+
+/**
+ * <p>Created by Mischa Sall&eacute;<br>
+ * Provider class for (@link SQLSSHKeyStore} objects.
+ */
 
 public class SQLSSHKeyStoreProvider<V extends SQLSSHKeyStore> extends SQLStoreProvider<V> {
 

@@ -7,30 +7,40 @@ import edu.uiuc.ncsa.security.storage.sql.internals.Table;
 
 import static java.sql.Types.VARCHAR;
 
+/**
+ * <p>Created by Mischa Sall&eacute;<br>
+ * Class implementing (primarily) methods to obtain the SQL prepared statements
+ * for interacting with the {@link SQLSSHKeyStore}
+ */
 public class SSHKeyTable extends Table {
+    /** SQL table header for the timestamp column */
     private final String TIME_LABEL = "import_time";
 
 
     public SSHKeyTable(SSHKeyKeys keys, String schema, String tablenamePrefix, String tablename) {
         super(keys, schema, tablenamePrefix, tablename);
     }
-	
+
+    /**
+     * Adds column descriptors for the label, userName, pubKey and description
+     * columns.
+     */
     @Override
     public void createColumnDescriptors() {
 //    	super.createColumnDescriptors();
     	SSHKeyKeys x =  (SSHKeyKeys) keys;
 
-	// We will be using the pair username,label as a composite primary key
+	// We will be using the pair userName,label as a composite primary key
 
 	// label must be only unique per user, so not primary, must be present
     	getColumnDescriptor().add(new ColumnDescriptorEntry(x.label(), VARCHAR, false, false));
 
-	// username can have multiple keys, so do not declare primary, must be present
-    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.username(), VARCHAR, false, false));
+	// userName can have multiple keys, so do not declare primary, must be present
+    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.userName(), VARCHAR, false, false));
 
 	// pubkey must be unique for ssh, also must be present, but don't make
 	// it present as we want to be able to change it
-    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.pub_key(), VARCHAR, false, false));
+    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.pubKey(), VARCHAR, false, false));
 	
 	// description is optional
     	getColumnDescriptor().add(new ColumnDescriptorEntry(x.description(), VARCHAR));
@@ -43,47 +53,48 @@ public class SSHKeyTable extends Table {
     }
 
     /**
-     * Creates statement to obtain all entries for a single username
+     * Creates SQL select statement to obtain all entries for a single username.
      */
     public String createUserSelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
     	String select =  "SELECT * FROM " + getFQTablename() + " WHERE ";
 
-	select += x.username() + " =?";
+	select += x.userName() + " =?";
         
-	select += " ORDER BY "+x.import_time()+" DESC";
+	select += " ORDER BY "+x.importTime()+" DESC";
 
         return select;
     }    
     
     /**
-     * Creates statement to obtain a specific key
+     * Creates SQL select statement for a specific pubKey.
      */
     public String createKeySelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
     	String select =  "SELECT * FROM " + getFQTablename() + " WHERE ";
 
-	select += x.pub_key() + " =?";
+	select += x.pubKey() + " =?";
         
         return select;
     }    
     
     /**
-     * Creates the select statement for this table based on user/label, which
-     * should be the composite primary key
+     * Creates SQL select statement for (userName/label) pair, which should be
+     * the composite primary key.
      */
     @Override
     public String createSelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
     	String select =  "SELECT * FROM " + getFQTablename() + " WHERE ";
 
-	select += x.username() + " =? AND " + x.label() + " =? ";
+	select += x.userName() + " =? AND " + x.label() + " =? ";
 
         return select;
     }
 
     /**
-     * Creates update statement for (username,label) pair
+     * Creates SQL update statement for (userName,label) pair, which should be
+     * the composite primary key.
      */
     @Override
     public String createUpdateStatement() {
@@ -94,7 +105,7 @@ public class SSHKeyTable extends Table {
         boolean isFirst = true;
         for (ColumnDescriptorEntry cde : getColumnDescriptor()) {
 	    String name = cde.getName();
-	    if (!name.equals(x.username()) && !name.equals(x.label())) {
+	    if (!name.equals(x.userName()) && !name.equals(x.label())) {
 		update = update + (isFirst ? "" : ", ") + name + "=?";
 		if (isFirst) {
 		    isFirst = false;
@@ -104,25 +115,30 @@ public class SSHKeyTable extends Table {
 
         update += ", "+TIME_LABEL+"=CURRENT_TIMESTAMP";
         
-        String where = " WHERE " + x.username() + " =? " +
+        String where = " WHERE " + x.userName() + " =? " +
 		       " AND " + x.label() + " =? ";
         
         return update + where;
     }
 
     /**
-     * Creates delete statement for (username,label) pair
+     * Creates SQL delete statement for (userName,label) pair, which should be
+     * the composite primary key.
      */
     public String createDeleteStatement() {
 	SSHKeyKeys x =  (SSHKeyKeys) keys;
 
         String delete = "DELETE FROM " + getFQTablename() +
-			" WHERE " + x.username() + " =? " +
+			" WHERE " + x.userName() + " =? " +
 		        " AND " + x.label() + " =? ";
         
         return delete;
     }
 
+    /**
+     * Creates SQL insert statement for complete set of values (userName, label,
+     * pubKey and description).
+     */
     @Override
     public String createInsertStatement() {
         String out = "INSERT INTO " + getFQTablename() + "(" + createRegisterStatement() + ", " + TIME_LABEL+ ") VALUES (" ;

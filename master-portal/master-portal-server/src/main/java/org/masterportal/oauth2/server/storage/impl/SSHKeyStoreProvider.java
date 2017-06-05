@@ -1,10 +1,16 @@
 package org.masterportal.oauth2.server.storage.impl;
 
-import org.apache.commons.configuration.tree.ConfigurationNode;
 import org.masterportal.oauth2.server.storage.SSHKeyStore;
 
 import edu.uiuc.ncsa.security.core.configuration.provider.MultiTypeProvider;
 import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
+
+import org.apache.commons.configuration.tree.ConfigurationNode;
+
+/**
+ * <p>Created by Mischa Sall&eacute;<br>
+ * Provider class for {@link SSHKeyStore} objects
+ */
 
 public abstract class SSHKeyStoreProvider<T extends SSHKeyStore> extends MultiTypeProvider<T> {
 

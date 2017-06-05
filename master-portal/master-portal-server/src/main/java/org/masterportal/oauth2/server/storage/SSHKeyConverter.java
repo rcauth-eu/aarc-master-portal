@@ -5,6 +5,11 @@ import edu.uiuc.ncsa.security.storage.data.ConversionMap;
 import edu.uiuc.ncsa.security.storage.data.MapConverter;
 import edu.uiuc.ncsa.security.storage.data.SerializationKeys;
 
+/**
+ * <p>Created by Mischa Sall&eacute;<br>
+ * Provides the conversion methods to convert from the keys in the SQL table to
+ * the corresponding fields in the {@link SSHKey} object and vice versa.
+ */
 public class SSHKeyConverter<V extends SSHKey> extends MapConverter<V> {
 
     public SSHKeyConverter(IdentifiableProvider<V> identifiableProvider) {
@@ -24,8 +29,8 @@ public class SSHKeyConverter<V extends SSHKey> extends MapConverter<V> {
 	v = super.fromMap(map, v);
 	
 	v.setLabel( map.getString( getSKKeys().label()) );
-	v.setUserName( map.getString( getSKKeys().username()) );
-	v.setPubKey( map.getString( getSKKeys().pub_key()) );
+	v.setUserName( map.getString( getSKKeys().userName()) );
+	v.setPubKey( map.getString( getSKKeys().pubKey()) );
 	v.setDescription( map.getString( getSKKeys().description()) );
 	return v;
     }
@@ -34,8 +39,8 @@ public class SSHKeyConverter<V extends SSHKey> extends MapConverter<V> {
     public void toMap(V v, ConversionMap<String, Object> map) {
 	super.toMap(v, map);
 	map.put( getSKKeys().label() , v.getLabel());
-	map.put( getSKKeys().username() , v.getUserName());
-	map.put( getSKKeys().pub_key() , v.getPubKey());
+	map.put( getSKKeys().userName() , v.getUserName());
+	map.put( getSKKeys().pubKey() , v.getPubKey());
 	map.put( getSKKeys().description() , v.getDescription());
     }
 }
