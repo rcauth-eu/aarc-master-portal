@@ -525,16 +525,18 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
      */
     private String createLabel(String userName, List<SSHKey> currKeys)	{
 	if (currKeys!=null) {
-	    // Loop backwards over keys until we find matching ssh-key-[0-9]\+
-	    for (int i=currKeys.size()-1; i>=0 ; i--) {
+	    int max=0;
+	    // Loop over all keys to find highest matching ssh-key-[0-9]\+
+	    for (int i=0; i<currKeys.size(); i++) {
 		String label=currKeys.get(i).getLabel();
 		if (label.matches(LABEL_PREFIX+"[0-9]+"))    {
-		    // Found the last one, now get the suffix, add one and
-		    // create the new label
-		    int newSerial=1+Integer.parseInt(label.substring(LABEL_PREFIX.length()));
-		    return LABEL_PREFIX+Integer.toString(newSerial);
+		    int val = Integer.parseInt(label.substring(LABEL_PREFIX.length()));
+		    if (val>max)
+			max=val;
 		}
 	    }
+	    // Found the highest one (or 0): new one is one higher
+	    return LABEL_PREFIX+Integer.toString(1+max);
 	}
 
 	// No matches, will use new default
