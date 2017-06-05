@@ -61,7 +61,7 @@ public class SSHKeyTable extends Table {
 
 	select += x.userName() + " =?";
         
-	select += " ORDER BY "+x.importTime()+" DESC";
+	select += " ORDER BY "+x.label()+" ASC";
 
         return select;
     }    
