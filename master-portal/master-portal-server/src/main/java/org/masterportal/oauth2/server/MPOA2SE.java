@@ -59,7 +59,8 @@ public class MPOA2SE extends OA2SE {
 		       JSONWebKeys jsonWebKeys,
 		       String myproxyPassword,
 		       long myproxyDefaultLifetime,
-		       GetProxyRequestValidator[] validators) {
+		       GetProxyRequestValidator[] validators,
+		       String issuer) {
 		
 		super(logger,
 		      tsp,
@@ -87,7 +88,8 @@ public class MPOA2SE extends OA2SE {
 		      isRefreshTokenEnabled,
 		      twoFactorSupportEnabled,
 		      maxClientRefreshTokenLifetime,
-		      jsonWebKeys);
+		      jsonWebKeys,
+		      issuer);
 		
 		this.myproxyPassword = myproxyPassword;
 		this.myproxyDefaultLifetime = myproxyDefaultLifetime;

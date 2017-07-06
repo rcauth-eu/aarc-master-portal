@@ -81,7 +81,8 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 		    getJSONWebKeys(),	// see OA2ConfigurationLoader
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
-                    getValidators());
+                    getValidators(),
+		    getIssuer());   // see OA2ConfigurationLoader
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new GeneralException("Error: Could not create the runtime environment", e);
         }
