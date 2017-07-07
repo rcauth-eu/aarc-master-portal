@@ -124,6 +124,24 @@
         <url-pattern>/userinfo</url-pattern>
     </servlet-mapping>
 
+    <servlet>
+        <servlet-name>sshkey</servlet-name>
+        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2SSHKeyServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sshkey</servlet-name>
+        <url-pattern>/sshkey</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>sshkeylisting</servlet-name>
+        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2SSHKeyListingServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>sshkeylisting</servlet-name>
+        <url-pattern>/sshkeylisting</url-pattern>
+    </servlet-mapping>
+
 
     <!--
       The next section should be uncommented if you are running this as a standalone service under Tomcat.

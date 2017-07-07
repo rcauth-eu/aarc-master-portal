@@ -8,9 +8,17 @@ import org.masterportal.oauth2.server.MPOA2ServiceTransaction;
 import org.masterportal.oauth2.server.storage.MPOA2TConverter;
 import org.masterportal.oauth2.server.storage.MPOA2TransactionKeys;
 import org.masterportal.oauth2.server.storage.sql.MPOA2SQLTransactionStoreProvider;
+
+import org.masterportal.oauth2.server.storage.SSHKeyStore;
+import org.masterportal.oauth2.server.storage.SSHKeyIdentifierProvider;
+import org.masterportal.oauth2.server.storage.SSHKeyConverter;
+import org.masterportal.oauth2.server.storage.SSHKeyKeys;
+import org.masterportal.oauth2.server.storage.impl.SSHKeyProvider;
+import org.masterportal.oauth2.server.storage.impl.MultiSSHKeyStoreProvider;
+import org.masterportal.oauth2.server.storage.sql.SQLSSHKeyStoreProvider;
+
 import org.masterportal.oauth2.server.validators.GetProxyRequestValidator;
 import org.masterportal.oauth2.servlet.MPOA4MPConfigTags;
-
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2ConfigurationLoader;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2SQLTransactionStoreProvider;
@@ -26,6 +34,7 @@ import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.configuration.Configurations;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.core.util.IdentifierProvider;
+import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.delegation.storage.TransactionStore;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
 import edu.uiuc.ncsa.security.storage.data.MapConverter;
@@ -55,6 +64,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
             return (T) new MPOA2SE(loggerProvider.get(),
                     getTransactionStoreProvider(),
                     getClientStoreProvider(),
+		    getSSHKeyStoreProvider(),
                     getMaxAllowedNewClientRequests(),
                     getRTLifetime(),
                     getClientApprovalStoreProvider(),
@@ -81,11 +91,46 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 		    getJSONWebKeys(),	// see OA2ConfigurationLoader
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
+		    getMaxSSHKeys(),
                     getValidators(),
 		    getIssuer());   // see OA2ConfigurationLoader
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             throw new GeneralException("Error: Could not create the runtime environment", e);
         }
+    }
+
+    protected MultiSSHKeyStoreProvider sshKeySP;
+
+    public Provider<SSHKeyStore> getSSHKeyStoreProvider() {
+    	if ( sshKeySP == null ) {
+	     sshKeySP = new MultiSSHKeyStoreProvider(cn, isDefaultStoreDisabled(), loggerProvider.get(), null, null);
+	     
+	     SSHKeyProvider provider = new SSHKeyProvider( new SSHKeyIdentifierProvider() );
+	     SSHKeyConverter converter = new SSHKeyConverter( new SSHKeyKeys(), provider);
+
+	     sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
+			      getMySQLConnectionPoolProvider(),
+				      OA4MPConfigTags.MYSQL_STORE, 
+				      converter, 
+				      provider) );    
+
+	     sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
+			      getMariaDBConnectionPoolProvider(),
+				      OA4MPConfigTags.MARIADB_STORE, 
+				      converter, 
+				      provider) );      		 
+	     
+	     // TODO: The backend for this is not written. yet. But it might just work out of the box
+	     /*
+	     sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
+			      getPgConnectionPoolProvider(),
+			      OA4MPConfigTags.POSTGRESQL_STORE, 
+			      converter, 
+			      provider) );
+	     */
+    		 
+    	}
+    	return sshKeySP;
     }
 
     /* ADDITIONAL MYPROXY SERVER CONFIGURATIONS */
@@ -196,6 +241,27 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 							  Provider<TokenForge> tfp,
 							  MapConverter converter){
 	return new MPOA2SQLTransactionStoreProvider(config,cpp,type,clientStoreProvider,tp,tfp,converter);
+    }
+    
+    /* SSH KEY CONFIGURATION */
+
+    protected int getMaxSSHKeys() {
+	MyLoggingFacade logger = loggerProvider.get();
+	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.SSH_KEYS);
+	String maxValue = Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MAX_SSH_KEYS);
+	int max = -1;
+	if (maxValue != null && !maxValue.isEmpty())	{
+	    try {
+		max=Integer.parseInt(maxValue);
+		logger.info("Using maximum "+max+" keys per user");
+	    } catch (Exception e)   {
+		logger.warn("Value of " + MPOA4MPConfigTags.MAX_SSH_KEYS +
+			    " in node "+node.getName()+" is not a valid integer");
+	    }
+	} else {
+	    logger.info("No (valid) maximum keys found");
+	}
+	return max;
     }
     
 }
