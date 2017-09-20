@@ -47,7 +47,7 @@ import java.util.Base64;
 
 /**
  * <p>Created by Mischa Sall&eacute;<br>
- * Main SSH public Key API servlet for uploading SSH pulbic keys to the Master
+ * Main SSH public Key API servlet for uploading SSH public keys to the Master
  * Portal. The resulting list can be obtained via the {@link
  * MPOA2SSHKeyListingServlet} servlet.
  * @see MPOA2SSHKeyListingServlet
@@ -103,7 +103,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     public Client getClient(HttpServletRequest req) {
         String rawID = req.getParameter(CONST(CONSUMER_KEY));
         String rawSecret = getFirstParameterValue(req, CLIENT_SECRET);
-        // According to the spec. this must be in anBasic Authz header if it is not sent as parameter
+        // According to the spec. this must be in a Basic Authz header if it is not sent as parameter
         List<String> basicTokens = getAuthHeader(req, "Basic");
         if (2 < basicTokens.size()) {
             // too many tokens to unscramble
@@ -179,7 +179,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 	// Get transaction for this request, based on access_token
 	ServiceTransaction transaction = getAndVerifyTransaction(request);
 
-	// Get the client_id: for ADD and DELETE this is mandatory, for the
+	// Get the client_id: for ADD and UPDATE this is mandatory, for the
 	// others: if present it should be valid and match the access_token
 	Client client = getClient(request);
 	if (client!=null) {
