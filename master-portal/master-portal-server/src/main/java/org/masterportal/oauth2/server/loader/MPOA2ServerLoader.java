@@ -92,6 +92,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
 		    getMaxSSHKeys(),
+		    getAutoRegisterEndpoint(),
                     getValidators(),
 		    getIssuer());   // see OA2ConfigurationLoader
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
@@ -262,6 +263,27 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 	    logger.info("No (valid) maximum keys found");
 	}
 	return max;
+    }
+
+    /* Configuration of autoregistration endpoint */
+
+    protected boolean getAutoRegisterEndpoint() {
+	MyLoggingFacade logger = loggerProvider.get();
+	// Default is false
+	boolean autoRegisterEndpoint = false;
+	String x = Configurations.getFirstAttribute(cn, MPOA4MPConfigTags.AUTOREGISTER_ENDPOINT_ENABLED);
+	if (x == null) {
+	    autoRegisterEndpoint = false;
+	    logger.info("Attribute " +
+			MPOA4MPConfigTags.AUTOREGISTER_ENDPOINT_ENABLED +
+			" is unset, autoregistration endpoint is disabled.");
+	} else {
+	    autoRegisterEndpoint = Boolean.parseBoolean(x);
+	    logger.info("Autoregistration endpoint is " +
+			(autoRegisterEndpoint==true ? "ENABLED" : "disabled") +
+			".");
+	}
+        return autoRegisterEndpoint;
     }
     
 }

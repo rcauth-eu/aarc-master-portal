@@ -63,6 +63,7 @@ public class MPOA2SE extends OA2SE {
 		   String myproxyPassword,
 		   long myproxyDefaultLifetime,
 		   int maxSSHKeys,
+		   boolean autoRegisterEndpoint,
 		   GetProxyRequestValidator[] validators,
 		   String issuer) {
 		
@@ -103,6 +104,8 @@ public class MPOA2SE extends OA2SE {
 	this.ssp = ssp;
 
 	this.maxSSHKeys = maxSSHKeys;
+
+	this.autoRegisterEndpoint = autoRegisterEndpoint;
     }
 	
     protected GetProxyRequestValidator[] validators;
@@ -142,6 +145,12 @@ public class MPOA2SE extends OA2SE {
 
     public int getMaxSSHKeys()	{
 	return maxSSHKeys;
+    }
+
+    protected boolean autoRegisterEndpoint = false;
+
+    public boolean getAutoRegisterEndpoint()	{
+	return autoRegisterEndpoint;
     }
 
 }

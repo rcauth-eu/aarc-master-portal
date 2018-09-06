@@ -9,6 +9,9 @@ public interface MPOA4MPConfigTags extends OA4MPConfigTags {
     public static final String SSH_KEYS = "sshkeys";
     // name of max ssh keys childnode
     public static final String MAX_SSH_KEYS = "max";
+
+    // whether the autoregister endpoint is enabled
+    public static final String AUTOREGISTER_ENDPOINT_ENABLED = "enableAutoRegisterEndpoint";
     
     // attribute of the myproxy tag
     public static final String MYPROXY_PASSWORD = "password";

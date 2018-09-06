@@ -99,6 +99,17 @@
         <servlet-name>clientVetting</servlet-name>
         <url-pattern>/register</url-pattern>
     </servlet-mapping>
+
+    <servlet>
+        <servlet-name>autoRegister</servlet-name>
+        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2AutoRegistrationServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>autoRegister</servlet-name>
+        <url-pattern>/autoregister</url-pattern>
+    </servlet-mapping>
+
     <servlet>
         <servlet-name>discovery</servlet-name>
         <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2DiscoveryServlet</servlet-class>
