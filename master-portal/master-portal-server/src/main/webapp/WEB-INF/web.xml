@@ -33,7 +33,7 @@
     <servlet>
         <servlet-name>initiate</servlet-name>
         <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizedServlet</servlet-class> -->
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2AuthorizedServlet</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2AuthorizedServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>initiate</servlet-name>
@@ -62,7 +62,7 @@
     
     <servlet>
         <servlet-name>getProxy</servlet-name>
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2ProxyServlet</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2ProxyServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>getProxy</servlet-name>
@@ -72,7 +72,7 @@
     <servlet>
         <servlet-name>error</servlet-name>
         <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.ErrorServlet</servlet-class> -->
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2ErrorServlet</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2ErrorServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>error</servlet-name>
@@ -82,7 +82,7 @@
     <servlet>
         <servlet-name>authorize</servlet-name>
         <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizationServer</servlet-class> -->
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2AuthorizationServer</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2AuthorizationServer</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>authorize</servlet-name>
@@ -102,7 +102,7 @@
 
     <servlet>
         <servlet-name>autoRegister</servlet-name>
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2AutoRegistrationServlet</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2AutoRegistrationServlet</servlet-class>
         <load-on-startup>1</load-on-startup>
     </servlet>
     <servlet-mapping>
@@ -137,7 +137,7 @@
 
     <servlet>
         <servlet-name>sshkey</servlet-name>
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2SSHKeyServlet</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2SSHKeyServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>sshkey</servlet-name>
@@ -146,7 +146,7 @@
 
     <servlet>
         <servlet-name>sshkeylisting</servlet-name>
-        <servlet-class>org.masterportal.oauth2.server.servlet.MPOA2SSHKeyListingServlet</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2SSHKeyListingServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>sshkeylisting</servlet-name>
@@ -188,7 +188,7 @@
 
     <listener>
         <!-- <listener-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2Bootstrapper</listener-class> -->
-		<listener-class>org.masterportal.oauth2.server.loader.MPOA2ServerBootstrapper</listener-class>
+		<listener-class>eu.rcauth.masterportal.server.loader.MPOA2ServerBootstrapper</listener-class>
     </listener>
 
 <!--
