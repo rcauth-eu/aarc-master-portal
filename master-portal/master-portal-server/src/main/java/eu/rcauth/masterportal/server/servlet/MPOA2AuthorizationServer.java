@@ -1,15 +1,16 @@
 package eu.rcauth.masterportal.server.servlet;
 
+import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.claims.OA2ClaimsUtil;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizationServer;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.servlet.TransactionState;
-import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
+// import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
-import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
+// import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 import edu.uiuc.ncsa.security.servlet.PresentableState;
 
@@ -18,19 +19,21 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import org.apache.http.HttpStatus;
+import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2SE;
 
 import eu.rcauth.masterportal.MPClientContext;
 import eu.rcauth.masterportal.MPServerContext;
 import eu.rcauth.masterportal.server.MPOA2RequestForwarder;
 import eu.rcauth.masterportal.server.MPOA2ServiceTransaction;
-import eu.rcauth.masterportal.server.util.JSONConverter;
 import eu.rcauth.masterportal.servlet.util.CookieAwareHttpServletResponse;
+import eu.rcauth.masterportal.servlet.util.UpdateParameterHttpServletRequest;
 
-import java.io.PrintWriter;
-import java.io.StringWriter;
+// import java.io.PrintWriter;
+// import java.io.StringWriter;
+import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+import net.sf.json.JSONObject;
 
 /*
  * Custom build Authorization Server for Master Portal
@@ -50,7 +53,6 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         return new MPOA2AuthorizedServletUtil(this);
     }
 
-    
     /*
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
@@ -142,14 +144,16 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     @Override
     public void present(PresentableState state) throws Throwable {
         AuthorizedState aState = (AuthorizedState) state;
-        postprocess(new TransactionState(state.getRequest(), aState.getResponse(), null, aState.getTransaction()));
-        
+        HttpServletRequest request = aState.getRequest();
+        HttpServletResponse response = aState.getResponse();
+        OA2ServiceTransaction transaction = (OA2ServiceTransaction)(aState.getTransaction());
+        postprocess(new TransactionState(request, response, null, transaction));
+
         switch (aState.getState()) {
             case AUTHORIZATION_ACTION_START:
                 // Check we have a state parameter, or we cannot keep track of
                 // the redirect to the client part
-                HttpServletRequest request = aState.getRequest();
-		String stateParam=getParam(request, "state");
+                String stateParam=getParam(request, "state");
                 if (stateParam == null || stateParam.isEmpty()) {
                     error("Error: request does not contain required (non-empty) state parameter");
                     String redirect_uri = request.getParameter(OA2Constants.REDIRECT_URI);
@@ -160,11 +164,19 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                         throw new OA2RedirectableError(OA2Errors.INVALID_REQUEST, "Need non-empty state parameter in request", "", redirect_uri);
                     }
                 }
-            
+
+                // wrap the request object so that we can replace a request parameter
+                UpdateParameterHttpServletRequest newRequest = new UpdateParameterHttpServletRequest(request);
+
+                // create String with the effective scopes for the client
+                Collection<String> scopes = transaction.getScopes();
+                String scopesString=String.join(" ", scopes.toArray(new String[0]));
+                newRequest.setParam(OA2Constants.SCOPE, scopesString);
+
                 info("Forwarding authorization request to MP-Client (/startRequest)");
                                 
                 // wrap the response object so that we can look at the cookies going to the browser
-                CookieAwareHttpServletResponse response = new CookieAwareHttpServletResponse(state.getResponse());
+                CookieAwareHttpServletResponse newResponse = new CookieAwareHttpServletResponse(response);
                 
                 // forward request
                 ServletContext serverContext = getServletConfig().getServletContext();
@@ -172,7 +184,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
              
                 try { 
                     RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_START_ENDPOINT);
-                    MPOA2RequestForwarder.forwardRequest(state.getRequest(), response, dispatcher, false);
+                    MPOA2RequestForwarder.forwardRequest(newRequest, newResponse, dispatcher, false);
                     //dispatcher.forward(state.getRequest(), response);
                 } catch (Throwable t) {
                     if (t instanceof GeneralException) {
@@ -187,7 +199,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                 // extract the cookie containing the clientID 
                 // this cookie is then saved into the transaction store so that we can tie the MP-Client session to
                 // the MP-Server session in upcoming requests.
-                String clientID = response.getCookie(MPClientContext.MP_CLIENT_REQUEST_ID);
+                String clientID = newResponse.getCookie(MPClientContext.MP_CLIENT_REQUEST_ID);
                 ((MPOA2ServiceTransaction)aState.getTransaction()).setMPClientSessionIdentifier(clientID);
                 getTransactionStore().save( aState.getTransaction() );
                 
@@ -227,12 +239,14 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
             // get claims issued by the delegation server and save it into the transaction
             
             String jsonClaims = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS);
+                debug("retrieved claims: "+jsonClaims);
             
             if (jsonClaims == null) {
                 warn("No claims returned by the Delegation Server! Check if the right SCOPES are sent by the Master Portal!");
             }
-            
-            trans.setClaims( (Map<String, Object>) JSONConverter.fromJSONObject(jsonClaims) );            
+            // Now we can set the new claims
+            // NOTE: iss and aud are set in createRedirect() via claimsUtil.createBasicClaims()
+            trans.setClaims( JSONObject.fromObject(jsonClaims) );
         }
     }
 
@@ -241,6 +255,8 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
      */
     @Override
     protected void createRedirect(HttpServletRequest request, HttpServletResponse response, ServiceTransaction trans) throws Throwable {
+        // NOTE: We cannot call super.createRedirect() since the we need to skip
+        // a few parts. Hence we override. 
         String rawrtl = request.getParameter(AUTHORIZATION_REFRESH_TOKEN_LIFETIME_KEY);
         OA2ServiceTransaction st2 = (OA2ServiceTransaction) trans;
         try {
@@ -264,10 +280,16 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         // Change is to close this connection after verifying it works.
         //getMPConnection(trans.getIdentifier()).close();
         // Depending on the control flow, the next call may or may not require a connection to be re-opened.
-        
-        doRealCertRequest(trans, statusString);
+      
+        // NOTE: can skip next one, it's in OA2AuthorizationServer and is a no-op
+//        doRealCertRequest(trans, statusString);
         debug("4.a. verifier = " + trans.getVerifier() + ", " + statusString);
         
+        OA2ClaimsUtil claimsUtil = new OA2ClaimsUtil((OA2SE) getServiceEnvironment(), st2);
+        claimsUtil.createBasicClaims(request, (OA2ServiceTransaction) trans);
+
+        // At this point, all authentication has been done, everything is set up and the next stop in the flow is the
+        // redirect back to the client.
         Map<String,String> reqParamMap = new HashMap<String,String>();
         reqParamMap.put(OA2Constants.STATE, (String) request.getAttribute(OA2Constants.STATE));
         
