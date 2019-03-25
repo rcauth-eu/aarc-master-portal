@@ -42,7 +42,7 @@ import javax.inject.Provider;
  *  @author Tamás Balogh
  */
 public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoader<T> {
-	
+
     public MPOA2ClientLoader(ConfigurationNode node) {
         super(node);
     }
@@ -50,7 +50,7 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
     @Override
     public OA4MPServiceProvider getServiceProvider() {
         return new MPOA2MPService.MPOA2MPProvider(load());
-    }	
+    }
 
     @Override
     public String getVersionString() {
@@ -86,7 +86,8 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
                     getSuccessPagePath(),
                     getSecret(),
                     getScopes(),
-		    getWellKnownURI(),
+                    getWellKnownURI(),
+                    isOIDCEnabled(),
                     getMyProxyFacadeProvider(),
                     getMyProxyPassword()
             );
@@ -181,8 +182,8 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
      }    
     
     protected String getMyProxyPassword() {
-    	ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
-    	return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
+        ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+        return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
     }
     
 }

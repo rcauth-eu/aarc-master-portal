@@ -23,8 +23,8 @@ import edu.uiuc.ncsa.security.delegation.server.storage.ClientApprovalStore;
 import edu.uiuc.ncsa.security.delegation.server.storage.ClientStore;
 import edu.uiuc.ncsa.security.delegation.storage.TransactionStore;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
-import edu.uiuc.ncsa.security.oauth_2_0.server.LDAPConfiguration;
-import edu.uiuc.ncsa.security.oauth_2_0.server.ScopeHandler;
+import edu.uiuc.ncsa.security.oauth_2_0.server.config.LDAPConfiguration;
+import edu.uiuc.ncsa.security.oauth_2_0.server.claims.ClaimSource;
 import edu.uiuc.ncsa.security.servlet.UsernameTransformer;
 import edu.uiuc.ncsa.security.util.mail.MailUtilProvider;
 import edu.uiuc.ncsa.security.util.jwk.JSONWebKeys;
@@ -32,102 +32,106 @@ import edu.uiuc.ncsa.security.util.jwk.JSONWebKeys;
 public class MPOA2SE extends OA2SE {
 
     public MPOA2SE(MyLoggingFacade logger,
-		   Provider<TransactionStore> tsp,
-		   Provider<ClientStore> csp,
-		   Provider<SSHKeyStore> ssp,
-		   int maxAllowedNewClientRequests,
-		   long rtLifetime,
-		   Provider<ClientApprovalStore> casp,
-		   List<MyProxyFacadeProvider> mfp,
-		   MailUtilProvider mup,
-		   MessagesProvider messagesProvider,
-		   Provider<AGIssuer> agip,
-		   Provider<ATIssuer> atip,
-		   Provider<PAIssuer> paip,
-		   Provider<TokenForge> tfp,
-		   HashMap<String,
-		   String> constants,
-		   AuthorizationServletConfig ac,
-		   UsernameTransformer usernameTransformer,
-		   boolean isPingable,
-		   Provider<PermissionsStore> psp,
-		   Provider<AdminClientStore> acs,
-		   int clientSecretLength,
-		   Collection<String> scopes,
-		   ScopeHandler scopeHandler,
-		   LDAPConfiguration ldapConfiguration2,
-		   boolean isRefreshTokenEnabled,
-		   boolean twoFactorSupportEnabled,
-		   long maxClientRefreshTokenLifetime,
-		   JSONWebKeys jsonWebKeys,
-		   String myproxyPassword,
-		   long myproxyDefaultLifetime,
-		   int maxSSHKeys,
-		   boolean autoRegisterEndpoint,
-		   GetProxyRequestValidator[] validators,
-		   String issuer) {
-		
-	super(logger,
-	      tsp,
-	      csp,
-	      maxAllowedNewClientRequests,
-	      rtLifetime,
-	      casp,
-	      mfp,
-	      mup,
-	      messagesProvider,
-	      agip,
-	      atip,
-	      paip,
-	      tfp,
-	      constants,
-	      ac,
-	      usernameTransformer,
-	      isPingable,
-	      psp,
-	      acs,
-	      clientSecretLength,
-	      scopes,
-	      scopeHandler,
-	      ldapConfiguration2,
-	      isRefreshTokenEnabled,
-	      twoFactorSupportEnabled,
-	      maxClientRefreshTokenLifetime,
-	      jsonWebKeys,
-	      issuer);
-	    
-	this.myproxyPassword = myproxyPassword;
-	this.myproxyDefaultLifetime = myproxyDefaultLifetime;
-	
-	this.validators = validators;
+                   Provider<TransactionStore> tsp,
+                   Provider<ClientStore> csp,
+                   Provider<SSHKeyStore> ssp,
+                   int maxAllowedNewClientRequests,
+                   long rtLifetime,
+                   Provider<ClientApprovalStore> casp,
+                   List<MyProxyFacadeProvider> mfp,
+                   MailUtilProvider mup,
+                   MessagesProvider messagesProvider,
+                   Provider<AGIssuer> agip,
+                   Provider<ATIssuer> atip,
+                   Provider<PAIssuer> paip,
+                   Provider<TokenForge> tfp,
+                   HashMap<String,
+                   String> constants,
+                   AuthorizationServletConfig ac,
+                   UsernameTransformer usernameTransformer,
+                   boolean isPingable,
+                   Provider<PermissionsStore> psp,
+                   Provider<AdminClientStore> acs,
+                   int clientSecretLength,
+                   Collection<String> scopes,
+                   ClaimSource claimSource,
+                   LDAPConfiguration ldapConfiguration2,
+                   boolean isRefreshTokenEnabled,
+                   boolean twoFactorSupportEnabled,
+                   long maxClientRefreshTokenLifetime,
+                   JSONWebKeys jsonWebKeys,
+                   String myproxyPassword,
+                   long myproxyDefaultLifetime,
+                   int maxSSHKeys,
+                   boolean autoRegisterEndpoint,
+                   GetProxyRequestValidator[] validators,
+                   String issuer,
+                   boolean utilServletEnabled,
+                   boolean oidcEnabled) {
 
-	this.ssp = ssp;
+        super(logger,
+              tsp,
+              csp,
+              maxAllowedNewClientRequests,
+              rtLifetime,
+              casp,
+              mfp,
+              mup,
+              messagesProvider,
+              agip,
+              atip,
+              paip,
+              tfp,
+              constants,
+              ac,
+              usernameTransformer,
+              isPingable,
+              psp,
+              acs,
+              clientSecretLength,
+              scopes,
+              claimSource,
+              ldapConfiguration2,
+              isRefreshTokenEnabled,
+              twoFactorSupportEnabled,
+              maxClientRefreshTokenLifetime,
+              jsonWebKeys,
+              issuer,
+              utilServletEnabled,
+              oidcEnabled);
 
-	this.maxSSHKeys = maxSSHKeys;
+        this.myproxyPassword = myproxyPassword;
+        this.myproxyDefaultLifetime = myproxyDefaultLifetime;
 
-	this.autoRegisterEndpoint = autoRegisterEndpoint;
+        this.validators = validators;
+
+        this.ssp = ssp;
+
+        this.maxSSHKeys = maxSSHKeys;
+
+        this.autoRegisterEndpoint = autoRegisterEndpoint;
     }
-	
+
     protected GetProxyRequestValidator[] validators;
-    
+
     public GetProxyRequestValidator[] getValidators() {
-	return validators;
+        return validators;
     }
-	
+
     protected String myproxyPassword;
-    
+
     public void setMyproxyPassword(String myproxyPassword) {
-	this.myproxyPassword = myproxyPassword;
+        this.myproxyPassword = myproxyPassword;
     }
-    
+
     public String getMyproxyPassword() {
-	return myproxyPassword;
+        return myproxyPassword;
     }
-    
+
     long myproxyDefaultLifetime;
-    
+
     public long getMyproxyDefaultLifetime() {
-	return myproxyDefaultLifetime;
+        return myproxyDefaultLifetime;
     }
 
     protected Provider<SSHKeyStore> ssp;
@@ -143,14 +147,14 @@ public class MPOA2SE extends OA2SE {
 
     protected int maxSSHKeys;
 
-    public int getMaxSSHKeys()	{
-	return maxSSHKeys;
+    public int getMaxSSHKeys()  {
+        return maxSSHKeys;
     }
 
     protected boolean autoRegisterEndpoint = false;
 
-    public boolean getAutoRegisterEndpoint()	{
-	return autoRegisterEndpoint;
+    public boolean getAutoRegisterEndpoint()    {
+        return autoRegisterEndpoint;
     }
 
 }
