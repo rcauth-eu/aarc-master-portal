@@ -1,5 +1,6 @@
 package eu.rcauth.masterportal.server.servlet;
 
+import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.AbstractRegistrationServlet;
 import eu.rcauth.masterportal.server.MPOA2SE;
 
 import edu.uiuc.ncsa.security.servlet.PresentableState;
@@ -8,7 +9,6 @@ import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.delegation.storage.Client;
 import edu.uiuc.ncsa.security.delegation.server.storage.ClientApprovalStore;
 import edu.uiuc.ncsa.security.delegation.server.storage.ClientApproval;
-import edu.uiuc.ncsa.security.delegation.servlet.TransactionState;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2RegistrationServlet;
 
@@ -29,13 +29,15 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
 
     /** Basic 'approver' string set for auto-approved requests */
     public static String APPROVER = "auto-approver";
-    /** Request parameter to add an extra approver ID to the {@link APPROVER}*/
+
+    /** Request parameter to add an extra approver ID to the APPROVER */
     public static String APPROVERID = "approverid";
-    /** Valid regexp pattern for values of {@link APPROVERID} */
+
+    /** Valid regexp pattern for values of APPROVERID */
     public static String APPROVERID_PATTERN = "[\\w\\-.~!*'();:@&=+$,/?%#\\[\\]]+";
 
     /**
-     * We only use the {@link REQUEST_STATE}, since we don't present a HTML
+     * We only use the {@link #REQUEST_STATE}, since we don't present a HTML
      * form but use a POST API call.
      *
      * @param request not used
@@ -126,7 +128,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
      *
      * @param request contains the parameters for the new client
      * @param response
-     * @param fireClientEvents whether to call {@link fireNewClientEvent}
+     * @param fireClientEvents whether to call {@link AbstractRegistrationServlet#fireNewClientEvent(Client)}
      * @throws Throwable
      */
     @Override
@@ -166,9 +168,9 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
 
     /**
      * returns the approver String for given client, depending on whether the
-     * request contains a {@link APPROVERID} parameter
+     * request contains a {@link #APPROVERID} parameter
      *
-     * @param request used to get the {@link APPROVERID} parameter.
+     * @param request used to get the {@link #APPROVERID} parameter.
      * @param client in case of error the {@link Client} is removed again.
      * @throws ServletException
      */

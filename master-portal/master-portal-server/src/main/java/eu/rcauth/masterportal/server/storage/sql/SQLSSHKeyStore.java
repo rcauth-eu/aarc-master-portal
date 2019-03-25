@@ -1,5 +1,6 @@
 package eu.rcauth.masterportal.server.storage.sql;
 
+import edu.uiuc.ncsa.security.core.Identifiable;
 import eu.rcauth.masterportal.server.storage.SSHKey;
 import eu.rcauth.masterportal.server.storage.SSHKeyKeys;
 import eu.rcauth.masterportal.server.storage.SSHKeyStore;
@@ -88,7 +89,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
 
     /**
      * Adds key to the specified username. The is an adapted version of
-     * {@link SQLStore#register(V)} that is based on a single-field Identifier.
+     * {@link SQLStore#register(Identifiable)} that is based on a single-field Identifier.
      */
     @Override
     public void register(SSHKey value) {
@@ -127,7 +128,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     }
 
     /**
-     * Overrides {@link SQLStore#update(V)}, implements {@link
+     * Overrides {@link SQLStore#update(Identifiable)}, implements {@link
      * SSHKeyStore#update(SSHKey)}. We need to override since we use two columns
      * for identification instead of one.
      */

@@ -1,5 +1,6 @@
 package eu.rcauth.masterportal.server.servlet;
 
+import edu.uiuc.ncsa.security.servlet.AbstractServlet;
 import eu.rcauth.masterportal.server.storage.SSHKey;
 import eu.rcauth.masterportal.server.storage.sql.SQLSSHKeyStore;
 import eu.rcauth.masterportal.server.MPOA2SE;
@@ -66,9 +67,8 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
     }
 
     /**
-     * Main method called by TomCat upon receiving either a get or post (via
-     * {@link AbstractServlet). Writes the list of stored keys and usernames,
-     * space-separated to the response.
+     * Main method called by TomCat upon receiving either a get or post (via {@link AbstractServlet}).
+     * Writes the list of stored keys and usernames, space-separated to the response.
      */
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {

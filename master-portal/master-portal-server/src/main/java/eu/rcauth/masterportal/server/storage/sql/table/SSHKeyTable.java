@@ -4,6 +4,7 @@ import eu.rcauth.masterportal.server.storage.SSHKeyKeys;
 
 import edu.uiuc.ncsa.security.storage.sql.internals.ColumnDescriptorEntry;
 import edu.uiuc.ncsa.security.storage.sql.internals.Table;
+import eu.rcauth.masterportal.server.storage.sql.SQLSSHKeyStore;
 
 import static java.sql.Types.VARCHAR;
 

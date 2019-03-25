@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 
 import edu.uiuc.ncsa.security.core.Store;
+import eu.rcauth.masterportal.server.storage.sql.SQLSSHKeyStore;
 
 /**
  * <p>Created by Mischa Sall&eacute;<br>
