@@ -1,29 +1,40 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>eu.rcauth.masterportal</groupId>
-    <artifactId>master-portal</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <artifactId>master-portal-common</artifactId>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
 
-  <name>Master Portal Common</name>
-  
-  <dependencies>
-  
-       	<dependency>	
-	    	<groupId>edu.uiuc.ncsa.myproxy</groupId>
-		<artifactId>oa4mp-server-api</artifactId>
-    		<version>3.4-SNAPSHOT</version>
-     	</dependency>	
-  
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>eu.rcauth.masterportal</groupId>
+        <artifactId>master-portal</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>master-portal-common</artifactId>
+    <name>Master Portal Common</name>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>edu.uiuc.ncsa.myproxy</groupId>
+            <artifactId>oa4mp-server-api</artifactId>
+            <version>${oa4mpVersion}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.uiuc.ncsa.security</groupId>
+            <artifactId>ncsa-security-core</artifactId>
+            <version>${seclibVersion}</version>
+        </dependency>
+
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
-        
-  </dependencies>
-  
+
+    </dependencies>
+
+    <build>
+        <finalName>mp-oa2-common</finalName>
+    </build>
+
 </project>

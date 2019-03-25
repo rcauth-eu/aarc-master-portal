@@ -1,50 +1,59 @@
-<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
-  <modelVersion>4.0.0</modelVersion>
-  <parent>
-    <groupId>eu.rcauth.masterportal</groupId>
-    <artifactId>master-portal</artifactId>
-    <version>0.0.1-SNAPSHOT</version>
-  </parent>
-  <artifactId>master-portal-server</artifactId>
-  <packaging>${packaging.type}</packaging>
-  
-  <name>Master Portal (Server Component)</name>
-  
-  <dependencies>
-        
-     	<dependency>
-         	<groupId>eu.rcauth.masterportal</groupId>
-         	<artifactId>master-portal-common</artifactId>
-         	<version>0.0.1-SNAPSHOT</version>
-     	</dependency>         
-        
-		<dependency>
-    		<groupId>edu.uiuc.ncsa.myproxy</groupId>
-    		<artifactId>oa4mp-server-oauth2</artifactId>
-    		<version>3.4-SNAPSHOT</version>
+<project xmlns="http://maven.apache.org/POM/4.0.0" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+
+    <modelVersion>4.0.0</modelVersion>
+
+    <parent>
+        <groupId>eu.rcauth.masterportal</groupId>
+        <artifactId>master-portal</artifactId>
+        <version>${revision}</version>
+    </parent>
+
+    <artifactId>master-portal-server</artifactId>
+    <name>Master Portal (Server Component)</name>
+    <packaging>${packaging.type}</packaging>
+
+    <dependencies>
+
+        <dependency>
+            <groupId>eu.rcauth.masterportal</groupId>
+            <artifactId>master-portal-common</artifactId>
+            <version>${revision}</version>
+        </dependency>
+
+        <dependency>
+            <groupId>edu.uiuc.ncsa.myproxy</groupId>
+            <artifactId>oa4mp-server-oauth2</artifactId>
+            <version>${oa4mpVersion}</version>
             <type>war</type>
-            <scope>runtime</scope>    		
-		</dependency>
+            <scope>runtime</scope>
+        </dependency>
 
         <dependency>
             <groupId>edu.uiuc.ncsa.myproxy</groupId>
             <artifactId>oa4mp-server-loader-oauth2</artifactId>
-            <version>3.4-SNAPSHOT</version>
+            <version>${oa4mpVersion}</version>
         </dependency>
-	<!-- Used to come via nimbus-jose-jwt from
-	     edu/uiuc/ncsa/security/delegation/ncsa-security-oauth-2.0 -->
+
+        <dependency>
+            <groupId>edu.uiuc.ncsa.myproxy</groupId>
+            <artifactId>oa4mp-server-api</artifactId>
+            <version>${oa4mpVersion}</version>
+        </dependency>
+
+        <!-- Used to come via nimbus-jose-jwt from
+             edu/uiuc/ncsa/security/delegation/ncsa-security-oauth-2.0 -->
         <dependency>
             <groupId>net.minidev</groupId>
             <artifactId>json-smart</artifactId>
             <version>1.1.1</version>
         </dependency>
-		
+
         <dependency>
             <groupId>javax.servlet</groupId>
-            <artifactId>servlet-api</artifactId>
-            <version>2.5</version>
-            <scope>provided</scope>
+            <artifactId>javax.servlet-api</artifactId>
         </dependency>
+
         <dependency>
             <groupId>junit</groupId>
             <artifactId>junit</artifactId>
@@ -53,7 +62,7 @@
         </dependency>
 
     </dependencies>
-    
+
     <build>
         <plugins>
             <plugin>
@@ -71,78 +80,75 @@
         </plugins>
         <finalName>mp-oa2-server</finalName>
     </build>
-    
-  <profiles>
-  
-    <!-- default profile (it builds a war file) -->
-    <profile>
-        <id>webapp</id>
-        
-        <activation>
-            <activeByDefault>true</activeByDefault>
-        </activation>
-        <properties>
-            <packaging.type>war</packaging.type>
-        </properties>
-    </profile>
-  
-  
-    <!-- cli profile (it builds a jar files) -->
-    <profile>
-    
-      <!--
-        Using the 'cli' profile you can build the oa2-cli.jar tool, that
-        can be used for client approvals. You need to build this tool 
-        here if you're planning to use it with the Delegation Server!
-        To build the cli execute: mvn clean package -P cli   
-      -->    
-      <id>cli</id>
 
-      <dependencies>
-        <dependency>
-          <groupId>edu.uiuc.ncsa.myproxy</groupId>
-          <artifactId>oa4mp-server-admin-oauth2</artifactId>
-          <version>3.4-SNAPSHOT</version>
-        </dependency>
-      </dependencies>
+    <profiles>
 
-      <properties>
-          <packaging.type>jar</packaging.type>
-      </properties>
+        <!-- default profile (it builds a war file) -->
+        <profile>
+            <id>webapp</id>
 
-      <build>
-	    <plugins>
-		<plugin>
-		    <artifactId>maven-assembly-plugin</artifactId>
-		    <configuration>
-			<archive>
-			    <manifest>
-				<addClasspath>true</addClasspath>
-				<mainClass>edu.uiuc.ncsa.myproxy.oauth2.tools.OA2Commands</mainClass>
-			    </manifest>
-			</archive>
-			<descriptorRefs>
-			    <descriptorRef>jar-with-dependencies</descriptorRef>
-			</descriptorRefs>
-			<appendAssemblyId>false</appendAssemblyId>
-			<attach>false</attach>
-			<finalName>oa2-cli</finalName>
-		    </configuration>
-		    <executions>
-			<execution>
-			    <id>make-my-jar-with-dependencies</id>
-			    <phase>package</phase>
-			    <goals>
-				<goal>single</goal>
-			    </goals>
-			</execution>
-		    </executions>
-		</plugin>
-	    </plugins>
-      </build>
+            <activation>
+                <activeByDefault>true</activeByDefault>
+            </activation>
+            <properties>
+                <packaging.type>war</packaging.type>
+            </properties>
+        </profile>
 
-    </profile>
-    
-  </profiles>
+        <!-- cli profile (it builds a jar files) -->
+        <profile>
+            <!--
+                Using the 'cli' profile you can build the oa2-cli.jar tool, that
+                can be used for client approvals. You need to build this tool
+                here if you're planning to use it with the Delegation Server!
+                To build the cli execute: mvn clean package -P cli
+            -->
+            <id>cli</id>
+
+            <dependencies>
+                <dependency>
+                    <groupId>edu.uiuc.ncsa.myproxy</groupId>
+                    <artifactId>oa4mp-server-admin-oauth2</artifactId>
+                    <version>${oa4mpVersion}</version>
+                </dependency>
+            </dependencies>
+
+            <properties>
+                <packaging.type>jar</packaging.type>
+            </properties>
+
+            <build>
+                <plugins>
+                    <plugin>
+                        <artifactId>maven-assembly-plugin</artifactId>
+                        <configuration>
+                            <archive>
+                                <manifest>
+                                    <addClasspath>true</addClasspath>
+                                    <mainClass>edu.uiuc.ncsa.myproxy.oauth2.tools.OA2Commands</mainClass>
+                                </manifest>
+                            </archive>
+                            <descriptorRefs>
+                                <descriptorRef>jar-with-dependencies</descriptorRef>
+                            </descriptorRefs>
+                            <appendAssemblyId>false</appendAssemblyId>
+                            <attach>false</attach>
+                            <finalName>oa2-cli</finalName>
+                        </configuration>
+                        <executions>
+                            <execution>
+                                <id>make-my-jar-with-dependencies</id>
+                                <phase>package</phase>
+                                <goals>
+                                    <goal>single</goal>
+                                </goals>
+                            </execution>
+                        </executions>
+                    </plugin>
+                </plugins>
+            </build>
+        </profile>
+
+    </profiles>
 
 </project>
