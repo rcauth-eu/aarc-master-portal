@@ -42,6 +42,14 @@ import java.util.Map;
  * <p>Created by Tamas Balogh</p>
  */
 public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
+
+    /* NOTE: ensures that createNewTransaction() returns a
+     * MPOA2ServiceTransaction instance instead of a OA2ServiceTransaction */
+    @Override
+    protected MPOA2AuthorizedServletUtil getInitUtil() {
+        return new MPOA2AuthorizedServletUtil(this);
+    }
+
     
     /*
     @Override
