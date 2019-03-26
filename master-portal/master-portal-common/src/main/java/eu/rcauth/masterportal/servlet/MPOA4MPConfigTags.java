@@ -9,6 +9,8 @@ public interface MPOA4MPConfigTags extends OA4MPConfigTags {
     public static final String SSH_KEYS = "sshkeys";
     // name of max ssh keys childnode
     public static final String MAX_SSH_KEYS = "max";
+    // TODO we probably need more configuration for the sshkeys, such as e.g.
+    // endpoint name or a certain scope
 
     // whether the autoregister endpoint is enabled
     public static final String AUTOREGISTER_ENDPOINT_ENABLED = "enableAutoRegisterEndpoint";
