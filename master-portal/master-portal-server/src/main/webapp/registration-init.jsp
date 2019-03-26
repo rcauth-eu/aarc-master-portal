@@ -1,4 +1,5 @@
 <%@ page contentType="text/html;charset=UTF-8" language="java" %>
+<%@ taglib prefix="c" uri="http://java.sun.com/jsp/jstl/core" %>
 
 <html>
 
@@ -33,7 +34,9 @@
 
         <tr>
             <td ${rtFieldVisible}>Refresh Token lifetime:</td>
-            <td ${rtFieldVisible}><input type="text" size="25" name="${rtLifetime}" value="${rtLifetimeValue}"/>(in seconds - leave blank for no refresh tokens.)</td>
+            <td ${rtFieldVisible}><input type="text" size="25" name="${rtLifetime}" value="${rtLifetimeValue}"/>(in
+                seconds - leave blank for no refresh tokens.)
+            </td>
         </tr>
         <tr>
             <td></td>
@@ -47,6 +50,14 @@
             <td>
                 <textarea id="${callbackURI}" rows="10" cols="80"
                           name="${callbackURI}">${callbackURIValue}</textarea>
+            </td>
+        </tr>
+        <tr style="vertical-align: top">
+            <td>Scopes:</td>
+            <td><c:forEach items="${scopes}" var="scope">
+                    <input type="checkbox"
+                           name="chkScopes"
+                           value="${scope}"<c:set var="xxx" scope="session" value="${scope}"/><c:if test="${xxx == 'openid'}"> checked="checked"</c:if>>${scope}<br></c:forEach>
             </td>
         </tr>
         <tr>
