@@ -26,17 +26,4 @@ public class MPOA2ServiceTransaction extends OA2ServiceTransaction {
         this.MPClientSessionIdentifier = clientSessionIdentifier;
     }
 
-    /* Support for saving claims into the service transaction */
-/*
-    protected JSONObject claims;
-
-    public JSONObject getClaims() {
-        return claims;
-    }
-
-    public void setClaims(JSONObject claims) {
-        this.claims = claims;
-    }
-*/
-
 }

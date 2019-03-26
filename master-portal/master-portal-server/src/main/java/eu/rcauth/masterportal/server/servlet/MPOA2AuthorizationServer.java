@@ -7,10 +7,8 @@ import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.servlet.TransactionState;
-// import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
-// import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 import edu.uiuc.ncsa.security.servlet.PresentableState;
 
@@ -28,8 +26,6 @@ import eu.rcauth.masterportal.server.MPOA2ServiceTransaction;
 import eu.rcauth.masterportal.servlet.util.CookieAwareHttpServletResponse;
 import eu.rcauth.masterportal.servlet.util.UpdateParameterHttpServletRequest;
 
-// import java.io.PrintWriter;
-// import java.io.StringWriter;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
@@ -46,100 +42,22 @@ import net.sf.json.JSONObject;
  */
 public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
 
-    /* NOTE: ensures that createNewTransaction() returns a
-     * MPOA2ServiceTransaction instance instead of a OA2ServiceTransaction */
+    /* NOTE: ensures that the transaction which is being used is a
+     * MPOA2ServiceTransaction instance instead of a OA2ServiceTransaction.
+     * Hence MPOA2AuthorizedServletUtil only overrides createNewTransaction().
+     * We need MPOA2ServiceTransaction to handle keeping state between the
+     * mp-client and mp-server via the MPClientSessionIdentifier.
+     */
     @Override
     protected MPOA2AuthorizedServletUtil getInitUtil() {
         return new MPOA2AuthorizedServletUtil(this);
     }
 
     /*
-    @Override
-    protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-        try {
-            super.doIt(request, response);
-        } catch (Throwable t) {
-            
-            System.out.println( t.getMessage() );           
-            t.printStackTrace();
-            
-            //  The authorize endpoint handles exceptions differently, because it's called from the
-            //  browser directly (through a redirect)
-             
-            String redirect_uri = request.getParameter(OA2Constants.REDIRECT_URI);
-            String code  = (String) request.getAttribute(OA2Constants.AUTHORIZATION_CODE);
-
-            if ( redirect_uri == null && code != null ) {
-
-                AuthorizationGrant grant = MyProxyDelegationServlet.getServiceEnvironment().getTokenForge().getAuthorizationGrant(code);
-                ServiceTransaction trans = MyProxyDelegationServlet.getServiceEnvironment().getTransactionStore().get(grant);   
-                
-                redirect_uri = trans.getCallback().toString();
-            }
-            
-            if ( redirect_uri != null ) {
-
-                 //In case we find a redirect uri, try to forward the error to the VO Portal
-                 
-
-                if ( t instanceof OA2GeneralError ) {
-                    throw new OA2RedirectableError(OA2Errors.SERVER_ERROR,((OA2GeneralError)t).getDescription(),
-                                                   new String("" + ((OA2GeneralError)t).getHttpStatus()),redirect_uri);
-                } else if ( t instanceof OA2RedirectableError ) {
-                    throw t;
-                } else {
-                    throw new OA2RedirectableError(OA2Errors.SERVER_ERROR,t.getMessage(),"",redirect_uri);
-                }
-                
-            } else if ( code != null ) {
-            
-                
-            } else {
-                    
-                 // Forward caught error massages to a local error servlet endpoint which
-                 // will then take care of displaying them. This is handled locally for the
-                 // \/authorize endpoint because this endpoint is called from the browser directly
-
-                StringBuffer buffer = new StringBuffer();
-                buffer.append(MPServerContext.MP_SERVER_CONTEXT + "/error?");
-                
-                String clientID = request.getParameter(OA2Constants.CLIENT_ID);
-                if (  clientID != null ) {
-                    buffer.append("identifier="+ clientID +"&");
-                }
-                
-                buffer.append("cause="+ t.getClass().getSimpleName()  +"&");                
-                
-                buffer.append("message="+ t.getMessage() +"&");         
-                
-                StringWriter errors = new StringWriter();
-                t.printStackTrace(new PrintWriter(errors));
-                buffer.append("stackTrace="+errors.toString());
-                
-                response.sendRedirect(buffer.toString());
-            }
-        }
-    }
-    */
-    
-    /*
-    @Override
-    protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-        try {
-            super.doIt(request, response);
-        } catch(Throwable t) {
-            
-            request.setAttribute("exception", t);
-            RequestDispatcher dispatcher = getServletConfig().getServletContext().getRequestDispatcher(MPServerContext.MP_SERVER_CONTEXT + "/error");
-            MPOA2RequestForwarder.forwardRequest(request, response, dispatcher, false);
-            
-        }
-    }
-    */
-    
-    /*
-     * This method is called at the end of the original AuthN flow which displays an jsp expecting a username and 
-     * password. Here we override this with a simple forward to the /startRequest endpoint in case of a new authN request.
+     * This method is called at the end of the original AuthN flow which
+     * displays an jsp expecting a username and password. Here we override this
+     * with a simple forward to the /startRequest endpoint in case of a new
+     * authN request.
      */
     @Override
     public void present(PresentableState state) throws Throwable {
@@ -274,15 +192,6 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         trans.setVerifier(MyProxyDelegationServlet.getServiceEnvironment().getTokenForge().getVerifier());
         MyProxyDelegationServlet.getServiceEnvironment().getTransactionStore().save(trans);
 
-        // The original AuthN servlet initiates a test MyProxy connection here. I disabled this for now. 
-        
-        //createMPConnection(trans.getIdentifier(), trans.getUsername(), "", trans.getLifetime());
-        // Change is to close this connection after verifying it works.
-        //getMPConnection(trans.getIdentifier()).close();
-        // Depending on the control flow, the next call may or may not require a connection to be re-opened.
-      
-        // NOTE: can skip next one, it's in OA2AuthorizationServer and is a no-op
-//        doRealCertRequest(trans, statusString);
         debug("4.a. verifier = " + trans.getVerifier() + ", " + statusString);
         
         OA2ClaimsUtil claimsUtil = new OA2ClaimsUtil((OA2SE) getServiceEnvironment(), st2);
