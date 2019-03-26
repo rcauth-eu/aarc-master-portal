@@ -1,24 +1,23 @@
 package eu.rcauth.masterportal.servlet.util;
 
+import org.apache.http.HttpStatus;
+
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
 
-import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletResponse;
 import javax.servlet.http.HttpServletResponseWrapper;
 
 public class ContentAwareHttpServletResponse extends HttpServletResponseWrapper {
 
-	protected int httpStatus;
-	protected StringWriter sw = new StringWriter();
-	
-	public ContentAwareHttpServletResponse(HttpServletResponse response) {
-		super(response);
-	}
+    // Note that a new HttpServletResponse(Wrapper) has status 200
+    protected int httpStatus=200;
+    protected StringWriter sw = new StringWriter();
+
+    public ContentAwareHttpServletResponse(HttpServletResponse response) {
+        super(response);
+    }
 
     @Override
     public void sendError(int sc) throws IOException {
@@ -38,16 +37,22 @@ public class ContentAwareHttpServletResponse extends HttpServletResponseWrapper 
         super.setStatus(sc);
     }
 
+    /**
+     * Note that getStatus() can be defined already in HttpServletResponseWrapper depending on Tomcat.
+     * Overriding it here is safe.
+     * @return httpStatus
+    */
+    @Override
     public int getStatus() {
         return httpStatus;
     }
     
     @Override
     public PrintWriter getWriter() throws IOException {
-    	return new PrintWriter(sw);
+        return new PrintWriter(sw);
     }
    
     public String getRawResponse() {
-    	return sw.toString();
+        return sw.toString();
     }
 }
