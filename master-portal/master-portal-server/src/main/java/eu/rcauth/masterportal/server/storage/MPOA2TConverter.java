@@ -1,7 +1,5 @@
 package eu.rcauth.masterportal.server.storage;
 
-import java.util.Map;
-
 import eu.rcauth.masterportal.server.MPOA2ServiceTransaction;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2TConverter;
@@ -47,8 +45,11 @@ public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConv
             map.put(tck.mp_client_session_identifier, clientSessionID);
         }
 
-        if ( t.getClaims() != null ) {
-            map.put( tck.claims , t.getClaims().toString() );
+        JSONObject claims = t.getClaims();
+        if ( claims != null ) {
+            // Note: t.getClaims returns a JSONObject, need to put it as a
+            // String in the map, or fromMap() above cannot parse it.
+            map.put( tck.claims , claims.toString() );
         }
     }
 
