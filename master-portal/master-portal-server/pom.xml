@@ -15,6 +15,8 @@
 
     <dependencies>
 
+        <!-- Note: this also pulls in the necessary dependencies
+             oa4mp-server-api, mysql-connector-java, jstl and junit -->
         <dependency>
             <groupId>eu.rcauth.masterportal</groupId>
             <artifactId>master-portal-common</artifactId>
@@ -36,29 +38,8 @@
         </dependency>
 
         <dependency>
-            <groupId>edu.uiuc.ncsa.myproxy</groupId>
-            <artifactId>oa4mp-server-api</artifactId>
-            <version>${oa4mpVersion}</version>
-        </dependency>
-
-        <!-- Used to come via nimbus-jose-jwt from
-             edu/uiuc/ncsa/security/delegation/ncsa-security-oauth-2.0 -->
-        <dependency>
-            <groupId>net.minidev</groupId>
-            <artifactId>json-smart</artifactId>
-            <version>1.1.1</version>
-        </dependency>
-
-        <dependency>
             <groupId>javax.servlet</groupId>
             <artifactId>javax.servlet-api</artifactId>
-        </dependency>
-
-        <dependency>
-            <groupId>junit</groupId>
-            <artifactId>junit</artifactId>
-            <version>4.10</version>
-            <scope>test</scope>
         </dependency>
 
     </dependencies>
