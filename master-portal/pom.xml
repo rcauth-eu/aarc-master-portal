@@ -9,7 +9,7 @@
     <name>RCauth Master Portal</name>
     <packaging>pom</packaging>
     <description>Parent for the different MasterPortal components</description>
-    <url>https://wiki.nikhef.nl/grid/AARC_Pilot</url>
+    <url>https://github.com/rcauth-eu/aarc-master-portal</url>
 
     <licenses>
         <license>
@@ -78,6 +78,7 @@
                 <configuration>
                     <source>1.8</source>
                     <target>1.8</target>
+                    <!--compilerArgument>-Xlint:unchecked</compilerArgument-->
                 </configuration>
                 <version>3.5.1</version>
             </plugin>
@@ -119,10 +120,17 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.0.1</version>
+                <version>3.1.0</version>
                 <configuration>
                     <aggregate>true</aggregate>
                     <use>false</use>
+                    <!-- Note: javax.servlet does not provide proper link for
+                         detectLinks, hence specify manually -->
+                    <links>
+                        <link>https://javaee.github.io/javaee-spec/javadocs/</link>
+                        <!-- Note: next would be upstream, we need our own -->
+                        <!--link>http://grid.ncsa.illinois.edu/myproxy/oauth/apidocs/</link-->
+                    </links>
                 </configuration>
                 <executions>
                     <execution>
@@ -131,10 +139,13 @@
                             <goal>jar</goal>
                         </goals>
                         <configuration>
-                            <!-- Java 8 specific or empty javadoc tags make the build fail -->
-                            <doclint>none</doclint>
                             <!-- Note: for Java <10 comment out next one -->
                             <additionalOptions>-html5</additionalOptions>
+                            <!-- next flag is useful if there are issues with the
+                                 javadoc such as empty javadoc tags -->
+                            <!--doclint>none</doclint-->
+                            <!-- enable links to Java's own javadoc -->
+                            <detectJavaApiLink>true</detectJavaApiLink>
                         </configuration>
                     </execution>
                 </executions>
