@@ -5,12 +5,10 @@ import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetStoreUtil;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
-//import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 import edu.uiuc.ncsa.security.servlet.ServiceClientHTTPException;
 
 import java.util.Enumeration;
 import java.util.HashMap;
-import java.util.Map;
 
 import javax.servlet.http.Cookie;
 import javax.servlet.http.HttpServletRequest;
@@ -44,7 +42,7 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
        
     	/* EXTRACT RELEVANT REQUEST PARAMETERS */
 
-    	Map requestParameterMap = new HashMap();
+        HashMap<String,String> requestParameterMap = new HashMap<String, String>();
     	
     	//printAllParameters(request);
     	
@@ -125,30 +123,21 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
      * @return true if parameter is a standard OIDC Authorization parameter, false otherwise.
      */
     protected boolean isOA2Parameter(String key) {
-    	
-    	if ( key.equals( OA2Constants.RESPONSE_TYPE ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.CLIENT_ID ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.SCOPE ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.REDIRECT_URI ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.STATE ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.NONCE ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.PROMPT ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.MAX_AGE ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.ID_TOKEN_HINT ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.REQUEST ) ) {
-    		return true;
-    	} else if ( key.equals( OA2Constants.REQUEST_URI ) ) {
-    		return true;
-    	}
+
+		switch (key) {
+			case OA2Constants.RESPONSE_TYPE:
+			case OA2Constants.CLIENT_ID:
+			case OA2Constants.SCOPE:
+			case OA2Constants.REDIRECT_URI:
+			case OA2Constants.STATE:
+			case OA2Constants.NONCE:
+			case OA2Constants.PROMPT:
+			case OA2Constants.MAX_AGE:
+			case OA2Constants.ID_TOKEN_HINT:
+			case OA2Constants.REQUEST:
+			case OA2Constants.REQUEST_URI:
+				return true;
+		}
     	
     	return false;
     }
