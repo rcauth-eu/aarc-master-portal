@@ -12,10 +12,10 @@ import javax.inject.Provider;
  * Provider Class for {@link SSHKey} objects.
  */
 
-public class SSHKeyProvider extends IdentifiableProviderImpl<SSHKey> {
+public class SSHKeyProvider<V extends SSHKey> extends IdentifiableProviderImpl<SSHKey> {
 
     public SSHKeyProvider(Provider<Identifier> idProvider) {
-	super(idProvider);
+        super(idProvider);
     }
 
     /**
@@ -24,6 +24,6 @@ public class SSHKeyProvider extends IdentifiableProviderImpl<SSHKey> {
      */
     @Override
     public SSHKey get(boolean createNewIdentifier) {
-	return new SSHKey(null);
+        return new SSHKey(null);
     }
 }

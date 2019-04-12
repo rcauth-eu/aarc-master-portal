@@ -6,7 +6,6 @@ import javax.servlet.http.HttpServletResponse;
 import org.apache.http.HttpStatus;
 import eu.rcauth.masterportal.MPClientContext;
 
-import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
@@ -57,7 +56,8 @@ public class MPOA2ForwardingGetCertServer extends ClientServlet {
         	OA2Asset asset = (OA2Asset) getCE().getAssetStore().get(identifier);
         	
         	ATResponse2 atResponse2 = new ATResponse2(asset.getAccessToken(), asset.getRefreshToken());
-        	AssetResponse assetResponse  = oa2MPService.getCert(asset, atResponse2);
+        	// Note: we don't actually use the returned AssetResponse
+        	oa2MPService.getCert(asset, atResponse2);
        	
         	info("3.c Successfuly completed /getcert call");
         	

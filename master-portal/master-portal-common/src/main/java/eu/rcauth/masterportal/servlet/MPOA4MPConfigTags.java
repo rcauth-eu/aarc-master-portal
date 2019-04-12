@@ -14,14 +14,15 @@ public interface MPOA4MPConfigTags extends OA4MPConfigTags {
 
     // whether the autoregister endpoint is enabled
     public static final String AUTOREGISTER_ENDPOINT_ENABLED = "enableAutoRegisterEndpoint";
-    
+
     // attribute of the myproxy tag
     public static final String MYPROXY_PASSWORD = "password";
-    
+
     // inner child elements of the myproxy tag
     public static final String MYPROXY_DEFAULT_LIFETIME = "defaultLifetime";
+    // currently not being used
     public static final String MYPROXY_MAXIMUM_LIFETIME = "maximumLifetime";
-    
+
     // validators
     public static final String MYPROXY_REQ_VALIDATORS = "validators";
     public static final String MYPROXY_REQ_VALIDATOR = "validator";

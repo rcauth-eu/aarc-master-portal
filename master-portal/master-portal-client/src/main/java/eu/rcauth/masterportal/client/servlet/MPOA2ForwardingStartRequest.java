@@ -42,7 +42,7 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
 
         /* EXTRACT RELEVANT REQUEST PARAMETERS */
 
-        HashMap<String,String> requestParameterMap = new HashMap<String, String>();
+        HashMap<String,String> requestParameterMap = new HashMap<>();
 
         //printAllParameters(request);
 

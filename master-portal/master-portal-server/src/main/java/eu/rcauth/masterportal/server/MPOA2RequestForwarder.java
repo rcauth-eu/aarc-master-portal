@@ -2,7 +2,6 @@ package eu.rcauth.masterportal.server;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletRequestWrapper;
 import javax.servlet.http.HttpServletResponse;
 
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
@@ -59,9 +58,10 @@ public class MPOA2RequestForwarder {
             String redirect_uri = null;
             String state = null;
             try {
-                redirect_uri = ((HttpServletRequestWrapper)request).getParameter(OA2Constants.REDIRECT_URI);
-                state = ((HttpServletRequestWrapper)request).getParameter(OA2Constants.STATE);
+                redirect_uri = request.getParameter(OA2Constants.REDIRECT_URI);
+                state = request.getParameter(OA2Constants.STATE);
             } catch(Throwable e)  {
+                // Ignore if we cannot retrieve either REDIRECT_URI or STATE
             }
             // Send to the redirect_uri if we have one, otherwise little choice but to throw a OA2GeneralError
             // NOTE the redirect_uri has already been verified (as required by the spec) before we even come here,

@@ -20,14 +20,14 @@ public class UpdateParameterHttpServletRequest extends HttpServletRequestWrapper
 
     public UpdateParameterHttpServletRequest(HttpServletRequest request) {
        super(request);
-       params=new HashMap<String,String[]>(super.getParameterMap());
+       params= new HashMap<>(super.getParameterMap());
    }
 
     /**
      * @return new parameter {@link Map}
      */
     @Override
-    public Map getParameterMap() {
+    public Map<String,String[]> getParameterMap() {
         return params;
     }
 

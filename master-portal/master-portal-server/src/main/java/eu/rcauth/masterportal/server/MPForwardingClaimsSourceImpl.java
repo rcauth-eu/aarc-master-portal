@@ -1,14 +1,10 @@
 package eu.rcauth.masterportal.server;
 
-import java.util.Collection;
-import java.util.HashSet;
-
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.claims.BasicClaimsSourceImpl;
 import edu.uiuc.ncsa.security.oauth_2_0.server.claims.ClaimSourceConfiguration;
 
 
 import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
 
 /* Next imports are to ease the javadoc */
 import net.sf.json.JSONObject;
@@ -24,7 +20,7 @@ import eu.rcauth.masterportal.server.servlet.MPOA2AuthorizationServer;
  * Custom ClaimsSourceImpl that adds claims into UserInfo and IDToken.
  * We probably want to override {@link #getClaims()} in order to provide
  * a proper list of claims in the UserInfo. It is called in
- * {@link OA2DiscoveryServlet#setValues(HttpServletRequest, JSONObject)}.
+ * {@link OA2DiscoveryServlet}#setValues(HttpServletRequest, JSONObject).
  * <br>
  * Currently, all the extra claims from the DS are already forwarded and put in
  * the transaction in
@@ -37,7 +33,7 @@ import eu.rcauth.masterportal.server.servlet.MPOA2AuthorizationServer;
  * <ul><li>override {@link #process(JSONObject, ServiceTransaction)} and
  * {@link #process(JSONObject, HttpServletRequest, ServiceTransaction)}
  * <li>need additional configuration via a {@link ClaimSourceConfiguration},
- * for details see the constructor {@link MPForwardingClaimsSourceImpl()}
+ * for details see the constructor {@link #MPForwardingClaimsSourceImpl()}
  * <li>override {@link #isRunAtAuthorization()} to return true, in order not to
  * be skipped in {@link OA2ClaimsUtil#createBasicClaims}
  * </ul>
@@ -46,7 +42,7 @@ import eu.rcauth.masterportal.server.servlet.MPOA2AuthorizationServer;
  * the mp-server to the (e.g. vo-portal) client. It is called by
  * {@link OA2ClaimsUtil#createBasicClaims(HttpServletRequest, OA2ServiceTransaction)},
  * called from
- * {@link MPOA2AuthorizationServer#createRedirect(HttpServletRequest, HttpServletResponse, ServiceTransaction)}.
+ * {@link MPOA2AuthorizationServer}#createRedirect(HttpServletRequest, HttpServletResponse, ServiceTransaction).
  * It is only invoked if both {@link #isEnabled()} and
  * {@link #isRunAtAuthorization()} are true
  * ({@link BasicClaimsSourceImpl#isEnabled()} returns true if it has a valid
@@ -71,21 +67,21 @@ public class MPForwardingClaimsSourceImpl extends BasicClaimsSourceImpl {
         this.setConfiguration(claimSourceConfiguration);*/
     }
 
-    /**
-     * getClaims produces the set of supported claims returned in the .well-known discovery
-     * @see BasicClaimsSourceImpl#getClaims()
-     * @return a HashSet containing the supported claims.
-     */
-/*  @Override
     // TODO implement a getClaims that gets the list from the DS's .well-known
     // endpoint but that's only known to the client. Note that it's also not
     // strictly necessary, see claims_supported on
     // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
     //  "Note that for privacy or other reasons, this might not be an
     //	 exhaustive list." 
-    public Collection<String> getClaims() {
-        HashSet<String> claims = (HashSet<String>)super.getClaims();
-        claims.add("some_non_basic_supported_claim");
-        return claims;
-    }*/
+//  /**
+//   * getClaims produces the set of supported claims returned in the .well-known discovery
+//   * @see BasicClaimsSourceImpl#getClaims()
+//   * @return a HashSet containing the supported claims.
+//   */
+//  @Override
+//  public Collection<String> getClaims() {
+//      HashSet<String> claims = (HashSet<String>)super.getClaims();
+//      claims.add("some_non_basic_supported_claim");
+//      return claims;
+//  }
 }

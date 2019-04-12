@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.inject.Provider;
 
+import eu.rcauth.masterportal.server.storage.impl.SSHKeyStoreProvider;
 import eu.rcauth.masterportal.server.validators.GetProxyRequestValidator;
 import eu.rcauth.masterportal.server.storage.SSHKeyStore;
 import eu.rcauth.masterportal.server.storage.SSHKey;
@@ -29,12 +30,16 @@ import edu.uiuc.ncsa.security.servlet.UsernameTransformer;
 import edu.uiuc.ncsa.security.util.mail.MailUtilProvider;
 import edu.uiuc.ncsa.security.util.jwk.JSONWebKeys;
 
+// Note: OA2SE super ServiceEnvironmentImpl.getClientApprovalStore() returns a
+// non-templated ClientApprovalStore and likewise for getClientStore().
+// For Java8 this produces a warning, hence suppress the unchecked warning.
+@SuppressWarnings("unchecked")
 public class MPOA2SE extends OA2SE {
 
     public MPOA2SE(MyLoggingFacade logger,
                    Provider<TransactionStore> tsp,
                    Provider<ClientStore> csp,
-                   Provider<SSHKeyStore> ssp,
+                   Provider<SSHKeyStore<SSHKey>> ssp,
                    int maxAllowedNewClientRequests,
                    long rtLifetime,
                    Provider<ClientApprovalStore> casp,
@@ -105,7 +110,7 @@ public class MPOA2SE extends OA2SE {
 
         this.validators = validators;
 
-        this.ssp = ssp;
+        this.ssp = (SSHKeyStoreProvider<SSHKeyStore<SSHKey>>)ssp;
 
         this.maxSSHKeys = maxSSHKeys;
 
@@ -128,13 +133,13 @@ public class MPOA2SE extends OA2SE {
         return myproxyPassword;
     }
 
-    long myproxyDefaultLifetime;
+    protected long myproxyDefaultLifetime;
 
     public long getMyproxyDefaultLifetime() {
         return myproxyDefaultLifetime;
     }
 
-    protected Provider<SSHKeyStore> ssp;
+    protected SSHKeyStoreProvider<SSHKeyStore<SSHKey>> ssp;
 
     protected SSHKeyStore<SSHKey> sshKeyStore;
 

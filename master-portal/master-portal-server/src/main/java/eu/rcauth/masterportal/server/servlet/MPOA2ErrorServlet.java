@@ -1,22 +1,19 @@
 package eu.rcauth.masterportal.server.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
-import edu.uiuc.ncsa.security.core.exceptions.UnknownClientException;
 import edu.uiuc.ncsa.security.core.util.BasicIdentifier;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
 import edu.uiuc.ncsa.security.delegation.storage.Client;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
-import org.apache.commons.codec.binary.Base64;
 
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
-import java.io.IOException;
 import java.net.URLDecoder;
 
 /**
  * This servlet handles error redirects. If an error (such as a 404, 500 or anything else) occurs,
- * OAuth will intecept the response and throw an exception -- losing any other information.
+ * OAuth will intercept the response and throw an exception -- losing any other information.
  * Therefore, there must be a redirect and clients must be prepared to deal with these.
  * Generally there are a few error type pages
  * <p>Created by Jeff Gaynor<br>
@@ -24,7 +21,7 @@ import java.net.URLDecoder;
  */
 public class MPOA2ErrorServlet extends MyProxyDelegationServlet {
     @Override
-    public ServiceTransaction verifyAndGet(IssuerResponse iResponse) throws IOException {
+    public ServiceTransaction verifyAndGet(IssuerResponse iResponse) {
         return null;
     }
 

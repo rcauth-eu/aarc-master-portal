@@ -3,32 +3,34 @@ package eu.rcauth.masterportal.server.loader;
 import javax.inject.Provider;
 
 import org.apache.commons.configuration.tree.ConfigurationNode;
-import eu.rcauth.masterportal.server.MPOA2SE;
-import eu.rcauth.masterportal.server.MPOA2ServiceTransaction;
+
 import eu.rcauth.masterportal.server.storage.MPOA2TConverter;
 import eu.rcauth.masterportal.server.storage.MPOA2TransactionKeys;
+import eu.rcauth.masterportal.server.storage.SSHKey;
+import eu.rcauth.masterportal.server.storage.SSHKeyConverter;
+import eu.rcauth.masterportal.server.storage.SSHKeyIdentifierProvider;
+import eu.rcauth.masterportal.server.storage.SSHKeyKeys;
+import eu.rcauth.masterportal.server.storage.SSHKeyStore;
+
+import eu.rcauth.masterportal.server.MPOA2SE;
+import eu.rcauth.masterportal.server.MPOA2ServiceTransaction;
 import eu.rcauth.masterportal.server.storage.sql.MPOA2SQLTransactionStoreProvider;
 
-import eu.rcauth.masterportal.server.storage.SSHKeyStore;
-import eu.rcauth.masterportal.server.storage.SSHKeyIdentifierProvider;
-import eu.rcauth.masterportal.server.storage.SSHKeyConverter;
-import eu.rcauth.masterportal.server.storage.SSHKeyKeys;
 import eu.rcauth.masterportal.server.storage.impl.SSHKeyProvider;
 import eu.rcauth.masterportal.server.storage.impl.MultiSSHKeyStoreProvider;
 import eu.rcauth.masterportal.server.storage.sql.SQLSSHKeyStoreProvider;
 
 import eu.rcauth.masterportal.server.validators.GetProxyRequestValidator;
 import eu.rcauth.masterportal.servlet.MPOA4MPConfigTags;
+
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2ConfigurationLoader;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2SQLTransactionStoreProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.*;
-// Added this one
-import edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.*;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.storage.MultiDSClientStoreProvider;
-// Updated this one
-//import edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider;
+import edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.DSTransactionProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.OA4MPIdentifierProvider;
+
 import edu.uiuc.ncsa.security.core.IdentifiableProvider;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.configuration.Configurations;
@@ -41,7 +43,6 @@ import edu.uiuc.ncsa.security.storage.data.MapConverter;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPool;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPoolProvider;
 
-//import static edu.uiuc.ncsa.myproxy.oa4mp.server.util.OA4MPIdentifierProvider.TRANSACTION_ID;
 import static edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.OA4MPIdentifierProvider.TRANSACTION_ID;
 
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME;
@@ -59,8 +60,10 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     }
     
     @Override
+    @SuppressWarnings("unchecked")
     public T createInstance() {
         try {
+            // Note we suppress an unchecked cast to T
             return (T) new MPOA2SE(loggerProvider.get(),
                     getTransactionStoreProvider(),
                     getClientStoreProvider(),
@@ -79,8 +82,8 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     getAuthorizationServletConfig(),
                     getUsernameTransformer(),
                     getPingable(),
-                    getMpp(),   // see OA2ConfigurationLoader
-                    getMacp(),  // see OA2ConfigurationLoader
+                    getMpp(),   // see OA2ConfigurationLoader, we suppress an unchecked assignment
+                    getMacp(),  // see OA2ConfigurationLoader, we suppress an unchecked assignment
                     getClientSecretLength(),
                     getScopes(),
                     getClaimSource(),
@@ -103,40 +106,43 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         }
     }
 
-    protected MultiSSHKeyStoreProvider sshKeySP;
+    protected MultiSSHKeyStoreProvider<SSHKey> sshKeySP;
 
-    public Provider<SSHKeyStore> getSSHKeyStoreProvider() {
+    public Provider<SSHKeyStore<SSHKey>> getSSHKeyStoreProvider() {
         if ( sshKeySP == null ) {
-             sshKeySP = new MultiSSHKeyStoreProvider(cn,
-                                                     isDefaultStoreDisabled(),
-                                                     loggerProvider.get(),
-                                                     null,
-                                                     null);
-             
-             SSHKeyProvider provider = new SSHKeyProvider( new SSHKeyIdentifierProvider() );
-             SSHKeyConverter converter = new SSHKeyConverter( new SSHKeyKeys(), provider);
+            sshKeySP = new MultiSSHKeyStoreProvider<>(cn,
+                                                    isDefaultStoreDisabled(),
+                                                    loggerProvider.get(),
+                                                    null,
+                                                    null);
 
-             sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
-                                                              getMySQLConnectionPoolProvider(),
-                                                              OA4MPConfigTags.MYSQL_STORE, 
-                                                              converter, 
-                                                              provider) );    
+            Provider<Identifier> idProv = new SSHKeyIdentifierProvider<>();
 
-             sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
-                                                              getMariaDBConnectionPoolProvider(),
-                                                              OA4MPConfigTags.MARIADB_STORE,
-                                                              converter,
-                                                              provider) );
-             
-             // TODO: The backend for this is not written. yet. But it might just work out of the box
-             /*
-             sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
-                                                              getPgConnectionPoolProvider(),
-                                                              OA4MPConfigTags.POSTGRESQL_STORE,
-                                                              converter,
-                                                              provider) );
-             */
-                 
+            SSHKeyProvider<SSHKey> provider = new SSHKeyProvider<>( idProv);
+            SSHKeyKeys keys = new SSHKeyKeys();
+            SSHKeyConverter converter = new SSHKeyConverter<>( keys, provider);
+
+            sshKeySP.addListener( new SQLSSHKeyStoreProvider<>(cn,
+                                                             getMySQLConnectionPoolProvider(),
+                                                             OA4MPConfigTags.MYSQL_STORE,
+                                                             converter,
+                                                             provider) );
+
+            sshKeySP.addListener( new SQLSSHKeyStoreProvider<>(cn,
+                                                             getMariaDBConnectionPoolProvider(),
+                                                             OA4MPConfigTags.MARIADB_STORE,
+                                                             converter,
+                                                             provider) );
+
+            // TODO: The backend for this is not written. yet. But it might just work out of the box
+            /*
+            sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
+                                                             getPgConnectionPoolProvider(),
+                                                             OA4MPConfigTags.POSTGRESQL_STORE,
+                                                             converter,
+                                                             provider) );
+            */
+
         }
         return sshKeySP;
     }
@@ -187,7 +193,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                             
                         // create new class instance of validator
                         Class<?> k = Class.forName(validatorClass);
-                        Object x = k.newInstance();
+                        Object x = k.getDeclaredConstructor().newInstance();
                         
                         if ( ! (x instanceof GetProxyRequestValidator) ) {
                             throw new Exception("Invalid validator handler " + validatorClass + " ! Every validator class should "
@@ -233,8 +239,13 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     
     @Override
     protected Provider<TransactionStore> getTSP() {
-        IdentifiableProvider tp = new MPST2Provider(new OA4MPIdentifierProvider(SCHEME, SCHEME_SPECIFIC_PART, TRANSACTION_ID, false));
+        IdentifierProvider idp = new OA4MPIdentifierProvider(SCHEME, SCHEME_SPECIFIC_PART, TRANSACTION_ID, false);
+        // Note we suppress an unchecked assignment since OA4MPIdentifierProvider does not use generics
+        @SuppressWarnings("unchecked")
+        IdentifiableProvider tp = new MPST2Provider(idp);
         MPOA2TransactionKeys keys = new MPOA2TransactionKeys();
+        // Note we suppress an uncheck assignment in the 2nd and 4th parameters
+        @SuppressWarnings("unchecked")
         MPOA2TConverter<MPOA2ServiceTransaction> tc = new MPOA2TConverter<MPOA2ServiceTransaction>(keys, tp, getTokenForgeProvider().get(), getClientStoreProvider().get());
         return getTSP(tp,  tc);
     }
@@ -248,7 +259,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                                                           Provider<? extends OA2ServiceTransaction> tp,
                                                           Provider<TokenForge> tfp,
                                                           MapConverter converter){
-        return new MPOA2SQLTransactionStoreProvider(config,cpp,type,clientStoreProvider,tp,tfp,converter);
+        return new MPOA2SQLTransactionStoreProvider<>(config,cpp,type,clientStoreProvider,tp,tfp,converter);
     }
 
     /* SSH KEY CONFIGURATION */
@@ -280,14 +291,14 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         boolean autoRegisterEndpoint = false;
         String x = Configurations.getFirstAttribute(cn, MPOA4MPConfigTags.AUTOREGISTER_ENDPOINT_ENABLED);
         if (x == null) {
-            autoRegisterEndpoint = false;
+            // using default: autoRegisterEndpoint == false;
             logger.info("Attribute " +
                         MPOA4MPConfigTags.AUTOREGISTER_ENDPOINT_ENABLED +
                         " is unset, autoregistration endpoint is disabled.");
         } else {
             autoRegisterEndpoint = Boolean.parseBoolean(x);
             logger.info("Autoregistration endpoint is " +
-                        (autoRegisterEndpoint==true ? "ENABLED" : "disabled") +
+                        (autoRegisterEndpoint ? "ENABLED" : "disabled") +
                         ".");
         }
         return autoRegisterEndpoint;

@@ -1,6 +1,5 @@
 package eu.rcauth.masterportal.client.servlet;
 
-import edu.uiuc.ncsa.myproxy.oa4mp.client.AssetResponse;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.servlet.ClientServlet;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2MPService;
@@ -10,7 +9,6 @@ import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
 import edu.uiuc.ncsa.security.oauth_2_0.UserInfo;
-import edu.uiuc.ncsa.security.oauth_2_0.client.ATResponse2;
 
 import javax.servlet.RequestDispatcher;
 import javax.servlet.ServletContext;
@@ -65,7 +63,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         String token = request.getParameter(CONST(ClientEnvironment.TOKEN));
         String state = request.getParameter(OA2Constants.STATE);
         if (token == null) {
-            warn("2.a. The token is " + (token == null ? "null" : token) + ".");
+            warn("2.a. The token is null.");
             throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, "Error: did not receive authorization grant.", state);
         }
         info("2.a Token found.");
@@ -76,7 +74,6 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
 
         MPOA2Asset asset = null;
 
-        AssetResponse assetResponse = null;
         UserInfo userInfo = null;
         OA2MPService oa2MPService = (OA2MPService) getOA4MPService();
 
@@ -91,8 +88,8 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
                 throw new IllegalArgumentException("Error: The state returned by the server is invalid.");
             }
             try {
-                // TODO atResponse2 is not being used, why do we do this?
-                ATResponse2 atResponse2 = oa2MPService.getAccessToken(asset, grant);
+                // Note: getAccessToken stores in the asset, we don't need the returned ATResponse2
+                oa2MPService.getAccessToken(asset, grant);
             } catch(Throwable e)    {
                 StringWriter errors = new StringWriter();
                 e.printStackTrace(new PrintWriter(errors));
@@ -139,6 +136,5 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             dispatcher.forward(request, response);
         }
 
-        return;
     }
 }

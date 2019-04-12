@@ -9,17 +9,16 @@ import edu.uiuc.ncsa.security.core.util.IdentifierProvider;
  * identified by the unique combination of user and label, and the upstream
  * Identifier class is not really suitable for that.
  */
-public class SSHKeyIdentifierProvider extends IdentifierProvider {
+public class SSHKeyIdentifierProvider<V extends Identifier> extends IdentifierProvider<Identifier> {
 
     public SSHKeyIdentifierProvider() {
-	super("");
+        super("");
     }
 	
     @Override
-    public Identifier get() {
-	return (Identifier) new SSHKeyIdentifier(null, null);
+    public SSHKeyIdentifier get() {
+        return new SSHKeyIdentifier(null, null);
     }
-	
 
-	
+
 }

@@ -10,7 +10,7 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 public class CookieAwareHttpServletResponse extends HttpServletResponseWrapper {
 
-	protected List<Cookie> cookies = new ArrayList<Cookie>();
+	private final List<Cookie> cookies = new ArrayList<>();
 	
 	public CookieAwareHttpServletResponse(HttpServletResponse response) {
 		super(response);

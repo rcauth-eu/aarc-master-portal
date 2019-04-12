@@ -50,26 +50,26 @@ public class DNValidator implements GetProxyRequestValidator {
 		
 		this.logger = logger;
 		
-		// load every input 
-		List inputNodes = validatorNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_INPUT );
-		
-		for (int i=0; i<inputNodes.size(); i++) {
-			ConfigurationNode inputNode = (ConfigurationNode) inputNodes.get(i);
-			
+		// load every input
+		List<ConfigurationNode> inputNodes = validatorNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_INPUT );
+
+		// Note, for collections, foreach loop is better performing
+		for (ConfigurationNode inputNode : inputNodes) {
+
 			String inputName = Configurations.getFirstAttribute(inputNode, MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_INPUT_NAME);
 			String inputValue = (String) inputNode.getValue();
-			
-			if ( inputName == null && inputValue == null ) {
+
+			if (inputName == null && inputValue == null) {
 				throw new GeneralException("Invalid Validator input Configuration! Either 'name' or 'value' was not provided");
-			} 
-			
+			}
+
 			// in this case we are expecting a single input, fail on any other input provided 
-			if ( inputName.equals(INPUT_CLAIM) ) {
+			if (INPUT_CLAIM.equals(inputName)) {
 				inputClaim = inputValue;
 			} else {
 				throw new GeneralException("Invalid Validator input Configuration! Invalid input name : " + inputName);
 			}
-			
+
 		}
 	}
 

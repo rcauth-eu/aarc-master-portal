@@ -15,28 +15,28 @@ public interface SSHKeyStore<V extends SSHKey> extends Store<V> {
 
     /** @return current list of all SSHKey. */
     @Override
-    public Collection<V> values();
+    Collection<V> values();
 
     /** @return current list of SSHKey for given username */
-    public List<SSHKey> getAll(String userName);
+    List<SSHKey> getAll(String userName);
 
     /** adds a new {@link SSHKey} into the store. */
     @Override
-    public void save(SSHKey value);
+    void save(SSHKey value);
 
     /** updates an existing {@link SSHKey} in the store. */
     @Override
-    public void update(SSHKey value);
+    void update(SSHKey value);
 
     /** @return {@link SSHKey} from the store. */
     @Override
-    public V get(Object key);
+    V get(Object key);
 
     /** removes key from store. */
     @Override
-    public V remove(Object key);
+    V remove(Object key);
 
     /** @return whether key is present in store. */
     @Override
-    public boolean containsKey(Object key);
+    boolean containsKey(Object key);
 }

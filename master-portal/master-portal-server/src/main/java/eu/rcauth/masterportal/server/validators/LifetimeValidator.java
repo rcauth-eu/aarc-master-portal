@@ -57,117 +57,117 @@ public class LifetimeValidator implements GetProxyRequestValidator {
     protected Logable logger;
     
     @Override
-    public void init(ConfigurationNode validatorNode, MyLoggingFacade myLoggingFacade) {
+    public void init(ConfigurationNode validatorNode, MyLoggingFacade myLoggingFacade) throws NumberFormatException, GeneralException {
 	    
-	this.logger = myLoggingFacade;
+        this.logger = myLoggingFacade;
 
-	// Get parent node for getting the default proxy lifetime
-	ConfigurationNode grandParentNode = validatorNode.getParentNode().getParentNode();
-	ConfigurationNode defaultLifetimeNode = Configurations.getFirstNode(grandParentNode, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
-	if (defaultLifetimeNode==null)	{
-	    throw new GeneralException("grandParentNode "+grandParentNode.getName()+" has no node "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
-	}
-	defProxyLifetime = Long.parseLong( defaultLifetimeNode.getValue().toString());
-	if (defProxyLifetime<=0)    {
-	    throw new GeneralException("Invalid "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME+" in node "+grandParentNode.getName()+": must be >0");
-	}
-	
-	// load every input 
-	List inputNodes = validatorNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_INPUT );
-	
-	for (int i=0; i<inputNodes.size(); i++) {
-	    ConfigurationNode inputNode = (ConfigurationNode) inputNodes.get(i);
-	    
-	    String inputName = Configurations.getFirstAttribute(inputNode, MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_INPUT_NAME);
-	    String inputValue = (String) inputNode.getValue();
-	    
-	    if ( inputName == null || inputValue == null ) {
-		throw new GeneralException("Invalid Validator input Configuration! Either 'name' or 'value' was not provided");
-	    } 
-	    
-	    // in this case we are expecting two inputs, discard anything else
-	    if ( inputName.equals(INPUT_MAX_PROXY_LIFETIME) ) {
-		maxProxyLifetime = Long.parseLong(inputValue);
-		if (maxProxyLifetime<=0)    {
-		    throw new GeneralException("Invalid Validator input Configuration! Invalid maxProxyLifetime: must be >0");
-		}
-	    } else if ( inputName.equals(INPUT_TOLERANCE) ) {
-		tolerance = Long.parseLong(inputValue);
-		if (tolerance<=0)    {
-		    throw new GeneralException("Invalid Validator input Configuration! Invalid tolerance: must be >0");
-		}
-	    } else {
-		throw new GeneralException("Invalid Validator input Configuration! Invalid input name : " + inputName);
-	    }
-	    
-	}
+        // Get parent node for getting the default proxy lifetime
+        ConfigurationNode grandParentNode = validatorNode.getParentNode().getParentNode();
+        ConfigurationNode defaultLifetimeNode = Configurations.getFirstNode(grandParentNode, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
+        if (defaultLifetimeNode==null)	{
+            throw new GeneralException("grandParentNode "+grandParentNode.getName()+" has no node "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
+        }
+        defProxyLifetime = Long.parseLong( defaultLifetimeNode.getValue().toString());
+        if (defProxyLifetime<=0)    {
+            throw new GeneralException("Invalid "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME+" in node "+grandParentNode.getName()+": must be >0");
+        }
 
-	// Check we got both
-	if (maxProxyLifetime<0 || tolerance<0)	{
-	    throw new GeneralException("Invalid Validator input Configuration! Missing either "+INPUT_MAX_PROXY_LIFETIME+" or "+INPUT_TOLERANCE);
-	}
+        // load every input
+        List<ConfigurationNode> inputNodes = validatorNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_INPUT );
 
-	// Now verify the maximum versus default proxy lifetime
-	long maxLifetime = maxProxyLifetime - tolerance;
-	if (maxLifetime < defProxyLifetime)    {
-	    throw new GeneralException("Invalid Validator input Configuration! Effective maximum lifetime (" + maxLifetime + ") is smaller than default lifetime ("+ defProxyLifetime +")");
-	}
+        // Note for collection foreach is better performing
+        for (ConfigurationNode inputNode : inputNodes) {
+
+            String inputName = Configurations.getFirstAttribute(inputNode, MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_INPUT_NAME);
+            String inputValue = (String) inputNode.getValue();
+
+            if (inputName == null || inputValue == null) {
+                throw new GeneralException("Invalid Validator input Configuration! Either 'name' or 'value' was not provided");
+            }
+
+            // in this case we are expecting two inputs, discard anything else
+            if (inputName.equals(INPUT_MAX_PROXY_LIFETIME)) {
+                maxProxyLifetime = Long.parseLong(inputValue);
+                if (maxProxyLifetime <= 0) {
+                    throw new GeneralException("Invalid Validator input Configuration! Invalid maxProxyLifetime: must be >0");
+                }
+            } else if (inputName.equals(INPUT_TOLERANCE)) {
+                tolerance = Long.parseLong(inputValue);
+                if (tolerance <= 0) {
+                    throw new GeneralException("Invalid Validator input Configuration! Invalid tolerance: must be >0");
+                }
+            } else {
+                throw new GeneralException("Invalid Validator input Configuration! Invalid input name : " + inputName);
+            }
+
+        }
+
+        // Check we got both
+        if (maxProxyLifetime<0 || tolerance<0)	{
+            throw new GeneralException("Invalid Validator input Configuration! Missing either "+INPUT_MAX_PROXY_LIFETIME+" or "+INPUT_TOLERANCE);
+        }
+
+        // Now verify the maximum versus default proxy lifetime
+        long maxLifetime = maxProxyLifetime - tolerance;
+        if (maxLifetime < defProxyLifetime)    {
+            throw new GeneralException("Invalid Validator input Configuration! Effective maximum lifetime (" + maxLifetime + ") is smaller than default lifetime ("+ defProxyLifetime +")");
+        }
     }
 
     @Override
     public void validate(MPOA2ServiceTransaction transaction, HttpServletRequest request, HttpServletResponse response,
-			 MyProxyCredentialInfo info) throws Throwable {
+			 MyProxyCredentialInfo info) throws InvalidRequestLifetimeException, ShortProxyLifetimeException {
 	    
-	logger.debug("Starting Validator: " + this.getClass().getCanonicalName());
+        logger.debug("Starting Validator: " + this.getClass().getCanonicalName());
 
-	String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
-	long maxLifetime = maxProxyLifetime - tolerance;
+        String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
+        long maxLifetime = maxProxyLifetime - tolerance;
 
-	long requestedLifetime;
-	String lifetimelabel="Requested";
-	// If no lifetime is requested, use the default lifetime
-	if ( reqLifetime == null || reqLifetime.isEmpty() ) {
-	    // Override the label
-	    lifetimelabel="Default";
+        long requestedLifetime;
+        String lifetimelabel="Requested";
+        // If no lifetime is requested, use the default lifetime
+        if ( reqLifetime == null || reqLifetime.isEmpty() ) {
+            // Override the label
+            lifetimelabel="Default";
 
-	    // No requested lifetime, using default lifetime instead.
-	    requestedLifetime = defProxyLifetime;
-	    logger.debug("No requested lifetime value found! " +
-			 "Server will fall back on configured default (" +
-			 requestedLifetime + ")");
-	} else	{
-	    // requested lifetime is in seconds
-	    requestedLifetime = Long.parseLong( reqLifetime );
+            // No requested lifetime, using default lifetime instead.
+            requestedLifetime = defProxyLifetime;
+            logger.debug("No requested lifetime value found! " +
+                 "Server will fall back on configured default (" +
+                 requestedLifetime + ")");
+        } else	{
+            // requested lifetime is in seconds
+            requestedLifetime = Long.parseLong( reqLifetime );
 
-	    // check against server maximum
-	    if ( requestedLifetime > maxLifetime ) {
-		throw new InvalidRequestLifetimeException(
-		    "Requested proxy lifetime (" + requestedLifetime +
-		    ") is bigger then the server side maximum (" +
-		    maxLifetime + "). Certificate will not get renewed." );
-	    }
-	}
+            // check against server maximum
+            if ( requestedLifetime > maxLifetime ) {
+                throw new InvalidRequestLifetimeException(
+                    "Requested proxy lifetime (" + requestedLifetime +
+                    ") is bigger then the server side maximum (" +
+                    maxLifetime + "). Certificate will not get renewed." );
+            }
+        }
 
-	// Only do remaining proxy lifetime verification if we already have
-	// one (i.e. if the MyProxy server returned a valid answer)
-	if (info != null)   {
-	    // check against remaining proxy lifetime 
-	    // calculate the remaining max lifetime based on the store proxy validity
-	    long now = System.currentTimeMillis();
-	    long proxyEndTime = info.getEndTime();
-	    long maxLifetimeLeft = (proxyEndTime - now) / 1000;
-	    
-	    // compare values
-	    if ( maxLifetimeLeft < requestedLifetime ) {
-		throw new ShortProxyLifetimeException(
-		    lifetimelabel + " lifetime (" + requestedLifetime +
-		    ") is larger that the remaining" + " proxy validity time ("
-		    + maxLifetimeLeft + "). Renewing certificate! "); 
-	    }
-	}
+        // Only do remaining proxy lifetime verification if we already have
+        // one (i.e. if the MyProxy server returned a valid answer)
+        if (info != null)   {
+            // check against remaining proxy lifetime
+            // calculate the remaining max lifetime based on the store proxy validity
+            long now = System.currentTimeMillis();
+            long proxyEndTime = info.getEndTime();
+            long maxLifetimeLeft = (proxyEndTime - now) / 1000;
+
+            // compare values
+            if ( maxLifetimeLeft < requestedLifetime ) {
+            throw new ShortProxyLifetimeException(
+                lifetimelabel + " lifetime (" + requestedLifetime +
+                ") is larger that the remaining" + " proxy validity time ("
+                + maxLifetimeLeft + "). Renewing certificate! ");
+            }
+        }
 
 
-	logger.debug("Validation OK");
+        logger.debug("Validation OK");
 	
     }
 

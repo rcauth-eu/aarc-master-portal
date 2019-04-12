@@ -12,7 +12,7 @@ import edu.uiuc.ncsa.security.core.Identifier;
  */
 public class SSHKeyIdentifier implements Identifier {
 
-	String identifier = null;
+    String identifier = null;
 
 	/**
 	 * construct an identifier out of username and label, combining into
@@ -20,16 +20,16 @@ public class SSHKeyIdentifier implements Identifier {
 	 */
 	public SSHKeyIdentifier(String userName, String label) {
 	    if (userName!=null && label!=null)	{
-		this.identifier = userName + ":" + label;
+	    	this.identifier = userName + ":" + label;
 	    }
 	}
 	
 	@Override
 	public int compareTo(Object o) {
 	    if ( o instanceof SSHKeyIdentifier ) {
-		return identifier.compareTo( ((SSHKeyIdentifier)o).identifier);
+	    	return identifier.compareTo( ((SSHKeyIdentifier)o).identifier);
 	    } else {
-		return identifier.compareTo( o.toString() );
+	    	return identifier.compareTo( o.toString() );
 	    }
 	}
 
@@ -52,7 +52,10 @@ public class SSHKeyIdentifier implements Identifier {
 	 */
 	@Override
 	public boolean equals(Object obj) {
-	    return identifier.equals(obj.toString());
+		if (obj instanceof SSHKeyIdentifier )
+            return identifier.equals(obj.toString());
+		else
+			return false;
 	}
 
 	@Override

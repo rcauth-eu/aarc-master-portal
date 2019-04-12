@@ -50,7 +50,7 @@ public class MPOA2ClientEnvironment extends OA2ClientEnvironment {
 
     /* MYPROXY CONNECTION CONFIGURATION */
 
-    protected List<MyProxyFacadeProvider> mfps;
+    protected final List<MyProxyFacadeProvider> mfps;
 
     protected List<MyProxyServiceFacade> myProxyServices;
 
@@ -61,7 +61,7 @@ public class MPOA2ClientEnvironment extends OA2ClientEnvironment {
      */
     public List<MyProxyServiceFacade> getMyProxyServices() {
         if (myProxyServices == null) {
-            myProxyServices = new LinkedList<MyProxyServiceFacade>();
+            myProxyServices = new LinkedList<>();
             // loop through each found component
             for (MyProxyFacadeProvider m : mfps) {
                 myProxyServices.add(m.get());

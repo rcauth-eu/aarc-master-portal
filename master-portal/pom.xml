@@ -79,6 +79,7 @@
                     <source>1.8</source>
                     <target>1.8</target>
                     <!--compilerArgument>-Xlint:unchecked</compilerArgument-->
+                    <compilerArgument>-Xlint:all</compilerArgument>
                 </configuration>
                 <version>3.5.1</version>
             </plugin>
@@ -122,7 +123,6 @@
                 <artifactId>maven-javadoc-plugin</artifactId>
                 <version>3.1.0</version>
                 <configuration>
-                    <aggregate>true</aggregate>
                     <use>false</use>
                     <!-- Note: javax.servlet does not provide proper link for
                          detectLinks, hence specify manually -->

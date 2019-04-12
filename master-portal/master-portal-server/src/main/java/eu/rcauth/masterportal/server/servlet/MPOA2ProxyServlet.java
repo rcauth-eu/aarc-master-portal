@@ -41,7 +41,7 @@ import eu.rcauth.masterportal.server.validators.GetProxyRequestValidator;
 
 public class MPOA2ProxyServlet extends OA2ProxyServlet {
 
-    /* OVERRIDEN METHODS */
+    /* OVERRIDDEN METHODS */
 
     /**
      *  Checks if the request has a proxy lifetime value. If not, if will override the 
@@ -76,9 +76,9 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
     @Override
     protected void checkMPConnection(OA2ServiceTransaction st) throws GeneralSecurityException {
         if (!hasMPConnection(st)) {
-            String myproxyPasswrod  = ((MPOA2SE)getServiceEnvironment()).getMyproxyPassword();
+            String myproxyPassword  = ((MPOA2SE)getServiceEnvironment()).getMyproxyPassword();
             debug("Creating new MP connection with username: " + st.getUsername() + " and lifetime: " + st.getLifetime());
-            createMPConnection(st.getIdentifier(), st.getUsername(), myproxyPasswrod, st.getLifetime());
+            createMPConnection(st.getIdentifier(), st.getUsername(), myproxyPassword, st.getLifetime());
         }
     }
 
@@ -193,7 +193,7 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
             certReq = CertUtil.createCertRequest(keyPair, trans.getUsername());
         } catch (Throwable e) {
             if (e instanceof RuntimeException) {
-                throw (RuntimeException) e;
+                throw e;
             }
             throw new GeneralException("Could not create cert request", e);
         }

@@ -39,7 +39,7 @@ public class SSHKeyTable extends Table {
 	// userName can have multiple keys, so do not declare primary, must be present
     	getColumnDescriptor().add(new ColumnDescriptorEntry(x.userName(), VARCHAR, false, false));
 
-	// pubkey must be unique for ssh, also must be present, but don't make
+	// public key must be unique for ssh, also must be present, but don't make
 	// it present as we want to be able to change it
     	getColumnDescriptor().add(new ColumnDescriptorEntry(x.pubKey(), VARCHAR, false, false));
 	
@@ -58,26 +58,19 @@ public class SSHKeyTable extends Table {
      */
     public String createUserSelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
-    	String select =  "SELECT * FROM " + getFQTablename() + " WHERE ";
-
-	select += x.userName() + " =?";
-        
-	select += " ORDER BY "+x.importTime()+" DESC";
-
-        return select;
-    }    
+    	return "SELECT * FROM " + getFQTablename() + " WHERE " +
+                x.userName() + " =?" +
+                " ORDER BY " + x.importTime() + " DESC";
+    }
     
     /**
      * Creates SQL select statement for a specific pubKey.
      */
     public String createKeySelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
-    	String select =  "SELECT * FROM " + getFQTablename() + " WHERE ";
-
-	select += x.pubKey() + " =?";
-        
-        return select;
-    }    
+    	return "SELECT * FROM " + getFQTablename() + " WHERE " +
+                x.pubKey() + " =?";
+    }
     
     /**
      * Creates SQL select statement for (userName/label) pair, which should be
@@ -86,11 +79,8 @@ public class SSHKeyTable extends Table {
     @Override
     public String createSelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
-    	String select =  "SELECT * FROM " + getFQTablename() + " WHERE ";
-
-	select += x.userName() + " =? AND " + x.label() + " =? ";
-
-        return select;
+    	return "SELECT * FROM " + getFQTablename() + " WHERE " +
+                x.userName() + " =? AND " + x.label() + " =? ";
     }
 
     /**
@@ -99,27 +89,24 @@ public class SSHKeyTable extends Table {
      */
     @Override
     public String createUpdateStatement() {
-	SSHKeyKeys x =  (SSHKeyKeys) keys;
+        SSHKeyKeys x =  (SSHKeyKeys) keys;
 
-        String update = "UPDATE " + getFQTablename() + " SET ";
+        StringBuilder update = new StringBuilder("UPDATE " + getFQTablename() + " SET ");
 
         boolean isFirst = true;
         for (ColumnDescriptorEntry cde : getColumnDescriptor()) {
-	    String name = cde.getName();
-	    if (!name.equals(x.userName()) && !name.equals(x.label())) {
-		update = update + (isFirst ? "" : ", ") + name + "=?";
-		if (isFirst) {
-		    isFirst = false;
-		}   
-            }        	
+            String name = cde.getName();
+            if (!name.equals(x.userName()) && !name.equals(x.label())) {
+                update.append(isFirst ? "" : ", ").append(name).append("=?");
+                if (isFirst) {
+                    isFirst = false;
+                }
+            }
         }
 
-        update += ", "+TIME_LABEL+"=CURRENT_TIMESTAMP";
+        update.append(", ").append(TIME_LABEL).append("=CURRENT_TIMESTAMP").append(" WHERE ").append(x.userName()).append(" =? ").append(" AND ").append(x.label()).append(" =? ");
         
-        String where = " WHERE " + x.userName() + " =? " +
-		       " AND " + x.label() + " =? ";
-        
-        return update + where;
+        return update.toString();
     }
 
     /**
@@ -127,13 +114,11 @@ public class SSHKeyTable extends Table {
      * the composite primary key.
      */
     public String createDeleteStatement() {
-	SSHKeyKeys x =  (SSHKeyKeys) keys;
+        SSHKeyKeys x =  (SSHKeyKeys) keys;
 
-        String delete = "DELETE FROM " + getFQTablename() +
-			" WHERE " + x.userName() + " =? " +
-		        " AND " + x.label() + " =? ";
-        
-        return delete;
+        return "DELETE FROM " + getFQTablename() +
+                " WHERE " + x.userName() + " =? " +
+                " AND " + x.label() + " =? ";
     }
 
     /**
@@ -142,15 +127,13 @@ public class SSHKeyTable extends Table {
      */
     @Override
     public String createInsertStatement() {
-        String out = "INSERT INTO " + getFQTablename() + "(" + createRegisterStatement() + ", " + TIME_LABEL+ ") VALUES (" ;
-        String qmarks = "";
+        StringBuilder out = new StringBuilder("INSERT INTO " + getFQTablename() + "(" + createRegisterStatement() + ", " + TIME_LABEL + ") VALUES (");
         for (int i = 0; i < getColumnDescriptor().size(); i++) {
-            qmarks = qmarks + "?" + (i + 1 == getColumnDescriptor().size() ? "" : ", ");
+            out.append("?").append(i + 1 == getColumnDescriptor().size() ? "" : ", ");
         }
-        qmarks += ",CURRENT_TIMESTAMP";
+        out.append(",CURRENT_TIMESTAMP)");
         
-        out = out + qmarks + ")";
-        return out;
+        return out.toString();
     }
     
 }

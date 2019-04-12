@@ -3,7 +3,6 @@ package eu.rcauth.masterportal.client.storage;
 import eu.rcauth.masterportal.client.MPOA2Asset;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.client.Asset;
-import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2Asset;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2AssetConverter;
 import edu.uiuc.ncsa.security.core.IdentifiableProvider;
 import edu.uiuc.ncsa.security.storage.data.ConversionMap;

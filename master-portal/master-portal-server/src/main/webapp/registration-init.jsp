@@ -12,7 +12,7 @@
     <h2>Welcome to the Master Portal Client Registration Page</h2>
 
     <p>This page allows you to register your client with the
-        Master Portal that supports the OIDC/OAuth 2. To get your client approved,
+        Master Portal that supports the OpenID-Connect/OAuth2 protocol. To get your client approved,
         please fill out the form below. Your request will be evaluated for approval. For more information,
         please make sure you read the
         <a href="http://grid.ncsa.illinois.edu/myproxy/oauth/client/manuals/registering-with-an-oauth2-server.xhtml"

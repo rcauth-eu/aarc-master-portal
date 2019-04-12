@@ -24,14 +24,15 @@ import javax.inject.Provider;
 public class SQLSSHKeyStoreProvider<V extends SQLSSHKeyStore> extends SQLStoreProvider<V> {
 
     protected Provider<SSHKey> sshKeyProvider;
-	
+
+    // Note: this one is currently not being used it seems
     public SQLSSHKeyStoreProvider(
             ConfigurationNode config,
             ConnectionPoolProvider<? extends ConnectionPool> cpp,
             String type,
             String target,
             String tablename,
-            MapConverter converter,
+            MapConverter<SSHKey> converter,
             Provider<SSHKey> provider) {
         super(config, cpp, type, target, tablename, converter);
         this.sshKeyProvider = provider;
@@ -46,8 +47,10 @@ public class SQLSSHKeyStoreProvider<V extends SQLSSHKeyStore> extends SQLStorePr
         super(config, cpp, type, MPOA4MPConfigTags.SSH_KEY_STORE, SQLSSHKeyStore.DEFAULT_TABLENAME, converter);
         this.sshKeyProvider = provider;
     }
-     
+
+    // Note we suppress an unchecked cast to T
     @Override
+    @SuppressWarnings("unchecked")
     public V newInstance(Table table) {
     	return (V) new SQLSSHKeyStore(getConnectionPool(), table, sshKeyProvider, converter);
     }

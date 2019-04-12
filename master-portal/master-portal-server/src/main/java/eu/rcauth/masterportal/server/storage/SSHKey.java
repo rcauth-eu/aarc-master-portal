@@ -103,16 +103,13 @@ public class SSHKey extends IdentifiableImpl {
     /** @return whether two keys have the same username and public key */
     @Override
     public boolean equals(Object obj) {
-	if (super.equals(obj) && obj instanceof SSHKey) {
-	    SSHKey rec = (SSHKey) obj;
-	    // TODO: perhaps should stick only to the pubKey, except that this
-	    // might still be null.
-	    if (checkEquals(getUserName(), rec.getUserName()) &&
-		checkEquals(getPubKey(), rec.getPubKey()) )	{
-		return true;
-	    }
-	}
-	return false;
+        if (super.equals(obj) && obj instanceof SSHKey) {
+            SSHKey rec = (SSHKey) obj;
+            // TODO: perhaps should stick only to the pubKey, except that this might still be null.
+            return (checkEquals(getUserName(), rec.getUserName()) &&
+                    checkEquals(getPubKey(), rec.getPubKey()) );
+        }
+        return false;
     }
    
     /** @return printable representation of the key fields */

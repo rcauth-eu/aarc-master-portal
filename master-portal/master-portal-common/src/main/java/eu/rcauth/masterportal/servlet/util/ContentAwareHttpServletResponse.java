@@ -1,7 +1,5 @@
 package eu.rcauth.masterportal.servlet.util;
 
-import org.apache.http.HttpStatus;
-
 import java.io.IOException;
 import java.io.PrintWriter;
 import java.io.StringWriter;
@@ -13,7 +11,7 @@ public class ContentAwareHttpServletResponse extends HttpServletResponseWrapper 
 
     // Note that a new HttpServletResponse(Wrapper) has status 200
     protected int httpStatus=200;
-    protected StringWriter sw = new StringWriter();
+    private final StringWriter sw = new StringWriter();
 
     public ContentAwareHttpServletResponse(HttpServletResponse response) {
         super(response);
@@ -48,7 +46,7 @@ public class ContentAwareHttpServletResponse extends HttpServletResponseWrapper 
     }
     
     @Override
-    public PrintWriter getWriter() throws IOException {
+    public PrintWriter getWriter() {
         return new PrintWriter(sw);
     }
    

@@ -1,7 +1,7 @@
 package eu.rcauth.masterportal;
 
 
-public interface MPClientContext {
+public final class MPClientContext {
 
 	// This value should correspond to the Master Portal OA4MP Client root context.
 	// This is derived from the deployment war name taken from the client pom.xml

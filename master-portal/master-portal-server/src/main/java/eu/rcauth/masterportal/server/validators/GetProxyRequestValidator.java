@@ -39,7 +39,7 @@ public interface GetProxyRequestValidator {
 	 * @param validatorNode The validator configuration node
 	 * @param myLoggingFacade The logger to use for logging
 	 */
-	public void init(ConfigurationNode validatorNode, MyLoggingFacade myLoggingFacade);
+	void init(ConfigurationNode validatorNode, MyLoggingFacade myLoggingFacade);
 	
 	
 	/**
@@ -54,6 +54,6 @@ public interface GetProxyRequestValidator {
 	 * @param info The INFO returned by MyProxy
 	 * @throws Throwable The Exception thrown for an invalid request.
 	 */
-	public void validate(MPOA2ServiceTransaction transaction, HttpServletRequest request, HttpServletResponse response, MyProxyCredentialInfo info) throws Throwable;
+	void validate(MPOA2ServiceTransaction transaction, HttpServletRequest request, HttpServletResponse response, MyProxyCredentialInfo info) throws Throwable;
 	
 }

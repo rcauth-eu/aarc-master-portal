@@ -52,7 +52,7 @@ public class MPOA2MPService extends OA2MPService {
 		}
 	}
 	
-	/* OVERRIDEN METHODS */
+	/* OVERRIDDEN METHODS */
 	
 	/**
 	 *  Extended /getcert request. This executes the regular /getcert request (just as
@@ -75,7 +75,7 @@ public class MPOA2MPService extends OA2MPService {
 			// upload certificate to Credential Store
 			uploadCert(par, a);
 			
-			//There is not much we can do to properly destroy the privatekey object here. 
+			//There is not much we can do to properly destroy the privateKey object here.
 			//The .destroy() method is not implemented, and the .getEncoded() method returns 
 			//a byte[] copy, so no point in adding 0-s there. 
 			//TODO: maybe come up with a better method. for now set it 'null' in hopes of 
@@ -108,6 +108,7 @@ public class MPOA2MPService extends OA2MPService {
 	 * @param parameters The parameter map that will end up in the authorize request 
 	 */
 	@Override
+	@SuppressWarnings("unchecked")
 	public void preRequestCert(Asset asset, Map parameters) {
 	
 		String originalScopes = null;
@@ -118,7 +119,7 @@ public class MPOA2MPService extends OA2MPService {
 		
 		// call super method. this might overwrite the SCOPE parameter
 		super.preRequestCert(asset, parameters);
-		
+
 		if (originalScopes != null && ! originalScopes.isEmpty()) {
 			// make sure the original SCOPE parameter is set
 			parameters.put(OA2Constants.SCOPE, originalScopes);
@@ -143,10 +144,10 @@ public class MPOA2MPService extends OA2MPService {
 	 */
 	public void uploadCert(AssetResponse assetResp, OA2Asset asset) throws Throwable {
 		
-		String myproxyPasswrod  = ((MPOA2ClientEnvironment)getEnvironment()).getMyproxyPassword();
+		String myproxyPassword  = ((MPOA2ClientEnvironment)getEnvironment()).getMyproxyPassword();
 		long lifetime = getEnvironment().getCertLifetime();
 		
-		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPasswrod, lifetime);
+		MyProxyConnectable mp = createMPConnection(asset.getIdentifier(), asset.getUsername(), myproxyPassword, lifetime);
 		
 		mp.setLifetime(lifetime * 1000);
 		
@@ -192,12 +193,11 @@ public class MPOA2MPService extends OA2MPService {
 	 */
 	protected MyProxyConnectable createMPConnection(Identifier identifier, String userName, String password,
 			long lifetime) throws GeneralSecurityException {
-		
-		MPConnectionProvider facades = new MPConnectionProvider(logger, 
-																((MPOA2ClientEnvironment)getEnvironment()).getMyProxyServices() );
+
+        MPOA2ClientEnvironment env = (MPOA2ClientEnvironment)getEnvironment();
+        MPConnectionProvider<MyProxyConnectable> facades = new MPConnectionProvider<>(logger, env.getMyProxyServices() );
 		// use null for the LOA since we are not supporting any at the moment
-		MyProxyConnectable mpc = facades.findConnection(identifier, userName, password, null, lifetime);
-		return mpc;
+		return facades.findConnection(identifier, userName, password, null, lifetime);
 	}
 	
 }

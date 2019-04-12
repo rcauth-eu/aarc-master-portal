@@ -94,7 +94,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
      * Servlet does not implement/use verifyAndGet
      */
     @Override
-    public ServiceTransaction verifyAndGet(IssuerResponse iResponse) throws IOException {
+    public ServiceTransaction verifyAndGet(IssuerResponse iResponse) {
         return null;
     }
 
@@ -125,7 +125,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
                     // one is the secret. This also handles the case that one of these is sent as a parameter
                     // in the call and the other is in the header.
                     URI test = URI.create(x);
-                    // It is possible that the secret may be parseable as a valid URI (plain strings are
+                    // It is possible that the secret may be parsable as a valid URI (plain strings are
                     // trivially uris). This checks that there a
                     // scheme, which implies this is an id. The other token is assumed to
                     // be the secret.
@@ -153,7 +153,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
                     "Error: No secret. request refused.",
                     HttpStatus.SC_BAD_REQUEST);
         }
-        if (!client.getSecret().equals(DigestUtils.shaHex(rawSecret))) {
+        if (!client.getSecret().equals(DigestUtils.sha1Hex(rawSecret))) {
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST,
                     "Error: Secret is incorrect. request refused.",
                     HttpStatus.SC_FORBIDDEN);
@@ -178,7 +178,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
      * main method doing all the handling of the API requests
      */
     @Override
-    protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
+    protected void doIt(HttpServletRequest request, HttpServletResponse response) throws OA2GeneralError {
         // Get transaction for this request, based on access_token
         ServiceTransaction transaction = getAndVerifyTransaction(request);
 
@@ -212,7 +212,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // action must be present
         if (action==null)   {
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST,
-                                      "Missing mandatory action parameter",
+                                      "Missing mandatory " + ACTION_PARAMETER + " parameter",
                                       HttpStatus.SC_BAD_REQUEST);
         }
         
@@ -252,14 +252,14 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         }
     }
 
-    /************************************************************************
-     * API Action methods
-     ************************************************************************/
+    //////////////////////////////////////////////////////////////////////////
+    // API Action methods
+    //////////////////////////////////////////////////////////////////////////
 
     /**
      * Adds new key for given userName, label, pubKey and description.
      */
-    private void addKey(String userName, String label, String pubKey, String description) throws Throwable {
+    private void addKey(String userName, String label, String pubKey, String description) throws GeneralException {
         // userName and pubKey may not be empty, userName is indirect, via the
         // access_token
         if (userName==null || userName.isEmpty())   {
@@ -267,12 +267,12 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             throw new GeneralException("Cannot get username");
         }
         if (pubKey==null || pubKey.isEmpty()) {
-            throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Missing mandatory pubkey", HttpStatus.SC_BAD_REQUEST);
+            throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Missing mandatory parameter " + PUBKEY_PARAMETER, HttpStatus.SC_BAD_REQUEST);
         }
 
         // do (basic) sanity check on pubKey
         if (!isSSHPubKey(pubKey)) {
-            throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Pubkey does not look like a SSH public key", HttpStatus.SC_BAD_REQUEST);
+            throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, PUBKEY_PARAMETER + " value does not look like a SSH public key", HttpStatus.SC_BAD_REQUEST);
         }
 
         // try to get store
@@ -286,8 +286,9 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         SSHKey key = new SSHKey(userName, label, pubKey, description);
 
         // Check whether the ssh pubKey already occurs: must be globally unique
+        // Note: SQLSSHKeyStore.containsKey() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
         if ( store.containsKey(key) )  {
-            throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "SSH Pubkey is already registered", HttpStatus.SC_BAD_REQUEST);
+            throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "SSH public key is already registered", HttpStatus.SC_BAD_REQUEST);
         }
 
         // Get existing keys: we need them either for counting or for creating
@@ -322,7 +323,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     /**
      * Update entry (pubKey and/or description) for given user, label.
      */
-    private void updateKey(String userName, String label, String pubKey, String description) throws Throwable {
+    private void updateKey(String userName, String label, String pubKey, String description) throws GeneralException {
         // userName and label may not be empty
         if (userName==null || userName.isEmpty())   {
             logger.error("Username is null or empty");
@@ -332,7 +333,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Missing mandatory label", HttpStatus.SC_BAD_REQUEST);
         }
 
-        // if we specified a pubkey, it must be non-empty and valid
+        // if we specified a public key, it must be non-empty and valid
         if (pubKey!=null)   {
             if (pubKey.isEmpty())   {
                 throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "SSH public key may not be empty", HttpStatus.SC_BAD_REQUEST);
@@ -349,7 +350,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             throw new GeneralException("Could not get SSH KeyStore");
         }
 
-        // Get existing pubkey
+        // Get existing public key
+        // Note: SQLSSHKeyStore.get() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
         SSHKey value = store.get(new SSHKey(userName, label));
         if (value==null) {
             throw new OA2GeneralError("not_found", "No key to update found", HttpStatus.SC_NOT_FOUND);
@@ -357,7 +359,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         // Update values
         if (pubKey != null)    {
-            info("Updating pubkey for key");
+            info("Updating public key for key");
             value.setPubKey(pubKey);
         }
         if (description != null)    {
@@ -382,7 +384,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     /**
      * Removes entry for given userName and label
      */
-    private void removeKey(String userName, String label) throws Throwable {
+    private void removeKey(String userName, String label) throws GeneralException {
         // userName and label may not be empty
         if (userName==null || userName.isEmpty())   {
             logger.error("Username is null or empty");
@@ -401,6 +403,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         SSHKey key = null;
         try {
+            // Note: SQLSSHKeyStore.remove() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
             key = store.remove(new SSHKey(userName, label));
         } catch (Exception e)   {
             Throwable cause = e.getCause();
@@ -418,7 +421,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     /**
      * Retrieves entry for given userName, label
      */
-    private SSHKey getKey(String userName, String label) throws Throwable {
+    private SSHKey getKey(String userName, String label) throws GeneralException {
         // userName and label may not be empty
         if (userName==null || userName.isEmpty())   {
             logger.error("Username is null or empty");
@@ -436,6 +439,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         SSHKey key = null;
         try {
+            // Note: SQLSSHKeyStore.get() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
             key = store.get(new SSHKey(userName, label));
         } catch (Exception e)   {
             Throwable cause = e.getCause();
@@ -455,7 +459,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     /**
      * lists all entries for given userName
      */
-    private List<SSHKey> getKeys(String userName) throws Throwable  {
+    private List<SSHKey> getKeys(String userName) throws GeneralException  {
         // userName may not be empty
         if (userName==null || userName.isEmpty()) {
             logger.error("Username is empty");
@@ -471,13 +475,13 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         return store.getAll(userName);
     }
 
-    /************************************************************************
-     * Helper methods
-     ************************************************************************/
+    //////////////////////////////////////////////////////////////////////////
+    // Helper methods
+    //////////////////////////////////////////////////////////////////////////
 
     /**
-     * Get access token from request, copy and paste from userinfo endpoint
-     * {@link UserInfoServlet#doIt(HttpServletRequest, HttpServletResponse)}
+     * Get access token from request, copy and paste from /userinfo endpoint
+     * {@link UserInfoServlet}#doIt(HttpServletRequest, HttpServletResponse)
      */
     private ServiceTransaction getAndVerifyTransaction(HttpServletRequest request) {
         // Get access token: either bearer token or request parameter
@@ -524,22 +528,26 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     }
 
     /**
-     * Returns new unique label for userName, based on existing set of keys
+     * Returns new unique label based on existing set of keys.
+     * Note that currently the userName isn't used
+     * @param userName currently not used
+     * @param currKeys list of keys, containing the current labels
      */
     private String createLabel(String userName, List<SSHKey> currKeys)  {
         if (currKeys!=null) {
             int max=0;
             // Loop over all keys to find highest matching ssh-key-[0-9]\+
-            for (int i=0; i<currKeys.size(); i++) {
-                String label=currKeys.get(i).getLabel();
-                if (label.matches(LABEL_PREFIX+"[0-9]+"))    {
+            // Note: for collection foreach loop is better performing
+            for (SSHKey currKey : currKeys) {
+                String label = currKey.getLabel();
+                if (label.matches(LABEL_PREFIX + "[0-9]+")) {
                     int val = Integer.parseInt(label.substring(LABEL_PREFIX.length()));
-                    if (val>max)
-                        max=val;
+                    if (val > max)
+                        max = val;
                 }
             }
             // Found the highest one (or 0): new one is one higher
-            return LABEL_PREFIX+Integer.toString(1+max);
+            return LABEL_PREFIX+ (1 + max);
         }
 
         // No matches, will use new default

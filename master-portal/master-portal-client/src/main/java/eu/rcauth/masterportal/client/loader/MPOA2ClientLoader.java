@@ -1,6 +1,5 @@
 package eu.rcauth.masterportal.client.loader;
 
-import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.MyProxyFacadeProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.OA4MPConfigTags;
 import edu.uiuc.ncsa.oa4mp.oauth2.client.OA2ClientLoader;
@@ -18,12 +17,15 @@ import eu.rcauth.masterportal.servlet.MPOA4MPConfigTags;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientEnvironment;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.ClientXMLTags;
 import edu.uiuc.ncsa.myproxy.oa4mp.client.OA4MPServiceProvider;
-import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.*;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetProvider;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.AssetStore;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.MultiAssetStoreProvider;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.FSAssetStoreProvider;
+import edu.uiuc.ncsa.myproxy.oa4mp.client.storage.MemoryAssetStore;
 import edu.uiuc.ncsa.security.core.configuration.Configurations;
 import edu.uiuc.ncsa.security.core.configuration.provider.CfgEvent;
 import edu.uiuc.ncsa.security.core.configuration.provider.TypedProvider;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
-import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.delegation.storage.Client;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
 
@@ -57,11 +59,14 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
         return "Master Portal OAuth2/OIDC client configuration loader version " + VERSION_NUMBER;
     }
 
+    // Needed for the cast to T
+    @SuppressWarnings("unchecked")
     public T createInstance(Provider<TokenForge> tokenForgeProvider,
                             Provider<Client> clientProvider,
                             HashMap<String, String> constants) {
         try {
-            return (T) new MPOA2ClientEnvironment(
+            // Note we suppress an unchecked cast to T
+            return (T)new MPOA2ClientEnvironment(
                     myLogger, constants,
                     getAccessTokenURI(),
                     getAuthorizeURI(),
@@ -98,7 +103,7 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
     
     /* ASSET EXTENSION */
 
-    AssetProvider assetProvider = null;
+    private AssetProvider assetProvider = null;
     
     @Override
     public AssetProvider getAssetProvider() {
@@ -115,8 +120,10 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
     @Override
     protected Provider<AssetStore> getAssetStoreProvider() {
         if (assetStoreProvider == null) {
-            MultiAssetStoreProvider masp = new MultiAssetStoreProvider(cn, isDefaultStoreDisabled(), (MyLoggingFacade) loggerProvider.get());
+            MultiAssetStoreProvider masp = new MultiAssetStoreProvider(cn, isDefaultStoreDisabled(), loggerProvider.get());
             MPOA2AssetSerializationKeys keys = new MPOA2AssetSerializationKeys();
+            // We suppress unchecked assignment since we're using MPOA2Asset instead of Asset, hence no generics
+            @SuppressWarnings("unchecked")
             MPOA2AssetConverter assetConverter = new MPOA2AssetConverter(keys, getAssetProvider());
             assetStoreProvider = masp;
             
@@ -143,7 +150,9 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
                     return null;
                 }
 
+                // We suppress unchecked assignment since we're using MPOA2Asset instead of Asset
                 @Override
+                @SuppressWarnings("unchecked")
                 public MemoryAssetStore get() {
                     return new MemoryAssetStore(getAssetProvider());
                 }
@@ -159,17 +168,16 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
 
     protected LinkedList<MyProxyFacadeProvider> getMyProxyFacadeProvider() {
          if (mfp == null) {
-             mfp = new LinkedList<MyProxyFacadeProvider>();
+             mfp = new LinkedList<>();
              // This is the global default for all instances. It can be overridden below.
              String defaultDN = Configurations.getFirstAttribute(cn, OA4MPConfigTags.MYPROXY_SERVER_DN);
 
              if (0 < cn.getChildrenCount(OA4MPConfigTags.MYPROXY)) {
-                 List kids = cn.getChildren(OA4MPConfigTags.MYPROXY);
-                 for (int i = 0; i < kids.size(); i++) {
-                     ConfigurationNode currentNode = (ConfigurationNode) kids.get(i);
+                 List<ConfigurationNode> kids = cn.getChildren(OA4MPConfigTags.MYPROXY);
+                 for (ConfigurationNode currentNode : kids) {
                      // Fix for CIL-196.
-                     String currentDN  = Configurations.getFirstAttribute(currentNode, OA4MPConfigTags.MYPROXY_SERVER_DN);
-                     mfp.add(new MyProxyFacadeProvider(((ConfigurationNode) kids.get(i)), (currentDN==null?defaultDN:currentDN)));
+                     String currentDN = Configurations.getFirstAttribute(currentNode, OA4MPConfigTags.MYPROXY_SERVER_DN);
+                     mfp.add(new MyProxyFacadeProvider(currentNode, (currentDN == null ? defaultDN : currentDN)));
                  }
 
              } else {

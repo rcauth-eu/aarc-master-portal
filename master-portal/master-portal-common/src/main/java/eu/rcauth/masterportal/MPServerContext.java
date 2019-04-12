@@ -1,7 +1,7 @@
 package eu.rcauth.masterportal;
 
 
-public interface MPServerContext {
+public final class MPServerContext {
 
 	// This value should correspond to the Master Portal OA4MP Server root context.
 	// This is derived from the deployment war name taken from the client pom.xml	
@@ -22,5 +22,4 @@ public interface MPServerContext {
 	
 	public static final String MP_SERVER_AUTHORIZE_ACTION_OK = "ok";
 
-	
 }

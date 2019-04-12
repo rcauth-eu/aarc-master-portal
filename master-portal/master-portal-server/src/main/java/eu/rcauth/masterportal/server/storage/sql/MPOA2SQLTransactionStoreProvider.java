@@ -6,8 +6,6 @@ import eu.rcauth.masterportal.server.storage.sql.table.MPOA2TransactionTable;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2SQLTransactionStoreProvider;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.storage.MultiDSClientStoreProvider;
-// Updated next one
-//import edu.uiuc.ncsa.myproxy.oa4mp.server.storage.sql.DSSQLTransactionStore;
 import edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.DSSQLTransactionStore;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
 import edu.uiuc.ncsa.security.storage.data.MapConverter;
@@ -27,12 +25,12 @@ public class MPOA2SQLTransactionStoreProvider<T extends DSSQLTransactionStore> e
             Provider<TokenForge> tfp,
             MapConverter converter) {
 
-			super(config, cpp, type, clientStoreProvider, tp, tfp, converter);
-			}
+        super(config, cpp, type, clientStoreProvider, tp, tfp, converter);
+	}
 
 	@Override
 	public T get() {
-			return newInstance(new MPOA2TransactionTable((MPOA2TransactionKeys)converter.keys, getSchema(), getPrefix(), getTablename()));
+    	return newInstance(new MPOA2TransactionTable((MPOA2TransactionKeys)converter.keys, getSchema(), getPrefix(), getTablename()));
 	}	
 	
 }

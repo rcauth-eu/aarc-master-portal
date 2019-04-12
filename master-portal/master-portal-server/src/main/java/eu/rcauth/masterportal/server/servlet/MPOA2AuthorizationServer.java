@@ -7,6 +7,7 @@ import edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.MyProxyDelegationServlet;
 import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.servlet.TransactionState;
+import edu.uiuc.ncsa.security.delegation.storage.TransactionStore;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
@@ -118,8 +119,12 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                 // this cookie is then saved into the transaction store so that we can tie the MP-Client session to
                 // the MP-Server session in upcoming requests.
                 String clientID = newResponse.getCookie(MPClientContext.MP_CLIENT_REQUEST_ID);
-                ((MPOA2ServiceTransaction)aState.getTransaction()).setMPClientSessionIdentifier(clientID);
-                getTransactionStore().save( aState.getTransaction() );
+                MPOA2ServiceTransaction trans = (MPOA2ServiceTransaction)aState.getTransaction();
+                trans.setMPClientSessionIdentifier(clientID);
+                // getTransactionStore() returns non-generic
+                @SuppressWarnings("unchecked")
+                TransactionStore<MPOA2ServiceTransaction> store = getTransactionStore();
+                store.save( trans );
                 
                 break;
                 
@@ -199,7 +204,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
 
         // At this point, all authentication has been done, everything is set up and the next stop in the flow is the
         // redirect back to the client.
-        Map<String,String> reqParamMap = new HashMap<String,String>();
+        Map<String,String> reqParamMap = new HashMap<>();
         reqParamMap.put(OA2Constants.STATE, (String) request.getAttribute(OA2Constants.STATE));
         
         String cb = createCallback(trans, reqParamMap);
@@ -216,22 +221,16 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
      */
     @Override
     protected String getParam(HttpServletRequest request, String key) {
-        String x = null;
-        
         Object oo = request.getAttribute(key);
         if (oo != null) {
-            x = oo.toString();
+            String x = oo.toString();
             if ( ! x.isEmpty() ) {
                 return x;
             }
         }
 
-        x = request.getParameter(key);
-        if (x != null && ! x.isEmpty()) {
-            return x;
-        }
-        
-        return x;
+        // Note that this might return null or an empty String
+        return request.getParameter(key);
     }
     
     /*

@@ -36,13 +36,13 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
 
     @Override
     public void init() throws ServletException	{
-	super.init();
-	se = (MPOA2SE)getServiceEnvironment();
-	setEnvironment(se);
+        super.init();
+        se = (MPOA2SE)getServiceEnvironment();
+        setEnvironment(se);
 
-	// Create custom logger for exceptions and the like
-	logger = getMyLogger();
-	setExceptionHandler(new OA2ExceptionHandler(logger));
+        // Create custom logger for exceptions and the like
+        logger = getMyLogger();
+        setExceptionHandler(new OA2ExceptionHandler(logger));
     }
 
     /**
@@ -50,20 +50,20 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
      * @return null
      */
     @Override
-    public ServiceTransaction verifyAndGet(IssuerResponse iResponse) throws IOException {
-	return null;
+    public ServiceTransaction verifyAndGet(IssuerResponse iResponse) {
+        return null;
     }
 
     @Override
     protected void handleException(Throwable t, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-	// ok, if it is a strange error, print a stack if you need to.
-	// Note: getMyLogger gives logger from environment, which is configured
-	// via conf file and logs typically into mp server logs, not in
-	// /var/log/messages
+        // ok, if it is a strange error, print a stack if you need to.
+        // Note: getMyLogger gives logger from environment, which is configured
+        // via conf file and logs typically into mp server logs, not in
+        // /var/log/messages
         if (logger.isDebugOn()) {
             t.printStackTrace();
         }
-	getExceptionHandler().handleException(t, request, response);
+        getExceptionHandler().handleException(t, request, response);
     }
 
     /**
@@ -73,21 +73,21 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
 	
-	SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
-	if ( store == null) {
-	    throw new GeneralException("Could not get SSHKeyStore"); 
-	}
+        SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
+        if ( store == null) {
+            throw new GeneralException("Could not get SSHKeyStore");
+        }
 
-	Collection<SSHKey> keys = store.values();
-   
-	Writer writer = response.getWriter();
-	for (SSHKey key : keys)    {
-	    writer.write(key.getUserName());
-	    writer.write(SEP);
-	    writer.write(key.getPubKey());
-	    writer.write("\n");
-	}
-	writer.flush();
-	writer.close();
+        Collection<SSHKey> keys = store.values();
+
+        Writer writer = response.getWriter();
+        for (SSHKey key : keys)    {
+            writer.write(key.getUserName());
+            writer.write(SEP);
+            writer.write(key.getPubKey());
+            writer.write("\n");
+        }
+        writer.flush();
+        writer.close();
     }
 }

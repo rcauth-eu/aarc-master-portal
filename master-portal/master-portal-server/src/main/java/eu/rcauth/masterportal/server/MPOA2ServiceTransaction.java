@@ -1,7 +1,5 @@
 package eu.rcauth.masterportal.server;
 
-import net.sf.json.JSONObject;
-
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.delegation.token.AuthorizationGrant;

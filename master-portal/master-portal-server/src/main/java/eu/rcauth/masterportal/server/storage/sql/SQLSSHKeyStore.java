@@ -40,8 +40,8 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     public SQLSSHKeyStore(ConnectionPool connectionPool,
             Table table,
             Provider<SSHKey> identifiableProvider,
-            MapConverter converter) {
-    	super(connectionPool, table, identifiableProvider, converter);
+            MapConverter<SSHKey> converter) {
+        super(connectionPool, table, identifiableProvider, converter);
     }
 
     /**
@@ -49,33 +49,33 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public List<SSHKey> getAll(String username)    {
-	Connection c = getConnection();
-	List<SSHKey> resultSet = new ArrayList<SSHKey>();
-	try {
-	    PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createUserSelectStatement());
-	    stmt.setString(1, username);
+        Connection c = getConnection();
+        List<SSHKey> resultSet = new ArrayList<>();
+        try {
+            PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createUserSelectStatement());
+            stmt.setString(1, username);
 
-	    stmt.executeQuery();
-	    ResultSet rs = stmt.getResultSet();
-	    
-	    // iterate over result set
-	    while ( rs.next() ) {
-		ColumnMap map = rsToMap(rs);
-		SSHKey t = create();
-		populate(map, t);
-		resultSet.add(t);
-	    }
-	    rs.close();
-	    stmt.close();
-	} catch (SQLException e) {
-	    destroyConnection(c);
-	    throw new GeneralException("Error getting SSH keys for " + username, e);
-	} finally {
-	    releaseConnection(c);
-	}
+            stmt.executeQuery();
+            ResultSet rs = stmt.getResultSet();
 
-	// Even return resultSet if it is an empty set
-	return resultSet;
+            // iterate over result set
+            while ( rs.next() ) {
+                ColumnMap map = rsToMap(rs);
+                SSHKey t = create();
+                populate(map, t);
+                resultSet.add(t);
+            }
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            destroyConnection(c);
+            throw new GeneralException("Error getting SSH keys for " + username, e);
+        } finally {
+            releaseConnection(c);
+        }
+
+        // Even return resultSet if it is an empty set
+        return resultSet;
     }
 
     /**
@@ -84,7 +84,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public void save(SSHKey value)  {
-	register(value);
+        register(value);
     }
 
     /**
@@ -95,14 +95,14 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     public void register(SSHKey value) {
         Connection c = getConnection();
 
-	try {
-	    String tableName = getTable().getTablename();
-	    ResultSet res = c.getMetaData().getTables(null, null, tableName, new String[] {"TABLE"});
-	    if (res.next() == false)    {
-		throw new GeneralException("Cannot find table "+tableName);
-	    }
+        try {
+            String tableName = getTable().getTablename();
+            ResultSet res = c.getMetaData().getTables(null, null, tableName, new String[] {"TABLE"});
+            if ( !res.next() )    {
+                throw new GeneralException("Cannot find table "+tableName);
+            }
 
-	    SSHKeyTable table = (SSHKeyTable)getTable();
+            SSHKeyTable table = (SSHKeyTable)getTable();
             PreparedStatement stmt = c.prepareStatement( table.createInsertStatement() );
             ColumnMap map = depopulate(value);
             int i = 1;
@@ -135,19 +135,19 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
     @Override
     public void update(SSHKey value) {
         Connection c = getConnection();
-	// Get the column headers
-	SSHKeyKeys sshKeyKeys = new SSHKeyKeys();
-	String userNameColumn = sshKeyKeys.userName();
-	String labelColumn = sshKeyKeys.label();
+        // Get the column headers
+        SSHKeyKeys sshKeyKeys = new SSHKeyKeys();
+        String userNameColumn = sshKeyKeys.userName();
+        String labelColumn = sshKeyKeys.label();
         try {
-	    SSHKeyTable table = (SSHKeyTable)getTable();
+            SSHKeyTable table = (SSHKeyTable)getTable();
             PreparedStatement stmt = c.prepareStatement( table.createUpdateStatement() );
             ColumnMap map = depopulate(value);
             int i = 1;
             for (ColumnDescriptorEntry cde : table.getColumnDescriptor()) {
                 // now we loop through the table and set each and every one of these
-		String name = cde.getName();
-		// Only can update the non-username, non-label entries
+                String name = cde.getName();
+                // Only can update the non-username, non-label entries
                 if (!name.equals(userNameColumn) && !name.equals(labelColumn)) {
                     Object obj = map.get(name);
                     // Dates confuse setObject, so turn it into an SQL Timestamp object.
@@ -164,8 +164,8 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
 
             // now set the matching keys: userName and label
             stmt.setString(i++, value.getUserName());
-            stmt.setString(i++, value.getLabel());
-            
+            stmt.setString(i, value.getLabel()); // Note: when we add more, change i -> i++ here
+
             stmt.executeUpdate();
             stmt.close();
 
@@ -175,7 +175,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
         } finally {
             releaseConnection(c);
         }
-		
+
     }
 
     /**
@@ -185,26 +185,27 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public SSHKey get(Object key) {
-	if ( !(key instanceof SSHKey) ) {
+        if ( !(key instanceof SSHKey) ) {
             throw new GeneralException("input key must be a SSHKey");
-	}
-	SSHKey value = (SSHKey) key;
-	SSHKey out = null;
+        }
+        SSHKey value = (SSHKey) key;
+        SSHKey out = null;
 
         Connection c = getConnection();
         try {
-	    PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createSelectStatement() );
+            SSHKeyTable table = (SSHKeyTable)getTable();
+            PreparedStatement stmt = c.prepareStatement( table.createSelectStatement() );
             stmt.setString(1, value.getUserName());
             stmt.setString(2, value.getLabel());
 
-	    stmt.execute();// just execute() since executeQuery(x) would throw an exception regardless of content of x as per JDBC spec.
-	    ResultSet rs = stmt.getResultSet();
-	    if (rs.next())  {	// Need to move to the first element (if available)
-		ColumnMap map = rsToMap(rs);
-		out = create();
-		populate(map, out);
-	    }
-	    rs.close();
+            stmt.execute();// just execute() since executeQuery(x) would throw an exception regardless of content of x as per JDBC spec.
+            ResultSet rs = stmt.getResultSet();
+            if (rs.next())  { // Need to move to the first element (if available)
+                ColumnMap map = rsToMap(rs);
+                out = create();
+                populate(map, out);
+            }
+            rs.close();
             stmt.close();
         } catch (SQLException e) {
             destroyConnection(c);
@@ -222,11 +223,11 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public SSHKey remove(Object key) {
-	if ( !(key instanceof SSHKey) ) {
+        if ( !(key instanceof SSHKey) ) {
             throw new GeneralException("input key must be a SSHKey");
-	}
-	SSHKey value = (SSHKey)key;
-	SSHKey oldObject = null;
+        }
+        SSHKey value = (SSHKey)key;
+        SSHKey oldObject = null;
         try {
             oldObject = get(value);
         } catch (GeneralException x) {
@@ -235,7 +236,7 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
 
         Connection c = getConnection();
         try {
-	    PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createDeleteStatement() );
+            PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createDeleteStatement() );
             stmt.setString(1, value.getUserName());
             stmt.setString(2, value.getLabel());
             stmt.execute();
@@ -255,27 +256,27 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public boolean containsKey(Object key) {
-	if ( !(key instanceof SSHKey) ) {
+        if ( !(key instanceof SSHKey) ) {
             throw new GeneralException("input key must be a SSHKey");
-	}
-	SSHKey value = (SSHKey) key;
-	    
-	Connection c = getConnection();
-	boolean rc = false;
-	try {
-	    PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createKeySelectStatement() );
-	    stmt.setString(1, value.getPubKey());
-	    stmt.execute();// just execute() since executeQuery(x) would throw an exception regardless of content of x as per JDBC spec.
-	    ResultSet rs = stmt.getResultSet();
-	    rc = rs.next();
-	    rs.close();
-	    stmt.close();
-	} catch (SQLException e) {
-	    destroyConnection(c);
-	    e.printStackTrace();
-	} finally {
-	    releaseConnection(c);
-	}
-	return rc;		
+        }
+        SSHKey value = (SSHKey) key;
+
+        Connection c = getConnection();
+        boolean rc = false;
+        try {
+            PreparedStatement stmt = c.prepareStatement( ((SSHKeyTable)getTable()).createKeySelectStatement() );
+            stmt.setString(1, value.getPubKey());
+            stmt.execute();// just execute() since executeQuery(x) would throw an exception regardless of content of x as per JDBC spec.
+            ResultSet rs = stmt.getResultSet();
+            rc = rs.next();
+            rs.close();
+            stmt.close();
+        } catch (SQLException e) {
+            destroyConnection(c);
+            e.printStackTrace();
+        } finally {
+            releaseConnection(c);
+        }
+        return rc;
     }
 }
