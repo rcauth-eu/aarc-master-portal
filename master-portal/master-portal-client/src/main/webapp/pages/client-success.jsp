@@ -21,14 +21,14 @@ function getCookie(cname) {
 }
 function redirect() {
 
-	var host = getCookie("voportal");
-	host = host.replace(/"+/g,'');
-	
-	var username = "${userSubject}"
-	
-	if (host) {
-		window.location = host + "?username=" + username;
-	}
+    var host = getCookie("voportal");
+    host = host.replace(/"+/g,'');
+
+    var username = "${userSubject}"
+
+    if (host) {
+        window.location = host + "?username=" + username;
+    }
 }
 window.onload=redirect
 </script>
@@ -65,7 +65,7 @@ window.onload=redirect
 <div class="main">
 
     <h1>Success!</h1>
-    
+
     <p>The username retrieved from the userinfo endpoint is : <b>${userSubject}</b></p><br>
 
     <p>The subject of the first cert is<br><br> ${certSubject}
@@ -80,13 +80,13 @@ window.onload=redirect
         </div>
     </ul>
     <form name="input" action="${action}" method="get"/>
-    	<input type="submit" value="Return to client"/>
+        <input type="submit" value="Return to client"/>
     </form>
-    
+
     <br>
-    
+
     <button id="redirect" onclick="redirect()">Return to VO Portal</button>
-    
+
 </div>
 </body>
 </html>

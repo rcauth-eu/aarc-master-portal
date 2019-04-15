@@ -1,5 +1,6 @@
 package eu.rcauth.masterportal.server.servlet;
 
+import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2SE;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.claims.OA2ClaimsUtil;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizationServer;
@@ -18,7 +19,10 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2SE;
+import java.util.Collection;
+import java.util.HashMap;
+import java.util.Map;
+import net.sf.json.JSONObject;
 
 import eu.rcauth.masterportal.MPClientContext;
 import eu.rcauth.masterportal.MPServerContext;
@@ -27,18 +31,13 @@ import eu.rcauth.masterportal.server.MPOA2ServiceTransaction;
 import eu.rcauth.masterportal.servlet.util.CookieAwareHttpServletResponse;
 import eu.rcauth.masterportal.servlet.util.UpdateParameterHttpServletRequest;
 
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
-import net.sf.json.JSONObject;
-
 /*
  * Custom build Authorization Server for Master Portal
- * 
+ *
  * Instead of authenticating the user here, it forwards the AuthN
  * request to the Delegation Server by initiating another OAuth2
  * flow between the Master Portal and Delegation Server
- * 
+ *
  * <p>Created by Tamas Balogh</p>
  */
 public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
@@ -93,15 +92,15 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                 newRequest.setParam(OA2Constants.SCOPE, scopesString);
 
                 info("Forwarding authorization request to MP-Client (/startRequest)");
-                                
+
                 // wrap the response object so that we can look at the cookies going to the browser
                 CookieAwareHttpServletResponse newResponse = new CookieAwareHttpServletResponse(response);
-                
+
                 // forward request
                 ServletContext serverContext = getServletConfig().getServletContext();
                 ServletContext clientContext = serverContext.getContext(MPClientContext.MP_CLIENT_CONTEXT);
-             
-                try { 
+
+                try {
                     RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_START_ENDPOINT);
                     MPOA2RequestForwarder.forwardRequest(newRequest, newResponse, dispatcher, false);
                     //dispatcher.forward(state.getRequest(), response);
@@ -112,10 +111,10 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                         throw new GeneralException("Failed to redirect authentication request to MasterPortal Client!",t);
                     }
                 }
-            
+
                 info("Done with authorization request forwarding");
-                
-                // extract the cookie containing the clientID 
+
+                // extract the cookie containing the clientID
                 // this cookie is then saved into the transaction store so that we can tie the MP-Client session to
                 // the MP-Server session in upcoming requests.
                 String clientID = newResponse.getCookie(MPClientContext.MP_CLIENT_REQUEST_ID);
@@ -125,20 +124,20 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                 @SuppressWarnings("unchecked")
                 TransactionStore<MPOA2ServiceTransaction> store = getTransactionStore();
                 store.save( trans );
-                
+
                 break;
-                
+
             case AUTHORIZATION_ACTION_OK:
                 break;
-                
+
             default:
                 // fall through and do nothing
                 debug("Hit default case in MPOA2AuthorizationServer2 servlet");
         }
     }
-    
+
     /*
-     * This method inserts the authenticated username into the transaction store, once the AuthN returned with 
+     * This method inserts the authenticated username into the transaction store, once the AuthN returned with
      * success.
      */
     @Override
@@ -148,25 +147,24 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         if (state.getState() == AUTHORIZATION_ACTION_OK) {
 
             MPOA2ServiceTransaction trans =  (MPOA2ServiceTransaction) ((AuthorizedState)state).getTransaction();
-            
+
             // get authorized username and save it into the transaction
-            
+
             String username = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME);
-            
-            if (username == null) {
+
+            if (username == null)
                 throw new GeneralException("Username was not found in authentication reply!");
-            }
-            
-            trans.setUsername(username);  
-            
+
+            trans.setUsername(username);
+
             // get claims issued by the delegation server and save it into the transaction
-            
+
             String jsonClaims = (String) state.getRequest().getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS);
-                debug("retrieved claims: "+jsonClaims);
-            
-            if (jsonClaims == null) {
+            debug("retrieved claims: "+jsonClaims);
+
+            if (jsonClaims == null)
                 warn("No claims returned by the Delegation Server! Check if the right SCOPES are sent by the Master Portal!");
-            }
+
             // Now we can set the new claims
             // NOTE: iss and aud are set in createRedirect() via claimsUtil.createBasicClaims()
             trans.setClaims( JSONObject.fromObject(jsonClaims) );
@@ -174,18 +172,17 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     }
 
     /*
-     * Creates a redirect to the VO-Portal's /ready servlet, sending him the code & state 
+     * Creates a redirect to the VO-Portal's /ready servlet, sending him the code & state
      */
     @Override
     protected void createRedirect(HttpServletRequest request, HttpServletResponse response, ServiceTransaction trans) throws Throwable {
         // NOTE: We cannot call super.createRedirect() since the we need to skip
-        // a few parts. Hence we override. 
+        // a few parts. Hence we override.
         String rawrtl = request.getParameter(AUTHORIZATION_REFRESH_TOKEN_LIFETIME_KEY);
         OA2ServiceTransaction st2 = (OA2ServiceTransaction) trans;
         try {
-            if (rawrtl != null && !rawrtl.isEmpty()) {
+            if (rawrtl != null && !rawrtl.isEmpty())
                 st2.setRefreshTokenLifetime(Long.parseLong(rawrtl) * 1000);
-            }
         } catch (Throwable t) {
             st2.setRefreshTokenLifetime(0L);
         }
@@ -198,7 +195,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         MyProxyDelegationServlet.getServiceEnvironment().getTransactionStore().save(trans);
 
         debug("4.a. verifier = " + trans.getVerifier() + ", " + statusString);
-        
+
         OA2ClaimsUtil claimsUtil = new OA2ClaimsUtil((OA2SE) getServiceEnvironment(), st2);
         claimsUtil.createBasicClaims(request, (OA2ServiceTransaction) trans);
 
@@ -206,44 +203,46 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         // redirect back to the client.
         Map<String,String> reqParamMap = new HashMap<>();
         reqParamMap.put(OA2Constants.STATE, (String) request.getAttribute(OA2Constants.STATE));
-        
+
         String cb = createCallback(trans, reqParamMap);
         info("4.a. starting redirect to " + cb + ", " + statusString);
         response.sendRedirect(cb);
-        info("4.b. Redirect to callback " + cb + " ok, " + statusString);        
-        
+        info("4.b. Redirect to callback " + cb + " ok, " + statusString);
+
     }
-    
+
     /*
-     * Exchange the order in which parameters are extracted from the request. This method prefers the 
+     * Exchange the order in which parameters are extracted from the request. This method prefers the
      * ATTRIBUTEs over the PARAMETERs. This is needed for this implementation because the code&state
-     * used to keep the session are sent as ATTRIBUTEs (PARAMETERs are immutable inside a request) 
+     * used to keep the session are sent as ATTRIBUTEs (PARAMETERs are immutable inside a request)
      */
     @Override
     protected String getParam(HttpServletRequest request, String key) {
         Object oo = request.getAttribute(key);
         if (oo != null) {
             String x = oo.toString();
-            if ( ! x.isEmpty() ) {
+            if ( ! x.isEmpty() )
                 return x;
-            }
         }
 
         // Note that this might return null or an empty String
         return request.getParameter(key);
     }
-    
+
     /*
-     * Extract the action parameter using the getParam preferring ATTRIBUTEs over PARAMETERs. 
+     * Extract the action parameter using the getParam preferring ATTRIBUTEs over PARAMETERs.
      */
     @Override
     public int getState(HttpServletRequest request) {
         String action = getParam(request, AUTHORIZATION_ACTION_KEY);
         log("action = " + action);
-        if (action == null || action.length() == 0) return AUTHORIZATION_ACTION_START;
-        if (action.equals(AUTHORIZATION_ACTION_OK_VALUE)) return AUTHORIZATION_ACTION_OK;
+        if (action == null || action.length() == 0)
+            return AUTHORIZATION_ACTION_START;
+        if (action.equals(AUTHORIZATION_ACTION_OK_VALUE))
+            return AUTHORIZATION_ACTION_OK;
+
         throw new GeneralException("Error: unknown authorization request action = \"" + action + "\"");
     }
-    
+
 }
 

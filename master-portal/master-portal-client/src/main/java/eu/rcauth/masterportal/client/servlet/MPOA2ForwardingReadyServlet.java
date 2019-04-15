@@ -49,7 +49,7 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
 
-       if (request.getParameterMap().containsKey(OA2Constants.ERROR)) {
+        if (request.getParameterMap().containsKey(OA2Constants.ERROR)) {
             throw new OA2RedirectableError(request.getParameter(OA2Constants.ERROR),
                     request.getParameter(OA2Constants.ERROR_DESCRIPTION),
                     request.getParameter(OA2Constants.STATE));

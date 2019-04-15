@@ -19,52 +19,52 @@ import edu.uiuc.ncsa.security.core.util.MyLoggingFacade;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 
 /**
- * Validate the requested proxy lifetime against the actual proxy lifetime remaining in the 
- * MyProxy Credential Store. This validator will check against invalid proxy lifetime requests 
- * that exceed server maximum, and against proxy lifetime requests that are larger than the 
+ * Validate the requested proxy lifetime against the actual proxy lifetime remaining in the
+ * MyProxy Credential Store. This validator will check against invalid proxy lifetime requests
+ * that exceed server maximum, and against proxy lifetime requests that are larger than the
  * time left in the stored proxy. The maximum proxy lifetime used by this validator is constructed
  * from the inputs by max_proxy_lifetime - tolerance
  * <p>
- * An empty reqLifetime is considered a valid request lifetime. 
- * 
+ * An empty reqLifetime is considered a valid request lifetime.
+ *
  * <p>
  * The required input configuration parameters are:
  * <ul>
- * <li>max_proxy_lifetime: as set in the myproxy-server.conf (converted into seconds)</li>  
- * <li>tolerance: small timeframe in seconds (usually a day) which prevents 
+ * <li>max_proxy_lifetime: as set in the myproxy-server.conf (converted into seconds)</li>
+ * <li>tolerance: small timeframe in seconds (usually a day) which prevents
  * the Delegation Server from being flooded with requests.</li>
  * </ul>
- * 
+ *
  * @author "Tamás Balogh"
- * 
+ *
  */
 public class LifetimeValidator implements GetProxyRequestValidator {
 
     /* configuration input */
-    
+
     public static final String INPUT_MAX_PROXY_LIFETIME = "max_proxy_lifetime";
     public static final String INPUT_TOLERANCE = "tolerance";
-    
+
     /* actual input */
-    
+
     // both of these are expressed in seconds
     protected long maxProxyLifetime = -1;
     protected long defProxyLifetime = -1;
     protected long tolerance = -1;
-    
+
     /* other */
-    
+
     protected Logable logger;
-    
+
     @Override
     public void init(ConfigurationNode validatorNode, MyLoggingFacade myLoggingFacade) throws NumberFormatException, GeneralException {
-	    
+
         this.logger = myLoggingFacade;
 
         // Get parent node for getting the default proxy lifetime
         ConfigurationNode grandParentNode = validatorNode.getParentNode().getParentNode();
         ConfigurationNode defaultLifetimeNode = Configurations.getFirstNode(grandParentNode, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
-        if (defaultLifetimeNode==null)	{
+        if (defaultLifetimeNode==null) {
             throw new GeneralException("grandParentNode "+grandParentNode.getName()+" has no node "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
         }
         defProxyLifetime = Long.parseLong( defaultLifetimeNode.getValue().toString());
@@ -103,7 +103,7 @@ public class LifetimeValidator implements GetProxyRequestValidator {
         }
 
         // Check we got both
-        if (maxProxyLifetime<0 || tolerance<0)	{
+        if (maxProxyLifetime<0 || tolerance<0) {
             throw new GeneralException("Invalid Validator input Configuration! Missing either "+INPUT_MAX_PROXY_LIFETIME+" or "+INPUT_TOLERANCE);
         }
 
@@ -116,8 +116,8 @@ public class LifetimeValidator implements GetProxyRequestValidator {
 
     @Override
     public void validate(MPOA2ServiceTransaction transaction, HttpServletRequest request, HttpServletResponse response,
-			 MyProxyCredentialInfo info) throws InvalidRequestLifetimeException, ShortProxyLifetimeException {
-	    
+             MyProxyCredentialInfo info) throws InvalidRequestLifetimeException, ShortProxyLifetimeException {
+
         logger.debug("Starting Validator: " + this.getClass().getCanonicalName());
 
         String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
@@ -135,7 +135,7 @@ public class LifetimeValidator implements GetProxyRequestValidator {
             logger.debug("No requested lifetime value found! " +
                  "Server will fall back on configured default (" +
                  requestedLifetime + ")");
-        } else	{
+        } else {
             // requested lifetime is in seconds
             requestedLifetime = Long.parseLong( reqLifetime );
 
@@ -168,7 +168,7 @@ public class LifetimeValidator implements GetProxyRequestValidator {
 
 
         logger.debug("Validation OK");
-	
+
     }
 
 }

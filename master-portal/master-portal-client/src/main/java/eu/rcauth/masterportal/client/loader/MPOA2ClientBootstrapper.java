@@ -10,11 +10,11 @@ import org.apache.commons.configuration.tree.ConfigurationNode;
 
 /**
  *  Bootstraps Master Portal OA4MP Client
- *  
+ *
  *  @author Tamás Balogh
  */
 public class MPOA2ClientBootstrapper extends OA2ClientBootstrapper {
-	
+
     public static final String MP_OA2_CONFIG_FILE_KEY = "oa4mp:mp-oa2.client.config.file";
     public static final String MP_OA2_CONFIG_NAME_KEY = "oa4mp:mp-oa2.client.config.name";
 
@@ -32,9 +32,9 @@ public class MPOA2ClientBootstrapper extends OA2ClientBootstrapper {
     public ConfigurationLoader getConfigurationLoader(ConfigurationNode node) throws MyConfigurationException {
         return new MPOA2ClientLoader(node);
     }
-    
+
     @Override
     public ConfigurationLoader getConfigurationLoader(ServletContext servletContext) throws Exception {
-    	return super.getConfigurationLoader(servletContext);
+        return super.getConfigurationLoader(servletContext);
     }
 }

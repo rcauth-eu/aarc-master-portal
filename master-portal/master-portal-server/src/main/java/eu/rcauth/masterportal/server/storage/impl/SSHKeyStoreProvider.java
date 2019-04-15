@@ -15,7 +15,7 @@ import org.apache.commons.configuration.tree.ConfigurationNode;
 public abstract class SSHKeyStoreProvider<T extends SSHKeyStore> extends MultiTypeProvider<T> {
 
     public SSHKeyStoreProvider(ConfigurationNode config, boolean disableDefaultStore, MyLoggingFacade logger, String type, String target) {
-    	super(config, disableDefaultStore, logger, type, target);
+        super(config, disableDefaultStore, logger, type, target);
     }
-	
+
 }

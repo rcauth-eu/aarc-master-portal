@@ -57,7 +57,7 @@
         <url-pattern>/forwardgetcert</url-pattern>
         <!--what needs to be in the url, so http://foo.org/client/simple-->
     </servlet-mapping>
-    
+
     <welcome-file-list>
         <welcome-file>
             index.html <!--default file to be displayed at http://foo.org/client-->
@@ -84,8 +84,8 @@
             <transport-guarantee>CONFIDENTIAL</transport-guarantee>
         </user-data-constraint>
     </security-constraint>
-	-->
-	
+    -->
+
     <filter>
         <filter-name>filter</filter-name>
         <filter-class>edu.uiuc.ncsa.security.servlet.MyTomcatFilter</filter-class>
@@ -94,7 +94,7 @@
         <filter-name>filter</filter-name>
         <url-pattern>/*</url-pattern>
     </filter-mapping>
-	
+
 
 
     <!--
@@ -112,7 +112,7 @@
         <param-value>cilogon-oa2</param-value>
     </context-param>
     -->
-    
+
     <!-- JGlobus Myproxy configuration file -->
     <!--
     <context-param>

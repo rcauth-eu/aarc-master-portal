@@ -186,9 +186,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // others: if present it should be valid and match the access_token
         Client client = getClient(request);
         if (client!=null) {
-            if (! transaction.getClient().equals(client)) {
+            if (! transaction.getClient().equals(client))
                 throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "client_id does not match access token.", HttpStatus.SC_BAD_REQUEST);
-            }
             checkClientApproval(client);
         }
 
@@ -215,24 +214,22 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
                                       "Missing mandatory " + ACTION_PARAMETER + " parameter",
                                       HttpStatus.SC_BAD_REQUEST);
         }
-        
+
         switch (action) {
             case ACTION_ADD :
                 // For adding client is mandatory
-                if (client==null)   {
+                if (client==null)
                     throw new OA2GeneralError(OA2Errors.INVALID_REQUEST,
                                               "Missing client for action "+action,
                                               HttpStatus.SC_BAD_REQUEST);
-                }
                 addKey(userName, label, pubKey, description);
                 break;
             case ACTION_UPDATE :
                 // For adding client is mandatory
-                if (client==null)   {
+                if (client==null)
                     throw new OA2GeneralError(OA2Errors.INVALID_REQUEST,
                                               "Missing client for action "+action,
                                               HttpStatus.SC_BAD_REQUEST);
-                }
                 updateKey(userName, label, pubKey, description);
                 break;
             case ACTION_REMOVE :
@@ -262,18 +259,17 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     private void addKey(String userName, String label, String pubKey, String description) throws GeneralException {
         // userName and pubKey may not be empty, userName is indirect, via the
         // access_token
-        if (userName==null || userName.isEmpty())   {
+        if (userName==null || userName.isEmpty()) {
             logger.error("Username is null or empty");
             throw new GeneralException("Cannot get username");
         }
-        if (pubKey==null || pubKey.isEmpty()) {
+
+        if (pubKey==null || pubKey.isEmpty())
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Missing mandatory parameter " + PUBKEY_PARAMETER, HttpStatus.SC_BAD_REQUEST);
-        }
 
         // do (basic) sanity check on pubKey
-        if (!isSSHPubKey(pubKey)) {
+        if (!isSSHPubKey(pubKey))
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, PUBKEY_PARAMETER + " value does not look like a SSH public key", HttpStatus.SC_BAD_REQUEST);
-        }
 
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
@@ -287,9 +283,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         // Check whether the ssh pubKey already occurs: must be globally unique
         // Note: SQLSSHKeyStore.containsKey() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
-        if ( store.containsKey(key) )  {
+        if ( store.containsKey(key) )
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "SSH public key is already registered", HttpStatus.SC_BAD_REQUEST);
-        }
 
         // Get existing keys: we need them either for counting or for creating
         // the next label
@@ -303,9 +298,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         }
 
         // when label isn't set, create one
-        if (label==null || label.isEmpty()) {
+        if (label==null || label.isEmpty())
             key.setLabel(createLabel(userName, currKeys));
-        }
 
         // Now save the new key
         try {
@@ -335,12 +329,11 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         // if we specified a public key, it must be non-empty and valid
         if (pubKey!=null)   {
-            if (pubKey.isEmpty())   {
+            if (pubKey.isEmpty())
                 throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "SSH public key may not be empty", HttpStatus.SC_BAD_REQUEST);
-            }
-            if (!isSSHPubKey(pubKey)) {
+
+            if (!isSSHPubKey(pubKey))
                 throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "key does not look like a SSH public key", HttpStatus.SC_BAD_REQUEST);
-            }
         }
 
         // try to get store
@@ -353,9 +346,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // Get existing public key
         // Note: SQLSSHKeyStore.get() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
         SSHKey value = store.get(new SSHKey(userName, label));
-        if (value==null) {
+        if (value==null)
             throw new OA2GeneralError("not_found", "No key to update found", HttpStatus.SC_NOT_FOUND);
-        }
 
         // Update values
         if (pubKey != null)    {
@@ -390,9 +382,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             logger.error("Username is null or empty");
             throw new GeneralException("Cannot get username");
         }
-        if (label==null || label.isEmpty()) {
+        if (label==null || label.isEmpty())
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Missing mandatory label", HttpStatus.SC_BAD_REQUEST);
-        }
 
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
@@ -413,9 +404,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
                 logger.error("Cannot remove key: "+e.getMessage() + " (" + cause.getMessage() + ")");
             throw new OA2GeneralError(OA2Errors.SERVER_ERROR, "Cannot remove key", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-        if (key==null) {
+        if (key==null)
             throw new OA2GeneralError("not_found", "No key found", HttpStatus.SC_NOT_FOUND);
-        }
     }
 
     /**
@@ -427,15 +417,13 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             logger.error("Username is null or empty");
             throw new GeneralException("Cannot get username");
         }
-        if (label==null || label.isEmpty()) {
+        if (label==null || label.isEmpty())
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "Missing mandatory label", HttpStatus.SC_BAD_REQUEST);
-        }
 
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
-        if ( store == null) {
+        if ( store == null)
             throw new GeneralException("Could not get SSH KeyStore");
-        }
 
         SSHKey key = null;
         try {
@@ -449,9 +437,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
                 logger.error("Cannot get key: "+e.getMessage() + " (" + cause.getMessage() + ")");
             throw new OA2GeneralError(OA2Errors.SERVER_ERROR, "Cannot get key", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-        if (key==null) {
+        if (key==null)
             throw new OA2GeneralError("not_found", "No key found", HttpStatus.SC_NOT_FOUND);
-        }
 
         return key;
     }
@@ -468,9 +455,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
-        if ( store == null) {
+        if ( store == null)
             throw new GeneralException("Could not get SSH KeyStore");
-        }
 
         return store.getAll(userName);
     }
@@ -488,13 +474,14 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         AccessToken at = null;
         List<String> authHeaders = HeaderUtils.getAuthHeader(request, "Bearer");
 
-        if(authHeaders.isEmpty()){
+        if (authHeaders.isEmpty()) {
             // it's not in a header, but was sent as a standard parameter.
             at = se.getTokenForge().getAccessToken(request);
-        }else {
+        } else {
             // only the very first one is taken. Don't try to snoop for them.
             at = se.getTokenForge().getAccessToken(authHeaders.get(0));
         }
+
         if (at == null) {
             // the bearer token should be sent in the authorization header.
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "no access token was sent.", HttpStatus.SC_BAD_REQUEST);
@@ -503,9 +490,9 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // Is it still valid
         try {
             checkTimestamp(at.getToken());
-        }catch(InvalidTimestampException itx){
+        } catch(InvalidTimestampException itx){
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "token expired.", HttpStatus.SC_BAD_REQUEST);
-        }catch(NumberFormatException nfx)   {
+        } catch(NumberFormatException nfx)   {
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "invalid access token.", HttpStatus.SC_BAD_REQUEST);
         }
 
@@ -517,12 +504,11 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             logger.error("Error: Cannot get transaction for access_token: "+e.getMessage());
             throw new GeneralException("Cannot get transaction for access_token");
         }
-        if (transaction == null) {
+        if (transaction == null)
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "no transaction for the access token was found.", HttpStatus.SC_BAD_REQUEST);
-        }
-        if (!transaction.isAccessTokenValid()) {
+
+        if (!transaction.isAccessTokenValid())
             throw new OA2GeneralError(OA2Errors.INVALID_REQUEST, "invalid access token.", HttpStatus.SC_BAD_REQUEST);
-        }
 
         return transaction;
     }
@@ -605,11 +591,11 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // Get encoded part
         int secondSpace=key.indexOf(' ', firstSpace+1);
         String encoded;
-        if (secondSpace<0)  {
+        if (secondSpace<0)
             encoded=key.substring(firstSpace+1);
-        } else  {
+        else
             encoded=key.substring(firstSpace+1,secondSpace);
-        }
+
         try {
             byte[] decoded=Base64.getDecoder().decode(encoded);
         } catch(IllegalArgumentException e) {

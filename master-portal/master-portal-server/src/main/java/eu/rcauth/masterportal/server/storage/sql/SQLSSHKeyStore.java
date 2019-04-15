@@ -98,9 +98,8 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
         try {
             String tableName = getTable().getTablename();
             ResultSet res = c.getMetaData().getTables(null, null, tableName, new String[] {"TABLE"});
-            if ( !res.next() )    {
+            if ( !res.next() )
                 throw new GeneralException("Cannot find table "+tableName);
-            }
 
             SSHKeyTable table = (SSHKeyTable)getTable();
             PreparedStatement stmt = c.prepareStatement( table.createInsertStatement() );
@@ -154,11 +153,11 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
                     if (obj instanceof Date) {
                         obj = new Timestamp(((Date) obj).getTime());
                     }
-                    if (obj instanceof BasicIdentifier) {
+
+                    if (obj instanceof BasicIdentifier)
                         stmt.setString(i++, obj.toString());
-                    } else {
+                    else
                         stmt.setObject(i++, obj);
-                    }
                 }
             }
 
@@ -185,9 +184,9 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public SSHKey get(Object key) {
-        if ( !(key instanceof SSHKey) ) {
+        if ( !(key instanceof SSHKey) )
             throw new GeneralException("input key must be a SSHKey");
-        }
+
         SSHKey value = (SSHKey) key;
         SSHKey out = null;
 
@@ -223,9 +222,9 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public SSHKey remove(Object key) {
-        if ( !(key instanceof SSHKey) ) {
+        if ( !(key instanceof SSHKey) )
             throw new GeneralException("input key must be a SSHKey");
-        }
+
         SSHKey value = (SSHKey)key;
         SSHKey oldObject = null;
         try {
@@ -256,9 +255,9 @@ public class SQLSSHKeyStore extends SQLStore<SSHKey> implements SSHKeyStore<SSHK
      */
     @Override
     public boolean containsKey(Object key) {
-        if ( !(key instanceof SSHKey) ) {
+        if ( !(key instanceof SSHKey) )
             throw new GeneralException("input key must be a SSHKey");
-        }
+
         SSHKey value = (SSHKey) key;
 
         Connection c = getConnection();

@@ -52,12 +52,12 @@ public class SQLSSHKeyStoreProvider<V extends SQLSSHKeyStore> extends SQLStorePr
     @Override
     @SuppressWarnings("unchecked")
     public V newInstance(Table table) {
-    	return (V) new SQLSSHKeyStore(getConnectionPool(), table, sshKeyProvider, converter);
+        return (V) new SQLSSHKeyStore(getConnectionPool(), table, sshKeyProvider, converter);
     }
-    
+
     @Override
     public V get() {
-    	return newInstance( new SSHKeyTable( (SSHKeyKeys) converter.keys, getSchema(), getPrefix(), getTablename()));
+        return newInstance( new SSHKeyTable( (SSHKeyKeys) converter.keys, getSchema(), getPrefix(), getTablename()));
     }
-    
+
 }

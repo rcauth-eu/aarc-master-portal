@@ -44,12 +44,12 @@ public class ContentAwareHttpServletResponse extends HttpServletResponseWrapper 
     public int getStatus() {
         return httpStatus;
     }
-    
+
     @Override
     public PrintWriter getWriter() {
         return new PrintWriter(sw);
     }
-   
+
     public String getRawResponse() {
         return sw.toString();
     }

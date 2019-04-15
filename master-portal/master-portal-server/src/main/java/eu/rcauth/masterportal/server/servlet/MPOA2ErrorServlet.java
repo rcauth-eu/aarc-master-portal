@@ -35,17 +35,17 @@ public class MPOA2ErrorServlet extends MyProxyDelegationServlet {
         String cause = request.getParameter(CAUSE);
         String identifier = request.getParameter(IDENTIFIER);
         String stackTrace = request.getParameter(STACK_TRACE);
-        
+
         request.setAttribute(CAUSE, cause);
         request.setAttribute(IDENTIFIER, identifier);
         request.setAttribute(MESSAGE, URLDecoder.decode(request.getParameter(MESSAGE), "UTF-8"));
         request.setAttribute(STACK_TRACE, stackTrace);
 
         if (identifier != null && ! identifier.isEmpty()) {
-        	Client client = getClient(BasicIdentifier.newID(identifier));
-        	request.setAttribute("client", client);
+            Client client = getClient(BasicIdentifier.newID(identifier));
+            request.setAttribute("client", client);
         }
-        
+
         JSPUtil.fwd(request, response, "/errorPage2.jsp");
 
     }

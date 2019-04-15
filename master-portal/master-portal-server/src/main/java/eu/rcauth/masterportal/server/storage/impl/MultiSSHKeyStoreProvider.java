@@ -15,11 +15,11 @@ import org.apache.commons.configuration.tree.ConfigurationNode;
 public class MultiSSHKeyStoreProvider<T extends SSHKey> extends SSHKeyStoreProvider<SSHKeyStore<T>> {
 
     public MultiSSHKeyStoreProvider(ConfigurationNode config, boolean disableDefaultStore, MyLoggingFacade logger, String type, String target) {
-    	super(config, disableDefaultStore, logger, type, target);
+        super(config, disableDefaultStore, logger, type, target);
     }
 
     @Override
     public SSHKeyStore<T> getDefaultStore() {
-	throw new NotImplementedException("SSHKeyStoreProvider does not have a default store. Yet.");
+        throw new NotImplementedException("SSHKeyStoreProvider does not have a default store. Yet.");
     }
 }

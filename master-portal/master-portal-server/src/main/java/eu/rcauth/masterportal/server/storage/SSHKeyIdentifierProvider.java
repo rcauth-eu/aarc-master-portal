@@ -14,7 +14,7 @@ public class SSHKeyIdentifierProvider<V extends Identifier> extends IdentifierPr
     public SSHKeyIdentifierProvider() {
         super("");
     }
-	
+
     @Override
     public SSHKeyIdentifier get() {
         return new SSHKeyIdentifier(null, null);

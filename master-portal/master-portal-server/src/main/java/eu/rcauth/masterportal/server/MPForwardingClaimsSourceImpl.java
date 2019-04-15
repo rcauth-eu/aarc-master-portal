@@ -48,7 +48,7 @@ import eu.rcauth.masterportal.server.servlet.MPOA2AuthorizationServer;
  * ({@link BasicClaimsSourceImpl#isEnabled()} returns true if it has a valid
  * {@link ClaimSourceConfiguration}, which additionally is set to enabled, see
  * also the constructor).
- * 
+ *
  * @author "Tamás Balogh"
  * @author "Mischa Sall&eacute;"
  */
@@ -71,8 +71,7 @@ public class MPForwardingClaimsSourceImpl extends BasicClaimsSourceImpl {
     // endpoint but that's only known to the client. Note that it's also not
     // strictly necessary, see claims_supported on
     // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
-    //  "Note that for privacy or other reasons, this might not be an
-    //	 exhaustive list." 
+    //  "Note that for privacy or other reasons, this might not be an exhaustive list."
 //  /**
 //   * getClaims produces the set of supported claims returned in the .well-known discovery
 //   * @see BasicClaimsSourceImpl#getClaims()

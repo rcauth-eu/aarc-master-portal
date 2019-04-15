@@ -21,6 +21,7 @@ import eu.rcauth.masterportal.server.storage.impl.MultiSSHKeyStoreProvider;
 import eu.rcauth.masterportal.server.storage.sql.SQLSSHKeyStoreProvider;
 
 import eu.rcauth.masterportal.server.validators.GetProxyRequestValidator;
+
 import eu.rcauth.masterportal.servlet.MPOA4MPConfigTags;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
@@ -58,7 +59,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     public String getVersionString() {
         return "Master Portal OAuth2/OIDC server configuration loader version " + VERSION_NUMBER;
     }
-    
+
     @Override
     @SuppressWarnings("unchecked")
     public T createInstance() {
@@ -111,10 +112,10 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     public Provider<SSHKeyStore<SSHKey>> getSSHKeyStoreProvider() {
         if ( sshKeySP == null ) {
             sshKeySP = new MultiSSHKeyStoreProvider<>(cn,
-                                                    isDefaultStoreDisabled(),
-                                                    loggerProvider.get(),
-                                                    null,
-                                                    null);
+                                                      isDefaultStoreDisabled(),
+                                                      loggerProvider.get(),
+                                                      null,
+                                                      null);
 
             Provider<Identifier> idProv = new SSHKeyIdentifierProvider<>();
 
@@ -123,101 +124,100 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
             SSHKeyConverter converter = new SSHKeyConverter<>( keys, provider);
 
             sshKeySP.addListener( new SQLSSHKeyStoreProvider<>(cn,
-                                                             getMySQLConnectionPoolProvider(),
-                                                             OA4MPConfigTags.MYSQL_STORE,
-                                                             converter,
-                                                             provider) );
+                                                               getMySQLConnectionPoolProvider(),
+                                                               OA4MPConfigTags.MYSQL_STORE,
+                                                               converter,
+                                                               provider) );
 
             sshKeySP.addListener( new SQLSSHKeyStoreProvider<>(cn,
-                                                             getMariaDBConnectionPoolProvider(),
-                                                             OA4MPConfigTags.MARIADB_STORE,
-                                                             converter,
-                                                             provider) );
+                                                               getMariaDBConnectionPoolProvider(),
+                                                               OA4MPConfigTags.MARIADB_STORE,
+                                                               converter,
+                                                               provider) );
 
             // TODO: The backend for this is not written. yet. But it might just work out of the box
             /*
-            sshKeySP.addListener( new SQLSSHKeyStoreProvider(cn,
-                                                             getPgConnectionPoolProvider(),
-                                                             OA4MPConfigTags.POSTGRESQL_STORE,
-                                                             converter,
-                                                             provider) );
+            sshKeySP.addListener( new SQLSSHKeyStoreProvider<>(cn,
+                                                               getPgConnectionPoolProvider(),
+                                                               OA4MPConfigTags.POSTGRESQL_STORE,
+                                                               converter,
+                                                               provider) );
             */
 
         }
+
         return sshKeySP;
     }
 
     /* ADDITIONAL MYPROXY SERVER CONFIGURATIONS */
-    
+
     protected String getMyProxyPassword() {
         ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+
         return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
     }
 
     protected long getMyProxyDefaultLifetime() {
         ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
         ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
-        if (lifetimeNode==null) {
+        if (lifetimeNode==null)
             throw new GeneralException("Missing "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME+" in node "+node.getName());
-        }
+
         return Long.parseLong( lifetimeNode.getValue().toString() );
     }
 
     /* GETCERT REQUEST VALIDATORS */
 
     protected GetProxyRequestValidator[] getValidators() {
-        
+
         // get the list of all validators
         ConfigurationNode mpNode =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
         ConfigurationNode validatorsNode =  Configurations.getFirstNode(mpNode, MPOA4MPConfigTags.MYPROXY_REQ_VALIDATORS);
-        
+
         if ( validatorsNode != null ) {
-            
+
             // count validators
             int validatorCnt = validatorsNode.getChildrenCount( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR );
             GetProxyRequestValidator[] validators = new GetProxyRequestValidator[ validatorCnt ];
             int i = 0;
 
             for ( Object node : validatorsNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR ) ) {
-                
+
                 // get the validator handler class name
                 ConfigurationNode validatorNode = (ConfigurationNode) node;
-                String validatorClass = Configurations.getFirstAttribute(validatorNode, 
+                String validatorClass = Configurations.getFirstAttribute(validatorNode,
                                                                          MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_HANDLER);
 
                 if ( validatorClass == null || validatorClass.isEmpty() ) {
                     throw new GeneralException("Invalid validator configuration! Missing validator handler!");
                 } else {
-                    
                     try {
-                            
+
                         // create new class instance of validator
                         Class<?> k = Class.forName(validatorClass);
                         Object x = k.getDeclaredConstructor().newInstance();
-                        
-                        if ( ! (x instanceof GetProxyRequestValidator) ) {
+
+                        if ( ! (x instanceof GetProxyRequestValidator) )
                             throw new Exception("Invalid validator handler " + validatorClass + " ! Every validator class should "
                                                 + "implement the " + GetProxyRequestValidator.class.getCanonicalName() + " interface");
-                        }
 
                         // cast and init class with required input
                         GetProxyRequestValidator v = (GetProxyRequestValidator) x;
                         v.init(validatorNode, loggerProvider.get());
-                        
+
                         // save validator
                         validators[i] = v;
                         i++;
-                        
                     } catch (Exception e)  {
                         throw new GeneralException("Invalid validator configuration! Cannot create instance of handler " + validatorClass,e);
                     }
-                    
+
                 }
             }
             // return validators, empty or not
             return validators;
         }
-        // return empty validators 
+        // return empty validators
         return new GetProxyRequestValidator[0];
     }
 
@@ -233,10 +233,10 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         public OA2ServiceTransaction get(boolean createNewIdentifier) {
             return new MPOA2ServiceTransaction(createNewId(createNewIdentifier));
         }
-        
+
     }
 
-    
+
     @Override
     protected Provider<TransactionStore> getTSP() {
         IdentifierProvider idp = new OA4MPIdentifierProvider(SCHEME, SCHEME_SPECIFIC_PART, TRANSACTION_ID, false);
@@ -303,5 +303,5 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         }
         return autoRegisterEndpoint;
     }
-    
+
 }

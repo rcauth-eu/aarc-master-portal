@@ -15,17 +15,18 @@ import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
 import org.apache.http.HttpStatus;
+
 import eu.rcauth.masterportal.MPClientContext;
 import eu.rcauth.masterportal.MPServerContext;
 import eu.rcauth.masterportal.client.MPOA2Asset;
 
 /**
- * Simple /startRequest implementation that supports session keeping between the 
+ * Simple /startRequest implementation that supports session keeping between the
  * MP Server and MP Client. It strips the 'code' and 'server' received as request
  * attributes and saves them for the purpose of session keeping on the MP Server.
  * In case any of the above mentioned attributes are missing the request will fail
- * since the originating MP Server session can no longer be identified by the 
- * MP Client.  
+ * since the originating MP Server session can no longer be identified by the
+ * MP Client.
  * <p>
  * Afterwards, it continues to redirect to the service url of the configured
  * Delegation Server, just like a normal /startRequest would.
@@ -48,9 +49,8 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
 
         for ( Object key : request.getParameterMap().keySet() ) {
             String paramKey = (String) key;
-            if ( ! isOA2Parameter(paramKey) ) {
+            if ( ! isOA2Parameter(paramKey) )
                 requestParameterMap.put( paramKey , request.getParameter(paramKey) );
-            }
         }
 
         // extract scope
@@ -81,16 +81,13 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
         String code = (String) request.getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE);
         String state = (String) request.getAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE);
 
-        if (code != null && !code.isEmpty() &&
-                state != null && !state.isEmpty()) {
-
+        if (code != null && !code.isEmpty() && state != null && !state.isEmpty()) {
             info("1.a. Saving code&state into asset store for later forwarding !");
             MPOA2Asset asset = (MPOA2Asset) getCE().getAssetStore().get(id);
             asset.setMPServerRequestCode(code);
             asset.setMPServerRequestState(state);
 
             getCE().getAssetStore().save(asset);
-
         } else {
             error("No code&state pair received! MP-Server will be unable to continue its pending auth request!");
 
@@ -115,11 +112,11 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     }
 
     /**
-     * Check if a parameter is an OpenID Connect specific Authorization Request 
-     * parameter or not.  
+     * Check if a parameter is an OpenID Connect specific Authorization Request
+     * parameter or not.
      * @see <a href="https://docs.google.com/document/d/1cs3peO9FxA81KN-1RC6Z-auEFIwRbJpZ-SFuKbQzS50/pub#h.cfm05rlw4qy3">MyProxy OpenID Connect</a>
      *
-     * @param key The parameter name to test 
+     * @param key The parameter name to test
      * @return true if parameter is a standard OIDC Authorization parameter, false otherwise.
      */
     protected boolean isOA2Parameter(String key) {
@@ -148,9 +145,8 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
 
         String reqUrl = request.getRequestURL().toString();
         String queryString = request.getQueryString();   // d=789
-        if (queryString != null && !queryString.isEmpty()) {
+        if (queryString != null && !queryString.isEmpty())
             reqUrl += "?" + queryString;
-        }
 
         System.out.println("Request parameters for '" + reqUrl + "'");
 

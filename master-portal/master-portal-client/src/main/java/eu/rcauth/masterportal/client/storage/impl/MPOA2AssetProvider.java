@@ -8,9 +8,9 @@ import edu.uiuc.ncsa.security.core.Identifier;
 
 public class MPOA2AssetProvider<V extends MPOA2Asset> extends OA2AssetProvider<V> {
 
-	@Override
-	public Asset get(Identifier identifier) {
-		return new MPOA2Asset(identifier);
-	}
-	
+    @Override
+    public Asset get(Identifier identifier) {
+        return new MPOA2Asset(identifier);
+    }
+
 }

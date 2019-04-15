@@ -6,27 +6,26 @@ import javax.servlet.http.HttpServletResponse;
 
 public class CookieUtils {
 
-	/**
-	 * Extract cookie from the request by its name
-	 * 
-	 * @param request The request object
-	 * @param name The name of the cookie
-	 * @return The cookie value under the provided name
-	 */
-    public static String getCookie(HttpServletRequest request, String name) {
-    	
-    	for (Cookie c : request.getCookies()) {
-    		if (c.getName().equals(name)) {
-    			return c.getValue();
-    		}
-    	}
-    	return null;
-    }
-	
-	
     /**
-     * Extract cookie from the request by its name, and delete it afterwards. Deletion is done by writing 
-     * the cookie back with 0 age to the response. Useful for not leaving junk behind. 
+     * Extract cookie from the request by its name
+     *
+     * @param request The request object
+     * @param name The name of the cookie
+     * @return The cookie value under the provided name
+     */
+    public static String getCookie(HttpServletRequest request, String name) {
+        for (Cookie c : request.getCookies()) {
+            if (c.getName().equals(name)) {
+                return c.getValue();
+            }
+        }
+        return null;
+    }
+
+
+    /**
+     * Extract cookie from the request by its name, and delete it afterwards. Deletion is done by writing
+     * the cookie back with 0 age to the response. Useful for not leaving junk behind.
      *
      * @param request The request object
      * @param response The response object (need for deletion)
@@ -52,6 +51,6 @@ public class CookieUtils {
         }
 
         return identifier;
-    }	
-    
+    }
+
 }

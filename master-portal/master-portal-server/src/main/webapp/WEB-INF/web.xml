@@ -59,7 +59,7 @@
         <servlet-name>getCert</servlet-name>
         <url-pattern>/getcert</url-pattern>
     </servlet-mapping>
-    
+
     <servlet>
         <servlet-name>getProxy</servlet-name>
         <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2ProxyServlet</servlet-class>
@@ -67,7 +67,7 @@
     <servlet-mapping>
         <servlet-name>getProxy</servlet-name>
         <url-pattern>/getproxy</url-pattern>
-    </servlet-mapping>    
+    </servlet-mapping>
 
     <servlet>
         <servlet-name>error</servlet-name>
@@ -188,7 +188,7 @@
 
     <listener>
         <!-- <listener-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2Bootstrapper</listener-class> -->
-		<listener-class>eu.rcauth.masterportal.server.loader.MPOA2ServerBootstrapper</listener-class>
+        <listener-class>eu.rcauth.masterportal.server.loader.MPOA2ServerBootstrapper</listener-class>
     </listener>
 
 <!--

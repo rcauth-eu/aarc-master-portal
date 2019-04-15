@@ -15,31 +15,31 @@ import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
 public class MPOA2RequestForwarder {
 
     /**
-     *  Forward requests to another endpoint. This method is used by the OA4MP-Server to forward 
+     *  Forward requests to another endpoint. This method is used by the OA4MP-Server to forward
      *  calls to the OA4MP-Client. This method abstract error handling based on returned status
      *  codes.
-     *  
+     *
      *  @param request The original request object being forwarded
      *  @param response The original response object
      *  @param dispatcher The request dispatcher taking care of switching contexts
-     *  @param aggregateResponse Decides whether to aggregate the response coming from the forwarding 
-     *  with the original response object or not. 
-     *  
+     *  @param aggregateResponse Decides whether to aggregate the response coming from the forwarding
+     *  with the original response object or not.
+     *
      *  @throws Throwable for general errors
      */
     public static void forwardRequest(HttpServletRequest request,
-				                      HttpServletResponse response,
+                                      HttpServletResponse response,
                                       RequestDispatcher dispatcher,
-				                      boolean aggregateResponse)  throws Throwable {
-        
+                                      boolean aggregateResponse)  throws Throwable {
+
         ContentAwareHttpServletResponse responseWrapper = new ContentAwareHttpServletResponse(response);
-        
+
         if (aggregateResponse) {
-            dispatcher.include(request , responseWrapper ); 
+            dispatcher.include(request , responseWrapper );
         } else {
             dispatcher.forward(request, responseWrapper );
         }
-        
+
         // everything other than OK will trigger an exception in the OA4MP Server.
         // Note: for newer versions of Tomcat, we can call getStatus() on a HttpServletResponseWrapper.
         // We need to make sure it's called getStatus() in order to always call the correct one.
@@ -72,7 +72,7 @@ public class MPOA2RequestForwarder {
             else
                 throw new OA2GeneralError(logerr, OA2Errors.SERVER_ERROR, mesg, HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
-        
+
     }
-    
+
 }

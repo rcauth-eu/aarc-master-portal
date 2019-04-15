@@ -28,29 +28,29 @@ public class SSHKeyTable extends Table {
      */
     @Override
     public void createColumnDescriptors() {
-//    	super.createColumnDescriptors();
-    	SSHKeyKeys x =  (SSHKeyKeys) keys;
+//      super.createColumnDescriptors();
+        SSHKeyKeys x =  (SSHKeyKeys) keys;
 
-	// We will be using the pair userName,label as a composite primary key
+        // We will be using the pair userName,label as a composite primary key
 
-	// label must be only unique per user, so not primary, must be present
-    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.label(), VARCHAR, false, false));
+        // label must be only unique per user, so not primary, must be present
+        getColumnDescriptor().add(new ColumnDescriptorEntry(x.label(), VARCHAR, false, false));
 
-	// userName can have multiple keys, so do not declare primary, must be present
-    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.userName(), VARCHAR, false, false));
+        // userName can have multiple keys, so do not declare primary, must be present
+        getColumnDescriptor().add(new ColumnDescriptorEntry(x.userName(), VARCHAR, false, false));
 
-	// public key must be unique for ssh, also must be present, but don't make
-	// it present as we want to be able to change it
-    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.pubKey(), VARCHAR, false, false));
-	
-	// description is optional
-    	getColumnDescriptor().add(new ColumnDescriptorEntry(x.description(), VARCHAR));
+        // public key must be unique for ssh, also must be present, but don't make
+        // it present as we want to be able to change it
+        getColumnDescriptor().add(new ColumnDescriptorEntry(x.pubKey(), VARCHAR, false, false));
 
-	// Don't create TIMESTAMP row, since it will fail with the
-	// getColumnDescriptor() used in e.g. creation e.g. in
-	// createRegisterStatement() in createInsertStatement() below and also
-	// in createUpdateStatement(). Unfortunately, table creation does not
-	// order the rows...
+        // description is optional
+        getColumnDescriptor().add(new ColumnDescriptorEntry(x.description(), VARCHAR));
+
+        // Don't create TIMESTAMP row, since it will fail with the
+        // getColumnDescriptor() used in e.g. creation e.g. in
+        // createRegisterStatement() in createInsertStatement() below and also
+        // in createUpdateStatement(). Unfortunately, table creation does not
+        // order the rows...
     }
 
     /**
@@ -58,20 +58,20 @@ public class SSHKeyTable extends Table {
      */
     public String createUserSelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
-    	return "SELECT * FROM " + getFQTablename() + " WHERE " +
+        return "SELECT * FROM " + getFQTablename() + " WHERE " +
                 x.userName() + " =?" +
                 " ORDER BY " + x.importTime() + " DESC";
     }
-    
+
     /**
      * Creates SQL select statement for a specific pubKey.
      */
     public String createKeySelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
-    	return "SELECT * FROM " + getFQTablename() + " WHERE " +
+        return "SELECT * FROM " + getFQTablename() + " WHERE " +
                 x.pubKey() + " =?";
     }
-    
+
     /**
      * Creates SQL select statement for (userName/label) pair, which should be
      * the composite primary key.
@@ -79,7 +79,7 @@ public class SSHKeyTable extends Table {
     @Override
     public String createSelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
-    	return "SELECT * FROM " + getFQTablename() + " WHERE " +
+        return "SELECT * FROM " + getFQTablename() + " WHERE " +
                 x.userName() + " =? AND " + x.label() + " =? ";
     }
 
@@ -98,14 +98,13 @@ public class SSHKeyTable extends Table {
             String name = cde.getName();
             if (!name.equals(x.userName()) && !name.equals(x.label())) {
                 update.append(isFirst ? "" : ", ").append(name).append("=?");
-                if (isFirst) {
+                if (isFirst)
                     isFirst = false;
-                }
             }
         }
 
         update.append(", ").append(TIME_LABEL).append("=CURRENT_TIMESTAMP").append(" WHERE ").append(x.userName()).append(" =? ").append(" AND ").append(x.label()).append(" =? ");
-        
+
         return update.toString();
     }
 
@@ -117,8 +116,8 @@ public class SSHKeyTable extends Table {
         SSHKeyKeys x =  (SSHKeyKeys) keys;
 
         return "DELETE FROM " + getFQTablename() +
-                " WHERE " + x.userName() + " =? " +
-                " AND " + x.label() + " =? ";
+               " WHERE " + x.userName() + " =? " +
+               " AND " + x.label() + " =? ";
     }
 
     /**
@@ -132,8 +131,8 @@ public class SSHKeyTable extends Table {
             out.append("?").append(i + 1 == getColumnDescriptor().size() ? "" : ", ");
         }
         out.append(",CURRENT_TIMESTAMP)");
-        
+
         return out.toString();
     }
-    
+
 }

@@ -7,9 +7,8 @@ public class MPOA2AuthorizedServlet extends OA2AuthorizedServlet {
 
     @Override
     public MPOA2AuthorizedServletUtil getInitUtil() {
-        if(initUtil == null){
+        if (initUtil == null)
             initUtil = new MPOA2AuthorizedServletUtil(this);
-        }
         return (MPOA2AuthorizedServletUtil)initUtil;
     }
 }

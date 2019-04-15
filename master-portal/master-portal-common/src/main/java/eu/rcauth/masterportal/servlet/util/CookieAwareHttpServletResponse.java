@@ -10,11 +10,11 @@ import javax.servlet.http.HttpServletResponseWrapper;
 
 public class CookieAwareHttpServletResponse extends HttpServletResponseWrapper {
 
-	private final List<Cookie> cookies = new ArrayList<>();
-	
-	public CookieAwareHttpServletResponse(HttpServletResponse response) {
-		super(response);
-	}
+    private final List<Cookie> cookies = new ArrayList<>();
+
+    public CookieAwareHttpServletResponse(HttpServletResponse response) {
+        super(response);
+    }
 
     @Override
     public void addCookie (Cookie aCookie) {
@@ -24,16 +24,15 @@ public class CookieAwareHttpServletResponse extends HttpServletResponseWrapper {
 
     public List<Cookie> getCookies () {
         return Collections.unmodifiableList(cookies);
-    }	
-	
+    }
+
     public String getCookie(String name) {
-    	
-    	for (Cookie c : cookies) {
-    		if (c.getName().equals(name)) {
-    			return c.getValue();
-    		}
-    	}
-    	
-    	return null;
+        for (Cookie c : cookies) {
+            if (c.getName().equals(name)) {
+                return c.getValue();
+            }
+        }
+
+        return null;
     }
 }

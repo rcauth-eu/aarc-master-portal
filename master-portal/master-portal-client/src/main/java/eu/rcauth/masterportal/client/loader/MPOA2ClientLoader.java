@@ -40,7 +40,7 @@ import javax.inject.Provider;
  *  <p>
  *  - support for creating extended asset store ( {@link MPOA2Asset} );
  *  <p>
- *  - support the loading of myproxy connection configuration from the config file;   
+ *  - support the loading of myproxy connection configuration from the config file;
  *  @author Tamás Balogh
  */
 public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoader<T> {
@@ -48,7 +48,7 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
     public MPOA2ClientLoader(ConfigurationNode node) {
         super(node);
     }
-  
+
     @Override
     public OA4MPServiceProvider getServiceProvider() {
         return new MPOA2MPService.MPOA2MPProvider(load());
@@ -99,17 +99,17 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
         } catch (Throwable e) {
             throw new GeneralException("Unable to create client environment", e);
         }
-    }    
-    
+    }
+
+
     /* ASSET EXTENSION */
 
     private AssetProvider assetProvider = null;
-    
+
     @Override
     public AssetProvider getAssetProvider() {
-        if(assetProvider == null){
+        if(assetProvider == null)
             assetProvider = new MPOA2AssetProvider();
-        }
         return assetProvider;
     }
 
@@ -126,27 +126,26 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
             @SuppressWarnings("unchecked")
             MPOA2AssetConverter assetConverter = new MPOA2AssetConverter(keys, getAssetProvider());
             assetStoreProvider = masp;
-            
-            // File storage 
+
+            // File storage
             masp.addListener(new FSAssetStoreProvider(cn, getAssetProvider(), assetConverter));
 
             // Database storage
             masp.addListener(new MPOA2SQLAssetStoreProvider(cn, ClientXMLTags.MYSQL_STORE, getMySQLConnectionPoolProvider(),
-                    getAssetProvider(), assetConverter));
+                                                            getAssetProvider(), assetConverter));
             masp.addListener(new MPOA2SQLAssetStoreProvider(cn, ClientXMLTags.MARIADB_STORE, getMariaDBConnectionPoolProvider(),
-                                getAssetProvider(), assetConverter));
+                                                            getAssetProvider(), assetConverter));
 
             // this is experimental. it might just work out of the box
             //masp.addListener(new OA2SQLAssetStoreProvider(cn, ClientXMLTags.POSTGRESQL_STORE, getPgConnectionPoolProvider(),
-            //        getAssetProvider(), assetConverter));
-            
+            //                                              getAssetProvider(), assetConverter));
+
             // and a memory store, So only if one is requested it is available.
             masp.addListener(new TypedProvider<MemoryAssetStore>(cn, ClientXMLTags.MEMORY_STORE, ClientXMLTags.ASSET_STORE) {
                 @Override
                 public Object componentFound(CfgEvent configurationEvent) {
-                    if (checkEvent(configurationEvent)) {
+                    if (checkEvent(configurationEvent))
                         return get();
-                    }
                     return null;
                 }
 
@@ -159,39 +158,39 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
             });
         }
         return assetStoreProvider;
-    }    
-    
+    }
+
+
     /* MYPROXY SERVER CONNECTOR */
-    
-    
+
     protected LinkedList<MyProxyFacadeProvider> mfp = null;
 
     protected LinkedList<MyProxyFacadeProvider> getMyProxyFacadeProvider() {
-         if (mfp == null) {
-             mfp = new LinkedList<>();
-             // This is the global default for all instances. It can be overridden below.
-             String defaultDN = Configurations.getFirstAttribute(cn, OA4MPConfigTags.MYPROXY_SERVER_DN);
+        if (mfp == null) {
+            mfp = new LinkedList<>();
+            // This is the global default for all instances. It can be overridden below.
+            String defaultDN = Configurations.getFirstAttribute(cn, OA4MPConfigTags.MYPROXY_SERVER_DN);
 
-             if (0 < cn.getChildrenCount(OA4MPConfigTags.MYPROXY)) {
-                 List<ConfigurationNode> kids = cn.getChildren(OA4MPConfigTags.MYPROXY);
-                 for (ConfigurationNode currentNode : kids) {
-                     // Fix for CIL-196.
-                     String currentDN = Configurations.getFirstAttribute(currentNode, OA4MPConfigTags.MYPROXY_SERVER_DN);
-                     mfp.add(new MyProxyFacadeProvider(currentNode, (currentDN == null ? defaultDN : currentDN)));
-                 }
+            if (0 < cn.getChildrenCount(OA4MPConfigTags.MYPROXY)) {
+                List<ConfigurationNode> kids = cn.getChildren(OA4MPConfigTags.MYPROXY);
+                for (ConfigurationNode currentNode : kids) {
+                    // Fix for CIL-196.
+                    String currentDN = Configurations.getFirstAttribute(currentNode, OA4MPConfigTags.MYPROXY_SERVER_DN);
+                    mfp.add(new MyProxyFacadeProvider(currentNode, (currentDN == null ? defaultDN : currentDN)));
+                }
+            } else {
+                // set up with defaults
+                mfp.add(new MyProxyFacadeProvider());
+            }
+        }
+        return mfp;
+    }
 
-             } else {
-                 // set up with defaults
-                 mfp.add(new MyProxyFacadeProvider());
-             }
 
-         }
-         return mfp;
-     }    
-    
     protected String getMyProxyPassword() {
         ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+
         return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
     }
-    
+
 }

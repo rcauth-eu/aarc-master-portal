@@ -35,7 +35,7 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
     private static final String SEP = " ";
 
     @Override
-    public void init() throws ServletException	{
+    public void init() throws ServletException {
         super.init();
         se = (MPOA2SE)getServiceEnvironment();
         setEnvironment(se);
@@ -72,7 +72,6 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
      */
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-	
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
         if ( store == null) {
             throw new GeneralException("Could not get SSHKeyStore");

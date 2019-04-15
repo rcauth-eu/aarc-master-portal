@@ -144,9 +144,9 @@ public class MPOA2SE extends OA2SE {
     protected SSHKeyStore<SSHKey> sshKeyStore;
 
     public SSHKeyStore<SSHKey> getSSHKeyStore() {
-        if (sshKeyStore == null) {
+        if (sshKeyStore == null)
             sshKeyStore = ssp.get();
-        }
+
         return sshKeyStore;
     }
 

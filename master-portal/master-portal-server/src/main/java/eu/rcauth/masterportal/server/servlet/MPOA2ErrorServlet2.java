@@ -32,30 +32,30 @@ public class MPOA2ErrorServlet2 extends MyProxyDelegationServlet {
 
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
-        
-//    	Throwable t = (Throwable) request.getAttribute("exception");
-    	
-//    	String redirect_uri = getParam(request, OA2Constants.REQUEST_URI);
-//    	String client_id = getParam(request, OA2Constants.CLIENT_ID);
-    	
-    	String cause = request.getParameter(CAUSE);
+
+//      Throwable t = (Throwable) request.getAttribute("exception");
+
+//      String redirect_uri = getParam(request, OA2Constants.REQUEST_URI);
+//      String client_id = getParam(request, OA2Constants.CLIENT_ID);
+
+        String cause = request.getParameter(CAUSE);
         String identifier = request.getParameter(IDENTIFIER);
         String stackTrace = request.getParameter(STACK_TRACE);
-        
+
         request.setAttribute(CAUSE, cause);
         request.setAttribute(IDENTIFIER, identifier);
         request.setAttribute(MESSAGE, URLDecoder.decode(request.getParameter(MESSAGE), "UTF-8"));
         request.setAttribute(STACK_TRACE, stackTrace);
 
         if (identifier != null && !identifier.isEmpty()) {
-        	Client client = getClient(BasicIdentifier.newID(identifier));
-        	request.setAttribute("client", client);
+            Client client = getClient(BasicIdentifier.newID(identifier));
+            request.setAttribute("client", client);
         }
-        
+
         JSPUtil.fwd(request, response, "/errorPage2.jsp");
 
     }
-    
+
 /*  protected String getParam(HttpServletRequest request, String key) {
         Object oo = request.getAttribute(key);
         if (oo != null) {

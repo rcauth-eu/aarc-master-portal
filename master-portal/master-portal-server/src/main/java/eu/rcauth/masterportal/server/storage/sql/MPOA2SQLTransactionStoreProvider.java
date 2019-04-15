@@ -26,11 +26,11 @@ public class MPOA2SQLTransactionStoreProvider<T extends DSSQLTransactionStore> e
             MapConverter converter) {
 
         super(config, cpp, type, clientStoreProvider, tp, tfp, converter);
-	}
+    }
 
-	@Override
-	public T get() {
-    	return newInstance(new MPOA2TransactionTable((MPOA2TransactionKeys)converter.keys, getSchema(), getPrefix(), getTablename()));
-	}	
-	
+    @Override
+    public T get() {
+        return newInstance(new MPOA2TransactionTable((MPOA2TransactionKeys)converter.keys, getSchema(), getPrefix(), getTablename()));
+    }
+
 }

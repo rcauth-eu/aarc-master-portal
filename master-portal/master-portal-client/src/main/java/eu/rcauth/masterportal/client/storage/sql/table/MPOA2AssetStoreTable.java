@@ -13,15 +13,15 @@ public class MPOA2AssetStoreTable extends OA2AssetStoreTable {
     public MPOA2AssetStoreTable(AssetSerializationKeys keys, String schema, String tablenamePrefix, String tablename) {
         super(keys, schema, tablenamePrefix, tablename);
     }
-    
+
     @Override
     public void createColumnDescriptors() {
         super.createColumnDescriptors();
-        
+
         MPOA2AssetSerializationKeys extendedKeys = (MPOA2AssetSerializationKeys) keys;
 
         getColumnDescriptor().add(new ColumnDescriptorEntry(extendedKeys.mp_server_request_code(), LONGVARCHAR, true, false));
         getColumnDescriptor().add(new ColumnDescriptorEntry(extendedKeys.mp_server_request_state(), LONGVARCHAR, true, false));
     }
-    
+
 }

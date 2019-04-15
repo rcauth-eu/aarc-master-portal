@@ -14,7 +14,7 @@ public class MPOA2AuthorizedServletUtil extends OA2AuthorizedServletUtil {
     }
 
     /**
-     *  return a MPOA2ServiceTransaction instance instead of OA2ServiceTransaction 
+     *  return a MPOA2ServiceTransaction instance instead of OA2ServiceTransaction
      */
     @Override
     protected OA2ServiceTransaction createNewTransaction(AuthorizationGrant grant) {

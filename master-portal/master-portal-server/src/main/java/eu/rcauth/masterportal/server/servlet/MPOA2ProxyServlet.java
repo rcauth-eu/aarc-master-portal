@@ -1,16 +1,5 @@
 package eu.rcauth.masterportal.server.servlet;
 
-import java.io.IOException;
-import java.security.GeneralSecurityException;
-import java.util.Map;
-
-import java.security.KeyPair;
-
-import javax.servlet.RequestDispatcher;
-import javax.servlet.ServletContext;
-import javax.servlet.http.HttpServletRequest;
-import javax.servlet.http.HttpServletResponse;
-
 import edu.uiuc.ncsa.myproxy.MyProxyConnectable;
 import edu.uiuc.ncsa.myproxy.MyProxyCredentialInfo;
 import edu.uiuc.ncsa.myproxy.exception.MyProxyCertExpiredException;
@@ -28,6 +17,18 @@ import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 
 import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
+
+import java.io.IOException;
+import java.security.GeneralSecurityException;
+import java.util.Map;
+
+import java.security.KeyPair;
+
+import javax.servlet.RequestDispatcher;
+import javax.servlet.ServletContext;
+import javax.servlet.http.HttpServletRequest;
+import javax.servlet.http.HttpServletResponse;
+
 import org.apache.http.HttpStatus;
 
 import eu.rcauth.masterportal.MPClientContext;
@@ -44,12 +45,12 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
     /* OVERRIDDEN METHODS */
 
     /**
-     *  Checks if the request has a proxy lifetime value. If not, if will override the 
+     *  Checks if the request has a proxy lifetime value. If not, if will override the
      *  transaction default lifetime to a Master Portal specific default lifetime value.
      *  See the Master Portal Server cfg.xml for the default lifetime setting.
-     * 
+     *
      *  @param iResponse The response object being constructed
-     *  @return The service transaction built for this session 
+     *  @return The service transaction built for this session
      */
     @Override
     public ServiceTransaction verifyAndGet(IssuerResponse iResponse) throws IOException {
@@ -58,7 +59,7 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         MPOA2SE se = (MPOA2SE) getServiceEnvironment();
         Map params = iResponse.getParameters();
 
-        if(!params.containsKey(OA2Constants.PROXY_LIFETIME)) {
+        if (!params.containsKey(OA2Constants.PROXY_LIFETIME)) {
             trans.setLifetime( 1000 * se.getMyproxyDefaultLifetime() );
             debug("6.a. Setting proxy lifetime to Master Portal Server default value = " + trans.getLifetime());
         }
@@ -67,9 +68,9 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
     }
 
     /**
-     *  Creates a MyProxy connection with the MyProxy password configured in the 
-     *  Master Portal Server cfg.xml. 
-     *  
+     *  Creates a MyProxy connection with the MyProxy password configured in the
+     *  Master Portal Server cfg.xml.
+     *
      *  @param st The current service transaction
      *  @throws GeneralSecurityException In case of unsuccessful connection
      */
@@ -90,12 +91,12 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
      *  INFO are unsatisfactory, this method will forward a /getcert request to
      *  the Delegation Server (via the Master Portal Client). Once that all
      *  succeeds, a new proxy key+CSR is created.
-     * 
+     *
      *  @param transaction The current service transaction
      *  @param request The original /getproxy request object
      *  @param response The response object for the /getproxy call
      *  @throws Throwable If general errors occur
-     * 
+     *
      */
     @Override
     protected void prepare(ServiceTransaction transaction, HttpServletRequest request, HttpServletResponse response) throws Throwable {
@@ -141,11 +142,10 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
             requestNewCert = true;
         } catch (Throwable e) {
             // myproxy info failed for some unknown reason: don't try to fix
-            if ( e instanceof GeneralException ) {
+            if ( e instanceof GeneralException )
                 throw e;
-            } else {
+            else
                 throw new GeneralException("MyProxy info failed", e);
-            }
         }
 
         try {
@@ -169,11 +169,10 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
             // don't request new certificate in this case, it's a user error
             throw new OA2GeneralError(mesg, OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            if ( e instanceof GeneralException ) {
+            if ( e instanceof GeneralException )
                 throw e;
-            } else {
+            else
                 throw new GeneralException("Validation of /getproxy request failed", e);
-            }
         }
 
         if (requestNewCert) {
@@ -192,13 +191,12 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
             keyPair = KeyUtil.generateKeyPair();
             certReq = CertUtil.createCertRequest(keyPair, trans.getUsername());
         } catch (Throwable e) {
-            if (e instanceof RuntimeException) {
+            if (e instanceof RuntimeException)
                 throw e;
-            }
             throw new GeneralException("Could not create cert request", e);
         }
 
-        // insert a CSR and generated keypair into the transaction 
+        // insert a CSR and generated keypair into the transaction
         trans.setCertReq(certReq);
         trans.setKeypair(keyPair);
     }
@@ -208,8 +206,8 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
     /**
      * Forward the currently pending request to the Master Portal Client's MP_CLIENT_FWGETCERT_ENDPOINT
      * endpoint. This method should be called if a new certificate is needed in the Credential Store, since
-     * this will set of a /getcert call to the Delegation Server. 
-     * 
+     * this will set of a /getcert call to the Delegation Server.
+     *
      * @param trans The current service transaction
      * @param request The original /getproxy request object
      * @param response The response of the /getproxy request
@@ -228,9 +226,9 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
 
         RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_FWGETCERT_ENDPOINT);
         // use include instead of forward here so that the responses returned to the requester will be aggregated
-        // without this, the certificate will not be included into the response, since the response is already 
+        // without this, the certificate will not be included into the response, since the response is already
         // written by the forwarding call.
-        //dispatcher.include( request , response );        
+        //dispatcher.include( request , response );
 
         MPOA2RequestForwarder.forwardRequest(request, response, dispatcher, true);
 

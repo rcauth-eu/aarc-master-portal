@@ -9,8 +9,8 @@ import edu.uiuc.ncsa.security.storage.data.SerializationKeys;
 public class SSHKeyKeys extends SerializationKeys {
 
     public SSHKeyKeys() {
-	// the field declared as 'identifier' will be treated as a Primary Key
-//	identifier(serial);
+        // the field declared as 'identifier' will be treated as a Primary Key
+//      identifier(serial);
     }
 
     /** column key of label column */
@@ -26,31 +26,36 @@ public class SSHKeyKeys extends SerializationKeys {
 
     /** return column key for label column */
     public String label(String... x) {
-        if (0 < x.length) label = x[0];
+        if (0 < x.length)
+            label = x[0];
         return label;
     }
-    
+
     /** return column key for userName column */
     public String userName(String... x) {
-        if (0 < x.length) userName = x[0];
+        if (0 < x.length)
+            userName = x[0];
         return userName;
     }
-    
+
     /** return column key for pubKey column */
     public String pubKey(String... x) {
-        if (0 < x.length) pubKey = x[0];
+        if (0 < x.length)
+            pubKey = x[0];
         return pubKey;
-    }	
-    
+    }
+
     /** return column key for description column */
     public String description(String... x) {
-        if (0 < x.length) description = x[0];
+        if (0 < x.length)
+            description = x[0];
         return description;
-    }	
-    
+    }
+
     /** return column key for importTime column */
     public String importTime(String... x) {
-        if (0 < x.length) importTime = x[0];
+        if (0 < x.length)
+            importTime = x[0];
         return importTime;
-    }	
+    }
 }

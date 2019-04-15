@@ -16,9 +16,9 @@ public class MPOA2SQLAssetStoreProvider extends OA2SQLAssetStoreProvider {
 
     public MPOA2SQLAssetStoreProvider(ConfigurationNode config, String storeType, ConnectionPoolProvider<? extends ConnectionPool> cpp, AssetProvider assetProvider, MapConverter converter) {
         super(config, storeType, cpp, assetProvider, converter);
-    }	
-    
-    
+    }
+
+
     @Override
     public SQLAssetStore get() {
         return newInstance(new MPOA2AssetStoreTable(
@@ -26,5 +26,5 @@ public class MPOA2SQLAssetStoreProvider extends OA2SQLAssetStoreProvider {
                 getPrefix(),
                 getTablename() == null ? AssetStoreTable.DEFAULT_TABLENAME : getTablename()));
     }
-	
+
 }

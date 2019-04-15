@@ -15,7 +15,7 @@ public class SSHKeyConverter<V extends SSHKey> extends MapConverter<V> {
     public SSHKeyConverter(IdentifiableProvider<V> identifiableProvider) {
         super(new SSHKeyKeys(), identifiableProvider);
     }
-	
+
     public SSHKeyConverter(SerializationKeys keys, IdentifiableProvider<V> provider) {
         super(keys, provider);
     }
@@ -23,7 +23,7 @@ public class SSHKeyConverter<V extends SSHKey> extends MapConverter<V> {
     private SSHKeyKeys getSKKeys() {
         return (SSHKeyKeys) keys;
     }
-    
+
     @Override
     public V fromMap(ConversionMap<String, Object> map, V v) {
         v = super.fromMap(map, v);
@@ -34,7 +34,7 @@ public class SSHKeyConverter<V extends SSHKey> extends MapConverter<V> {
         v.setDescription( map.getString( getSKKeys().description()) );
         return v;
     }
-    
+
     @Override
     public void toMap(V v, ConversionMap<String, Object> map) {
         super.toMap(v, map);

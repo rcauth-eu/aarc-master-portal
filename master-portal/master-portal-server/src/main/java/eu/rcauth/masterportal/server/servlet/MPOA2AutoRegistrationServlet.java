@@ -44,7 +44,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
      */
     @Override
     public int getState(HttpServletRequest request) {
-	// Only REQUEST_STATE is supported
+        // Only REQUEST_STATE is supported
         return REQUEST_STATE;
     }
 
@@ -88,7 +88,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
         // Override to make it a NO-OP: we don't use a HTML page,
         // just a POST call
     }
-    
+
     /**
      * Unfortunately we cannot rely on the parent version, since we need a
      * different OK_PAGE (not the one set and used in {@link
@@ -137,7 +137,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
         // page would be shown while we need to produce a OIDC JSON error page
         try {
             client = super.addNewClient(request, response, fireClientEvents);
-        } catch (ClientRegistrationRetryException cRE)	{
+        } catch (ClientRegistrationRetryException cRE) {
             // Need to remove the client
             removeClient(cRE.getClient());
             // Now throw a new exception
@@ -157,7 +157,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
     /**
      * remove a previously registered client
      */
-    private void removeClient(Client client)	{
+    private void removeClient(Client client) {
         Identifier client_id = client.getIdentifier();
         info("Removing client, client="+client_id.toString());
         getServiceEnvironment().getClientStore().remove(client_id);
@@ -171,12 +171,12 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
      * @param client in case of error the {@link Client} is removed again.
      * @throws ServletException in case of errors
      */
-    private String getApprover(HttpServletRequest request, Client client) throws ServletException	{
+    private String getApprover(HttpServletRequest request, Client client) throws ServletException {
         // Form the correct approver string
         String approver = null;
 
         String approverid = request.getParameter(APPROVERID);
-        if (approverid == null)	{
+        if (approverid == null) {
             // No approverid parameter found
             approver = APPROVER;
         } else {
