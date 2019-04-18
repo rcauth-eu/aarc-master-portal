@@ -54,18 +54,6 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
         return null;
     }
 
-    @Override
-    protected void handleException(Throwable t, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        // ok, if it is a strange error, print a stack if you need to.
-        // Note: getMyLogger gives logger from environment, which is configured
-        // via conf file and logs typically into mp server logs, not in
-        // /var/log/messages
-        if (logger.isDebugOn()) {
-            t.printStackTrace();
-        }
-        getExceptionHandler().handleException(t, request, response);
-    }
-
     /**
      * Main method called by TomCat upon receiving either a get or post (via {@link AbstractServlet}).
      * Writes the list of stored keys and usernames, space-separated to the response.
@@ -74,7 +62,8 @@ public class MPOA2SSHKeyListingServlet extends MyProxyDelegationServlet {
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws Throwable {
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
         if ( store == null) {
-            throw new GeneralException("Could not get SSHKeyStore");
+            logger.warn("doIt(): SSHKeyStore is null");
+            throw new GeneralException("Cannot get SSH KeyStore");
         }
 
         Collection<SSHKey> keys = store.values();

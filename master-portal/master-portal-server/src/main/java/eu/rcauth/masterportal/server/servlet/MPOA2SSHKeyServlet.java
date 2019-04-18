@@ -85,7 +85,6 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         setEnvironment(se);
 
         // Create custom logger for exceptions and the like
-//      logger = new MyLoggingFacade(getClass().getSimpleName(), false);
         logger = getMyLogger();
         setExceptionHandler(new OA2ExceptionHandler(logger));
     }
@@ -129,15 +128,13 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
                     // trivially uris). This checks that there a
                     // scheme, which implies this is an id. The other token is assumed to
                     // be the secret.
-                    if (test.getScheme() != null) {
+                    if (test.getScheme() != null)
                         rawID = x;
-                    } else {
+                    else
                         rawSecret = x;
-                    }
                 } catch (Throwable t) {
-                    if (rawSecret == null) {
+                    if (rawSecret == null)
                         rawSecret = x;
-                    }
                 }
             }
         }
@@ -160,18 +157,6 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         }
         return client;
-    }
-
-    @Override
-    protected void handleException(Throwable t, HttpServletRequest request, HttpServletResponse response) throws IOException, ServletException {
-        // ok, if it is a strange error, print a stack if you need to.
-        // Note: getMyLogger gives logger from environment, which is configured
-        // via conf file and logs typically into mp server logs, not in
-        // /var/log/messages
-        if (logger.isDebugOn()) {
-            t.printStackTrace();
-        }
-        getExceptionHandler().handleException(t, request, response);
     }
 
     /**
@@ -260,8 +245,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // userName and pubKey may not be empty, userName is indirect, via the
         // access_token
         if (userName==null || userName.isEmpty()) {
-            logger.error("Username is null or empty");
-            throw new GeneralException("Cannot get username");
+            logger.warn("addKey(): userName is null or empty");
+            throw new GeneralException("Cannot get username for key to add");
         }
 
         if (pubKey==null || pubKey.isEmpty())
@@ -274,8 +259,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
         if ( store == null) {
-            logger.error("Cannot get SSHKeyStore");
-            throw new GeneralException("Could not get SSH KeyStore");
+            logger.warn("addKey(): SSHKeyStore is null");
+            throw new GeneralException("Cannot get SSH KeyStore");
         }
 
         // Create new SSHKey object
@@ -292,10 +277,8 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         // Check we don't have too many
         int maxSSHKeys = se.getMaxSSHKeys();
-        if (maxSSHKeys > 0 && currKeys.size() >= maxSSHKeys)    {
-            logger.info("Maximum number of keys reached for user "+userName);
-            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Maximum number of keys >= "+maxSSHKeys+", cannot add more", HttpStatus.SC_BAD_REQUEST);
-        }
+        if (maxSSHKeys > 0 && currKeys.size() >= maxSSHKeys)
+            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Reached maximum number of keys (="+maxSSHKeys+"), cannot add more", HttpStatus.SC_BAD_REQUEST);
 
         // when label isn't set, create one
         if (label==null || label.isEmpty())
@@ -307,10 +290,10 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         } catch (Exception e)   {
             Throwable cause = e.getCause();
             if (cause == null)
-                logger.error("Cannot register key: "+e.getMessage());
+                logger.warn("Cannot register key: "+e.getMessage());
             else
-                logger.error("Cannot register key: "+e.getMessage() + " (" + cause.getMessage() + ")");
-            throw new OA2ATException(OA2Errors.SERVER_ERROR, "Cannot add entry", HttpStatus.SC_INTERNAL_SERVER_ERROR);
+                logger.warn("Cannot register key: "+e.getMessage() + " (" + cause.getMessage() + ")");
+            throw new OA2ATException(OA2Errors.SERVER_ERROR, "Cannot add key", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
     }
 
@@ -320,12 +303,11 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     private void updateKey(String userName, String label, String pubKey, String description) throws GeneralException {
         // userName and label may not be empty
         if (userName==null || userName.isEmpty())   {
-            logger.error("Username is null or empty");
-            throw new GeneralException("Cannot get username");
+            logger.warn("updateKey(): userName is null or empty");
+            throw new GeneralException("Cannot get username for key to update");
         }
-        if (label==null || label.isEmpty()) {
-            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Missing mandatory label", HttpStatus.SC_BAD_REQUEST);
-        }
+        if (label==null || label.isEmpty())
+            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Missing mandatory \"label\" parameter", HttpStatus.SC_BAD_REQUEST);
 
         // if we specified a public key, it must be non-empty and valid
         if (pubKey!=null)   {
@@ -339,36 +321,40 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
         if ( store == null) {
-            logger.error("Cannot get SSHKeyStore");
-            throw new GeneralException("Could not get SSH KeyStore");
+            logger.warn("updateKey(): SSHKeyStore is null");
+            throw new GeneralException("Cannot get SSH KeyStore");
         }
 
         // Get existing public key
         // Note: SQLSSHKeyStore.get() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
         SSHKey value = store.get(new SSHKey(userName, label));
         if (value==null)
-            throw new OA2ATException("not_found", "No key to update found", HttpStatus.SC_NOT_FOUND);
+            throw new OA2ATException("not_found", "key to update NOT found", HttpStatus.SC_NOT_FOUND);
 
         // Update values
         if (pubKey != null)    {
-            info("Updating public key for key");
+            logger.info("Updating public key for key");
             value.setPubKey(pubKey);
+            // Check whether the ssh pubKey already occurs: must be globally unique
+            // Note: SQLSSHKeyStore.containsKey() expects Object since we want it to override the one in e.g. SQLStore, but it checks there on correct type
+            if (store.containsKey(value))
+                throw new OA2ATException(OA2Errors.INVALID_REQUEST, "SSH public key is already registered", HttpStatus.SC_BAD_REQUEST);
         }
         if (description != null)    {
-            info("Updating description for key");
+            logger.info("Updating description for key");
             value.setDescription(description);
         }
 
         // Update the value in the store
         try {
-            info("Updating the entry for "+userName+", "+label);
+            logger.info("Updating the entry for "+userName+", "+label);
             store.update(value);
         } catch (Exception e)   {
             Throwable cause = e.getCause();
             if (cause == null)
-                logger.error("Cannot update key: "+e.getMessage());
+                logger.warn("Cannot update key: "+e.getMessage());
             else
-                logger.error("Cannot update key: "+e.getMessage() + " (" + cause.getMessage() + ")");
+                logger.warn("Cannot update key: "+e.getMessage() + " (" + cause.getMessage() + ")");
             throw new OA2ATException(OA2Errors.SERVER_ERROR, "Cannot update entry", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
     }
@@ -379,17 +365,17 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     private void removeKey(String userName, String label) throws GeneralException {
         // userName and label may not be empty
         if (userName==null || userName.isEmpty())   {
-            logger.error("Username is null or empty");
-            throw new GeneralException("Cannot get username");
+            logger.warn("removeKey(): Username is null or empty");
+            throw new GeneralException("Cannot get username for key to remove");
         }
         if (label==null || label.isEmpty())
-            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Missing mandatory label", HttpStatus.SC_BAD_REQUEST);
+            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Missing mandatory \"label\" parameter", HttpStatus.SC_BAD_REQUEST);
 
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
         if ( store == null) {
-            logger.error("Cannot get SSHKeyStore");
-            throw new GeneralException("Could not get SSHKeyStore");
+            logger.warn("removeKey(): SSHKeyStore is null");
+            throw new GeneralException("Cannot get SSH KeyStore");
         }
 
         SSHKey key = null;
@@ -399,13 +385,13 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         } catch (Exception e)   {
             Throwable cause = e.getCause();
             if (cause == null)
-                logger.error("Cannot remove key: "+e.getMessage());
+                logger.warn("Cannot remove key: "+e.getMessage());
             else
-                logger.error("Cannot remove key: "+e.getMessage() + " (" + cause.getMessage() + ")");
+                logger.warn("Cannot remove key: "+e.getMessage() + " (" + cause.getMessage() + ")");
             throw new OA2ATException(OA2Errors.SERVER_ERROR, "Cannot remove key", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
         if (key==null)
-            throw new OA2ATException("not_found", "No key found", HttpStatus.SC_NOT_FOUND);
+            throw new OA2ATException("not_found", "key to remove NOT found", HttpStatus.SC_NOT_FOUND);
     }
 
     /**
@@ -414,16 +400,18 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     private SSHKey getKey(String userName, String label) throws GeneralException {
         // userName and label may not be empty
         if (userName==null || userName.isEmpty())   {
-            logger.error("Username is null or empty");
-            throw new GeneralException("Cannot get username");
+            logger.warn("getKey(): userName is null or empty");
+            throw new GeneralException("Cannot get username for key to get");
         }
         if (label==null || label.isEmpty())
-            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Missing mandatory label", HttpStatus.SC_BAD_REQUEST);
+            throw new OA2ATException(OA2Errors.INVALID_REQUEST, "Missing mandatory \"label\" parameter", HttpStatus.SC_BAD_REQUEST);
 
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
-        if ( store == null)
-            throw new GeneralException("Could not get SSH KeyStore");
+        if ( store == null) {
+            logger.warn("getKey(): SSHKeyStore is null");
+            throw new GeneralException("Cannot get SSH KeyStore");
+        }
 
         SSHKey key = null;
         try {
@@ -432,13 +420,13 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         } catch (Exception e)   {
             Throwable cause = e.getCause();
             if (cause == null)
-                logger.error("Cannot get key: "+e.getMessage());
+                logger.warn("Cannot get key: "+e.getMessage());
             else
-                logger.error("Cannot get key: "+e.getMessage() + " (" + cause.getMessage() + ")");
+                logger.warn("Cannot get key: "+e.getMessage() + " (" + cause.getMessage() + ")");
             throw new OA2ATException(OA2Errors.SERVER_ERROR, "Cannot get key", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
         if (key==null)
-            throw new OA2ATException("not_found", "No key found", HttpStatus.SC_NOT_FOUND);
+            throw new OA2ATException("not_found", "key NOT found", HttpStatus.SC_NOT_FOUND);
 
         return key;
     }
@@ -449,14 +437,16 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     private List<SSHKey> getKeys(String userName) throws GeneralException  {
         // userName may not be empty
         if (userName==null || userName.isEmpty()) {
-            logger.error("Username is empty");
-            throw new GeneralException("Cannot get username");
+            logger.warn("getKeys(): userName is null or empty");
+            throw new GeneralException("Cannot get username for keys to get");
         }
 
         // try to get store
         SQLSSHKeyStore store = (SQLSSHKeyStore)se.getSSHKeyStore();
-        if ( store == null)
-            throw new GeneralException("Could not get SSH KeyStore");
+        if ( store == null) {
+            logger.warn("getKeys(): SSHKeyStore is null");
+            throw new GeneralException("Cannot get SSH KeyStore");
+        }
 
         return store.getAll(userName);
     }
@@ -501,7 +491,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         try {
             transaction = (ServiceTransaction) getTransactionStore().get(at);
         } catch (Exception e)   {
-            logger.error("Error: Cannot get transaction for access_token: "+e.getMessage());
+            logger.warn("getAndVerifyTransaction(): Cannot get transaction for access_token: "+e.getMessage());
             throw new GeneralException("Cannot get transaction for access_token");
         }
         if (transaction == null)
@@ -565,7 +555,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             writer.close();
             writer.flush();
         } catch(IOException e)  {
-            logger.error("Error: Cannot write keys: "+e.getMessage());
+            logger.warn("writeKeys(): Cannot write keys: "+e.getMessage());
             throw new GeneralException("Cannot write keys");
         }
     }
