@@ -6,6 +6,7 @@ import java.util.List;
 
 import javax.inject.Provider;
 
+import edu.uiuc.ncsa.security.util.json.JSONStore;
 import eu.rcauth.masterportal.server.storage.impl.SSHKeyStoreProvider;
 import eu.rcauth.masterportal.server.validators.GetProxyRequestValidator;
 import eu.rcauth.masterportal.server.storage.SSHKeyStore;
@@ -72,7 +73,8 @@ public class MPOA2SE extends OA2SE {
                    GetProxyRequestValidator[] validators,
                    String issuer,
                    boolean utilServletEnabled,
-                   boolean oidcEnabled) {
+                   boolean oidcEnabled,
+                   Provider<JSONStore> jsonStoreProvider) {
 
         super(logger,
               tsp,
@@ -103,7 +105,8 @@ public class MPOA2SE extends OA2SE {
               jsonWebKeys,
               issuer,
               utilServletEnabled,
-              oidcEnabled);
+              oidcEnabled,
+              jsonStoreProvider);
 
         this.myproxyPassword = myproxyPassword;
         this.myproxyDefaultLifetime = myproxyDefaultLifetime;

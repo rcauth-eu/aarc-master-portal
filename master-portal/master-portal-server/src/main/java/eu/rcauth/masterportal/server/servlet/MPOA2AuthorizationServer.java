@@ -166,7 +166,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                 warn("No claims returned by the Delegation Server! Check if the right SCOPES are sent by the Master Portal!");
 
             // Now we can set the new claims
-            // NOTE: iss and aud are set in createRedirect() via claimsUtil.createBasicClaims()
+            // NOTE: iss and aud are set in createRedirect() via claimsUtil.processAuthorizationClaims()
             trans.setClaims( JSONObject.fromObject(jsonClaims) );
         }
     }
@@ -197,7 +197,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
         debug("4.a. verifier = " + trans.getVerifier() + ", " + statusString);
 
         OA2ClaimsUtil claimsUtil = new OA2ClaimsUtil((OA2SE) getServiceEnvironment(), st2);
-        claimsUtil.createBasicClaims(request, (OA2ServiceTransaction) trans);
+        claimsUtil.processAuthorizationClaims(request, (OA2ServiceTransaction) trans);
 
         // At this point, all authentication has been done, everything is set up and the next stop in the flow is the
         // redirect back to the client.
@@ -235,7 +235,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
     @Override
     public int getState(HttpServletRequest request) {
         String action = getParam(request, AUTHORIZATION_ACTION_KEY);
-        log("action = " + action);
+        info("servlet /"+this.getServletName()+" : action = " + action);
         if (action == null || action.length() == 0)
             return AUTHORIZATION_ACTION_START;
         if (action.equals(AUTHORIZATION_ACTION_OK_VALUE))

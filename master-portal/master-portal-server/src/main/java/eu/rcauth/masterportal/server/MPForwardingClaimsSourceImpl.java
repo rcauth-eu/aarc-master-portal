@@ -35,12 +35,12 @@ import eu.rcauth.masterportal.server.servlet.MPOA2AuthorizationServer;
  * <li>need additional configuration via a {@link ClaimSourceConfiguration},
  * for details see the constructor {@link #MPForwardingClaimsSourceImpl()}
  * <li>override {@link #isRunAtAuthorization()} to return true, in order not to
- * be skipped in {@link OA2ClaimsUtil#createBasicClaims}
+ * be skipped in {@link OA2ClaimsUtil#processAuthorizationClaims}
  * </ul>
  * <br>
  * NOTE: this ClaimsSourceImpl is called 'on the way' back, when returning from
  * the mp-server to the (e.g. vo-portal) client. It is called by
- * {@link OA2ClaimsUtil#createBasicClaims(HttpServletRequest, OA2ServiceTransaction)},
+ * {@link OA2ClaimsUtil#processAuthorizationClaims(HttpServletRequest, OA2ServiceTransaction)},
  * called from
  * {@link MPOA2AuthorizationServer}#createRedirect(HttpServletRequest, HttpServletResponse, ServiceTransaction).
  * It is only invoked if both {@link #isEnabled()} and

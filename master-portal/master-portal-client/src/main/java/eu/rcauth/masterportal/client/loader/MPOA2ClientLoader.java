@@ -93,6 +93,7 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
                     getScopes(),
                     getWellKnownURI(),
                     isOIDCEnabled(),
+                    isShowIDToken(),
                     getMyProxyFacadeProvider(),
                     getMyProxyPassword()
             );

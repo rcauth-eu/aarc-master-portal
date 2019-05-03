@@ -100,7 +100,8 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     getValidators(),
                     getIssuer(),    // see OA2ConfigurationLoader
                     isUtilServerEnabled(),
-                    isOIDCEnabled());
+                    isOIDCEnabled(),
+                    getMultiJSONStoreProvider());
         } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
             // TODO Figure out a way to prevent this from going to the user: we have no server yet, when we do, also want to catch IllegalStateException
             throw new GeneralException("Error: Could not create the runtime environment", e);

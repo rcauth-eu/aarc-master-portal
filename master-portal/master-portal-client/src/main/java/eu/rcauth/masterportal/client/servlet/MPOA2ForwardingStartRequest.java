@@ -140,61 +140,21 @@ public class MPOA2ForwardingStartRequest extends ClientServlet {
     }
 
 
+    @Override
     protected void printAllParameters(HttpServletRequest request) {
+        super.printAllParameters(request);
 
-
-        String reqUrl = request.getRequestURL().toString();
-        String queryString = request.getQueryString();   // d=789
-        if (queryString != null && !queryString.isEmpty())
-            reqUrl += "?" + queryString;
-
-        System.out.println("Request parameters for '" + reqUrl + "'");
-
-        if (request.getParameterMap() == null || request.getParameterMap().isEmpty()) {
-            System.out.println("  (none)");
-        } else {
-            for (Object key : request.getParameterMap().keySet()) {
-                String[] values = request.getParameterValues(key.toString());
-                System.out.println(" " + key + ":");
-                if (values == null || values.length == 0) {
-                    System.out.println("   (no values)");
-                } else {
-                    for (String x : values) {
-                        System.out.println("   " + x);
-                    }
-                }
-            }
-        }
-        System.out.println("Cookies:");
-        if (request.getCookies() == null) {
-            System.out.println(" (none)");
-        } else {
-            for (javax.servlet.http.Cookie c : request.getCookies()) {
-                System.out.println(" " + c.getName() + "=" + c.getValue());
-            }
-        }
-        System.out.println("Headers:");
-        Enumeration e = request.getHeaderNames();
-        if (!e.hasMoreElements()) {
-            System.out.println(" (none)");
-        } else {
-            while (e.hasMoreElements()) {
-                String name = e.nextElement().toString();
-                System.out.println(" " + name);
-                System.out.println("   " + request.getHeader(name));
-            }
-        }
-
-
-        System.out.println("Attributes:");
+        System.out.println("> Attributes:");
         Enumeration attr = request.getAttributeNames();
-        if (!e.hasMoreElements()) {
-            System.out.println(" (none)");
+        if (!attr.hasMoreElements()) {
+            System.out.println(">  (none)");
         } else {
             while (attr.hasMoreElements()) {
                 String name = attr.nextElement().toString();
-                System.out.println(" " + name);
-                System.out.println("   " + request.getAttribute(name));
+                System.out.println(">  " + name);
+                Object val = request.getAttribute(name);
+                if (val != null)
+                    System.out.println(">    " + request.getAttribute(name));
             }
         }
 

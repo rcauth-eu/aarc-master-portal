@@ -7,6 +7,7 @@ import edu.uiuc.ncsa.security.servlet.PresentableState;
 import edu.uiuc.ncsa.security.servlet.JSPUtil;
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.delegation.storage.Client;
+import edu.uiuc.ncsa.security.delegation.storage.BaseClient;
 import edu.uiuc.ncsa.security.delegation.server.storage.ClientApprovalStore;
 import edu.uiuc.ncsa.security.delegation.server.storage.ClientApproval;
 
@@ -103,7 +104,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
         // Note that we only support REQUEST_STATE
         if (state instanceof ClientState) {
             ClientState cState = (ClientState) state;
-            Client client = cState.getClient();
+            BaseClient client = cState.getClient();
             // Make the client object available for the OK_PAGE
             state.getRequest().setAttribute("client", client);
             JSPUtil.fwd(state.getRequest(), state.getResponse(), OK_PAGE);
@@ -113,7 +114,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
             // we should not store the client secret in the database, just a hash of it.
             String secret = DigestUtils.sha1Hex(client.getSecret());
             client.setSecret(secret);
-            getServiceEnvironment().getClientStore().save(client);
+            getServiceEnvironment().getClientStore().save((Client)client);
         } else {
             throw new IllegalStateException("Error: An instance of ClientState was expected, but got an instance of \"" + state.getClass().getName() + "\"");
         }
@@ -157,7 +158,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
     /**
      * remove a previously registered client
      */
-    private void removeClient(Client client) {
+    private void removeClient(BaseClient client) {
         Identifier client_id = client.getIdentifier();
         info("Removing client, client="+client_id.toString());
         getServiceEnvironment().getClientStore().remove(client_id);
