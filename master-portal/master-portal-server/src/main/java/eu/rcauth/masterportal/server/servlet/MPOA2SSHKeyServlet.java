@@ -57,17 +57,17 @@ import java.util.Base64;
  */
 public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     // Valid request parameters
-    private static final String ACTION_PARAMETER = "action";
-    private static final String LABEL_PARAMETER = "label";
-    private static final String PUBKEY_PARAMETER = "pubkey";
-    private static final String DESCRIPTION_PARAMETER = "description";
+    static final String ACTION_PARAMETER = "action";
+    static final String LABEL_PARAMETER = "label";
+    static final String PUBKEY_PARAMETER = "pubkey";
+    static final String DESCRIPTION_PARAMETER = "description";
 
     // Valid actions
-    private static final String ACTION_ADD      = "add";
-    private static final String ACTION_UPDATE   = "update";
-    private static final String ACTION_REMOVE   = "remove";
-    private static final String ACTION_GET      = "get";
-    private static final String ACTION_LIST     = "list";
+    static final String ACTION_ADD    = "add";
+    static final String ACTION_UPDATE = "update";
+    static final String ACTION_REMOVE = "remove";
+    static final String ACTION_GET    = "get";
+    static final String ACTION_LIST   = "list";
 
     // SSH public key's first field should start with the following
     private static final String SSH_KEY_START = "ssh-";

@@ -112,7 +112,7 @@
 
     <servlet>
         <servlet-name>discovery</servlet-name>
-        <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2DiscoveryServlet</servlet-class>
+        <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2DiscoveryServlet</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>discovery</servlet-name>
