@@ -23,6 +23,13 @@
             <td>Client Name:</td>
             <td><input type="text" size="25" name="${clientName}" value="${clientNameValue}"/></td>
         </tr>
+<%--    <tr style="vertical-align: top">
+            <td>Client Description:</td>
+            <td>
+                <textarea id="${clientDescription}" rows="10" cols="80"
+                          name="${clientDescription}">${clientDescriptionValue}</textarea>
+            </td>
+        </tr>--%>
         <tr>
             <td>Contact email:</td>
             <td><input type="text" size="25" name="${clientEmail}" value="${clientEmailValue}"/></td>
@@ -31,7 +38,6 @@
             <td>Home URL:</td>
             <td><input type="text" size="25" name="${clientHomeUrl}" value="${clientHomeUrlValue}"/></td>
         </tr>
-
         <tr>
             <td ${rtFieldVisible}>Refresh Token lifetime:</td>
             <td ${rtFieldVisible}><input type="text" size="25" name="${rtLifetime}" value="${rtLifetimeValue}"/>(in
@@ -39,11 +45,21 @@
             </td>
         </tr>
         <tr>
-            <td></td>
-            <td><input type="hidden" name="${clientProxyLimited}" ${clientProxyLimitedValue} />
+            <td><span title="Check this box to receive limited proxy certificates. Leave unchecked for normal proxies.">
+            Receive only limited proxies:</span></td>
+            <td><input type="checkbox" name="${clientProxyLimited}" ${clientProxyLimitedValue} />
             </td>
         </tr>
-
+<%--    <tr>
+            <td>Issuer (optional):</td>
+            <td><input type="text" size="25" name="${issuer}" value="${issuerValue}"/></td>
+        </tr>--%>
+<%--    <tr style="vertical-align: top">
+            <td><span title="Check this box if the client is to be public, i.e., limited access, no certificates allowed and no secret needed. If you are not sure what this is, do not check it or ask for help.">
+            Is this client public?<br><em>Then only openid scope is allowed</em></span></td>
+            <td><input type="checkbox" name="${clientIsPublic}" ${clientIsPublicValue} />
+            </td>
+        </tr>--%>
 
         <tr style="vertical-align: top">
             <td>Callback URLs:</td>
