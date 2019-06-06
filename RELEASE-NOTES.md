@@ -78,7 +78,7 @@ In order to do this, you can either:
 
   *Make a backup of the client database first, e.g. using `mysqldump`!!*
 
-  You can run something like:
+  You can run a mysql command such as:
 
         update clients set scopes = '["openid","email","profile","edu.uiuc.ncsa.myproxy.getcert"]';
 
@@ -97,4 +97,11 @@ The effective list of scopes used in a request is the intersection of:
    (`openid`, `email`, `profile` and `edu.uiuc.ncsa.myproxy.getcert`)
    plus any other scopes such as `org.cilogon.userinfo` that are added to the
    `<scopes>` node of the `cfg.xml`.  
-   Note that the basic scopes can be disabled using the `enabled="false"` attribute.
+   Note that the basic scopes can be disabled using the `enabled="false"`
+   attribute.
+
+#### Other new features
+
+Apart from the above changes, it is now possible to configure a client to *only*
+receive limited proxies. This can be useful if that client just needs to access
+storage and not use the proxy for job submission.
