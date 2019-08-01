@@ -1,6 +1,7 @@
 package eu.rcauth.masterportal.client;
 
 import java.security.GeneralSecurityException;
+import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
@@ -75,11 +76,10 @@ public class MPOA2MPService extends OA2MPService {
             // upload certificate to Credential Store
             uploadCert(par, a);
 
-            //There is not much we can do to properly destroy the privateKey object here.
-            //The .destroy() method is not implemented, and the .getEncoded() method returns
-            //a byte[] copy, so no point in adding 0-s there.
-            //TODO: maybe come up with a better method. for now set it 'null' in hopes of
-            //      garbage collection.
+            // NOTE: cannot properly destroy the privateKey object: .destroy()
+            // method is not implemented (it's an RSAPrivateCrtKeyImpl), and the
+            // .getEncoded() method returns a byte[] copy. So set to null and
+            // wait for the garbage collector.
             a.setPrivateKey(null);
 
             return par;
