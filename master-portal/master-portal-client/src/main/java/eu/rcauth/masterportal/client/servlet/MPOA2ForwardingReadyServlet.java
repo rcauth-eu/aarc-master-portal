@@ -81,60 +81,62 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
         if (identifier == null) {
             error("no cookie found. Cannot save certificates");
             throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, "no session cookie found. Cannot save certificates.", state);
-        } else {
-            asset = (MPOA2Asset) getCE().getAssetStore().get(identifier);
-            if(!asset.getState().equals(state)){
-                warn("The expected state from the server was \"" + asset.getState() + "\", but instead \"" + state + "\" was returned. Transaction aborted.");
-                throw new IllegalArgumentException("Error: The state returned by the server is invalid.");
-            }
-            try {
-                // Note: getAccessToken stores in the asset, we don't need the returned ATResponse2
-                // It also set the "sub" and "iat" claims, the refresh token and
-                // the id token (last one our patch) into this asset.
-                oa2MPService.getAccessToken(asset, grant);
-            } catch(Throwable e)    {
-                StringWriter errors = new StringWriter();
-                e.printStackTrace(new PrintWriter(errors));
-                warn(errors.toString());
-                throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, e.getMessage(), state);
-            }
-
-            // NOTE: We currently could get all claims also from the ID token.
-            // However, the ID token also contains iss, aud, auth_time, iat,
-            // exp and nonce which we should not forward. Also we might remove
-            // the 'profile-like' claims, which should ideally be returned from
-            // the /userinfo endpoint only.
-            info("2.a Getting user info.");
-            userInfo = oa2MPService.getUserInfo(identifier);
-            if (userInfo == null) {
-                error("2.a Could not get userinfo");
-                throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, "The userinfo endpoint returned null!", state);
-            }
-
-            String userSubject = asset.getUsername();
-            String reqState = asset.getMPServerRequestState();
-            String reqCode = asset.getMPServerRequestCode();
-            String claims = userInfo.toJSon().toString();
-
-            info("2.a Returning to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
-            debug("2.a setting claims: " + claims);
-
-            // setting parameters for the MP Server. use Attributes for passing parameters since
-            // these are only transferred within the web container.
-            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE, reqCode);
-            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE, reqState);
-            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME, userSubject);
-            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS, claims);
-            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_ACTION, MPServerContext.MP_SERVER_AUTHORIZE_ACTION_OK);
-
-            // do the actual forwarding to the MP Server /authorize endpoint
-
-            ServletContext serverContext = getServletConfig().getServletContext();
-            ServletContext clientContext = serverContext.getContext(MPServerContext.MP_SERVER_CONTEXT);
-
-            RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPServerContext.MP_SERVER_AUTHORIZE_ENDPOINT);
-            dispatcher.forward(request, response);
         }
 
+        // get the asset
+        asset = (MPOA2Asset) getCE().getAssetStore().get(identifier);
+        if(!asset.getState().equals(state)){
+            warn("The expected state from the server was \"" + asset.getState() + "\", but instead \"" + state + "\" was returned. Transaction aborted.");
+            throw new IllegalArgumentException("Error: The state returned by the server is invalid.");
+        }
+
+        // do the /token request
+        try {
+            // Note: getAccessToken stores in the asset, we don't need the returned ATResponse2
+            // It also set the "sub" and "iat" claims, the refresh token and
+            // the id token (last one our patch) into this asset.
+            oa2MPService.getAccessToken(asset, grant);
+        } catch(Throwable e)    {
+            StringWriter errors = new StringWriter();
+            e.printStackTrace(new PrintWriter(errors));
+            warn(errors.toString());
+            throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, e.getMessage(), state);
+        }
+
+        // NOTE: We currently could get all claims also from the ID token.
+        // However, the ID token also contains iss, aud, auth_time, iat,
+        // exp and nonce which we should not forward. Also we might remove
+        // the 'profile-like' claims, which should ideally be returned from
+        // the /userinfo endpoint only.
+        info("2.a Getting user info.");
+        userInfo = oa2MPService.getUserInfo(identifier);
+        if (userInfo == null) {
+            error("2.a Could not get userinfo");
+            throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, "The userinfo endpoint returned null!", state);
+        }
+
+        String userSubject = asset.getUsername();
+        String reqState = asset.getMPServerRequestState();
+        String reqCode = asset.getMPServerRequestCode();
+        String claims = userInfo.toJSon().toString();
+
+        info("2.a Returning to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
+        debug("2.a setting claims: " + claims);
+
+        // setting parameters for the MP Server. use Attributes for passing parameters since
+        // these are only transferred within the web container.
+        request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE, reqCode);
+        request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE, reqState);
+        request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME, userSubject);
+        request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS, claims);
+        request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_ACTION, MPServerContext.MP_SERVER_AUTHORIZE_ACTION_OK);
+
+        // do the actual forwarding to the MP Server /authorize endpoint
+
+        ServletContext serverContext = getServletConfig().getServletContext();
+        ServletContext clientContext = serverContext.getContext(MPServerContext.MP_SERVER_CONTEXT);
+
+        RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPServerContext.MP_SERVER_AUTHORIZE_ENDPOINT);
+        dispatcher.forward(request, response);
     }
 }
