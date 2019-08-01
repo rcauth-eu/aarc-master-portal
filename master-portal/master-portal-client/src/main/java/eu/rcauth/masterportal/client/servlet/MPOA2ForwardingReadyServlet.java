@@ -89,6 +89,8 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
             }
             try {
                 // Note: getAccessToken stores in the asset, we don't need the returned ATResponse2
+                // It also set the "sub" and "iat" claims, the refresh token and
+                // the id token (last one our patch) into this asset.
                 oa2MPService.getAccessToken(asset, grant);
             } catch(Throwable e)    {
                 StringWriter errors = new StringWriter();
@@ -96,35 +98,33 @@ public class MPOA2ForwardingReadyServlet extends ClientServlet {
                 warn(errors.toString());
                 throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, e.getMessage(), state);
             }
-            // TODO CHECK WHETHER TO USE ID_TOKEN INSTEAD!
+
+            // NOTE: We currently could get all claims also from the ID token.
+            // However, the ID token also contains iss, aud, auth_time, iat,
+            // exp and nonce which we should not forward. Also we might remove
+            // the 'profile-like' claims, which should ideally be returned from
+            // the /userinfo endpoint only.
             info("2.a Getting user info.");
             userInfo = oa2MPService.getUserInfo(identifier);
-
             if (userInfo == null) {
                 error("2.a Could not get userinfo");
-                throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, "User subject could not be extracted! The userinfo endpoint returned null!", state);
+                throw new OA2RedirectableError(OA2Errors.SERVER_ERROR, "The userinfo endpoint returned null!", state);
             }
 
-            info("2.a Getting username from /userInfo");
-            String userSubject = userInfo.getSub();
-
-            // save username into asset! Without this the following /forwardGetCert call will not know what username
-            // to store the returned certificate under in the MyProxy store.
-            asset.setUsername(userSubject);
-            getCE().getAssetStore().save(asset);
-
+            String userSubject = asset.getUsername();
             String reqState = asset.getMPServerRequestState();
             String reqCode = asset.getMPServerRequestCode();
+            String claims = userInfo.toJSon().toString();
 
             info("2.a Returning to MP-Server with code : " + reqCode + " state : " + reqState + " and username: " + userSubject);
-            debug("2.a setting claims: "+userInfo.toJSon().toString());
-            // setting parameters for the MP Server. use Attributes for passing parameters since
-            // these are only transfered within the web container.
+            debug("2.a setting claims: " + claims);
 
+            // setting parameters for the MP Server. use Attributes for passing parameters since
+            // these are only transferred within the web container.
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CODE, reqCode);
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_STATE, reqState);
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_USERNAME, userSubject);
-            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS, userInfo.toJSon().toString() );
+            request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_CLAIMS, claims);
             request.setAttribute(MPServerContext.MP_SERVER_AUTHORIZE_ACTION, MPServerContext.MP_SERVER_AUTHORIZE_ACTION_OK);
 
             // do the actual forwarding to the MP Server /authorize endpoint
