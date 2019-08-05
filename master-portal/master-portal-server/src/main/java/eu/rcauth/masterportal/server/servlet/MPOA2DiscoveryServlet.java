@@ -22,7 +22,12 @@ public class MPOA2DiscoveryServlet extends OA2DiscoveryServlet {
 
         json.put("sshkey_endpoint", requestURI + "/sshkey");
 
-        json.put("sshkey_maximum_keys", se.getMaxSSHKeys());
+        int maxKeys = se.getMaxSSHKeys();
+        if (maxKeys>=0)
+            json.put("sshkey_maximum_keys", maxKeys);
+        String sshKeyScope = se.getSSHKeyScope();
+        if (sshKeyScope!=null && !sshKeyScope.isEmpty())
+            json.put("sshkey_scope", sshKeyScope);
 
         JSONArray sshKeyParams = new JSONArray();
         sshKeyParams.add(MPOA2SSHKeyServlet.ACTION_PARAMETER);
