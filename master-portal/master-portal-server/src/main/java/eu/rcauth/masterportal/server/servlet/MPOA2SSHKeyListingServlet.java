@@ -17,7 +17,6 @@ import javax.servlet.http.HttpServletResponse;
 import javax.servlet.ServletException;
 
 import java.io.Writer;
-import java.io.IOException;
 import java.util.Collection;
 
 
