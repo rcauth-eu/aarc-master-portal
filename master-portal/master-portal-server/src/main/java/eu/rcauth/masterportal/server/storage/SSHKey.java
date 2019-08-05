@@ -1,5 +1,7 @@
 package eu.rcauth.masterportal.server.storage;
 
+import java.io.Serializable;
+
 import edu.uiuc.ncsa.security.core.Identifier;
 import edu.uiuc.ncsa.security.core.util.IdentifiableImpl;
 
@@ -13,7 +15,12 @@ import static edu.uiuc.ncsa.security.core.util.BeanUtils.checkEquals;
  */
 public class SSHKey extends IdentifiableImpl {
 
-//    private static final long serialVersionUID = -7707448168067694856L;
+    /**
+     * Since SSHKey implements {@link Serializable} via its superclass it's
+     * strongly recommended to define a serialVersionUID.
+     * See {@link Serializable} for the rationale.
+     */
+    protected static final long serialVersionUID = 0xC1EBC4C3;
 
     protected String label;
     protected String userName;
@@ -100,14 +107,27 @@ public class SSHKey extends IdentifiableImpl {
         super.setIdentifier(identifier);
     }
 
-    /** @return whether two keys have the same username and public key */
+    /**
+     * Checks whether two SSHKey objects are equal. Note that keys are
+     * uniquely identified using their username/label pair. Keys are considered
+     * equal when both the username and label matches. In case both pubKeys are
+     * set, they also need to match.
+     * @return boolean indicating whether the keys match.
+     */
     @Override
     public boolean equals(Object obj) {
         if (super.equals(obj) && obj instanceof SSHKey) {
             SSHKey rec = (SSHKey) obj;
-            // TODO: perhaps should stick only to the pubKey, except that this might still be null.
-            return (checkEquals(getUserName(), rec.getUserName()) &&
-                    checkEquals(getPubKey(), rec.getPubKey()) );
+            // Note: we identify a key using the pair username/label.
+            // Also note that pubKey might still be null.
+            if (pubKey!=null && rec.getPubKey()!=null) {
+                return (checkEquals(userName, rec.getUserName()) &&
+                        checkEquals(label, rec.getLabel()) &&
+                        checkEquals(pubKey, rec.getPubKey()));
+            } else {
+                return (checkEquals(userName, rec.getUserName()) &&
+                        checkEquals(label, rec.getLabel()));
+            }
         }
         return false;
     }
