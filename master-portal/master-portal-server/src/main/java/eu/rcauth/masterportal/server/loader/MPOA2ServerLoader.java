@@ -102,9 +102,9 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     isUtilServerEnabled(),
                     isOIDCEnabled(),
                     getMultiJSONStoreProvider());
-        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException e) {
-            // TODO Figure out a way to prevent this from going to the user: we have no server yet, when we do, also want to catch IllegalStateException
-            throw new GeneralException("Error: Could not create the runtime environment", e);
+        } catch (ClassNotFoundException | IllegalAccessException | InstantiationException | IllegalStateException e) {
+            // Note that we typically don't have a server yet, so error might go in odd places.
+            throw new GeneralException("Error: MasterPortal failed to start: Could not create the runtime environment", e);
         }
     }
 
