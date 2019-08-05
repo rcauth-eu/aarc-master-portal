@@ -25,6 +25,10 @@ changes:
 
        <scopes handler="eu.rcauth.masterportal.server.MPForwardingClaimsSourceImpl">
 
+  NOTE: it is now possible to define local scopes, i.e. scopes that are not
+  forwarded to the delegation server, by adding an attribute `local` with
+  boolean value set to `true`.
+
 * Change the names of the validator handlers
 
         org.masterportal.oauth2.server.validators.DNValidator
@@ -42,6 +46,18 @@ changes:
        </JSONWebKey>
 
   where the `defaultKeyID` value should match one of the `kid` values in the `mp.jwk` file.
+
+* When using the ssh key API, you can now restrict it to a specific scope,
+  e.g. `eu.rcauth.sshkeys`. Add it as attribute to the `sshkeys` node:
+
+       <sshkeys max="5" scope="eu.rcauth.sshkeys"/>
+
+  Make sure it also appears in the list of supported scopes for this server.
+  If the scope is not understood by the Delegation Server or not enabled for
+  this MasterPortal, define it as a local scope, i.e. with an attribute
+  `local` set to `true`:
+
+       <scope local="true">eu.rcauth.sshkeys</scope>
 
 #### Update the client config file `/var/www/client/conf/cfg.xml`
 
