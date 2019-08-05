@@ -67,7 +67,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
         // from t.getMessage()
         request.setAttribute("error", "invalid_request");
         response.setStatus(HttpStatus.SC_BAD_REQUEST);
-        // TODO: Might not be needed, perhaps need other headers
+        // Note: this prevents the page to be viewed in a frame
         response.setHeader("X-Frame-Options", "DENY");
         JSPUtil.handleException(t, request, response, ERROR_PAGE);
     }
