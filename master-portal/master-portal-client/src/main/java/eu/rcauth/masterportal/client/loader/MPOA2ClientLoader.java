@@ -137,9 +137,9 @@ public class MPOA2ClientLoader<T extends ClientEnvironment> extends OA2ClientLoa
             masp.addListener(new MPOA2SQLAssetStoreProvider(cn, ClientXMLTags.MARIADB_STORE, getMariaDBConnectionPoolProvider(),
                                                             getAssetProvider(), assetConverter));
 
-            // this is experimental. it might just work out of the box
-            //masp.addListener(new OA2SQLAssetStoreProvider(cn, ClientXMLTags.POSTGRESQL_STORE, getPgConnectionPoolProvider(),
-            //                                              getAssetProvider(), assetConverter));
+            // Database storage for POSTGRES
+            masp.addListener(new MPOA2SQLAssetStoreProvider(cn, ClientXMLTags.POSTGRESQL_STORE, getPgConnectionPoolProvider(),
+                                                            getAssetProvider(), assetConverter));
 
             // and a memory store, So only if one is requested it is available.
             masp.addListener(new TypedProvider<MemoryAssetStore>(cn, ClientXMLTags.MEMORY_STORE, ClientXMLTags.ASSET_STORE) {

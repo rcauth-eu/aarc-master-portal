@@ -53,6 +53,7 @@ import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME_SPECIFI
 
 import static edu.uiuc.ncsa.security.oauth_2_0.OA2ConfigTags.SCOPE;
 import static edu.uiuc.ncsa.security.oauth_2_0.OA2ConfigTags.SCOPES;
+
 import static eu.rcauth.masterportal.servlet.MPOA4MPConfigTags.*;
 
 public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2ConfigurationLoader<T> {
@@ -144,14 +145,11 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                                                                converter,
                                                                provider) );
 
-            // TODO: The backend for this is not written. yet. But it might just work out of the box
-            /*
             sshKeySP.addListener( new SQLSSHKeyStoreProvider<>(cn,
                                                                getPgConnectionPoolProvider(),
                                                                OA4MPConfigTags.POSTGRESQL_STORE,
                                                                converter,
                                                                provider) );
-            */
 
         }
 
