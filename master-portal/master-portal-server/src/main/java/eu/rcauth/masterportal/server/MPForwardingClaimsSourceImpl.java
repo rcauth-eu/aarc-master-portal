@@ -67,9 +67,15 @@ public class MPForwardingClaimsSourceImpl extends BasicClaimsSourceImpl {
         this.setConfiguration(claimSourceConfiguration);*/
     }
 
-    // TODO implement a getClaims that gets the list from the DS's .well-known
-    // endpoint but that's only known to the client. Note that it's also not
-    // strictly necessary, see claims_supported on
+    // Note: ideally we would implement a getClaims() that gets the list of
+    // claims from the DS's .well-known endpoint. Several problems:
+    // - the .well-known endpoint is only known to the mp-client but this
+    //   handler typically runs in the mp-server,
+    // - the value of a list of supported claims is limited, since it does not
+    //   indicate the link with scopes and not all scopes are available for each
+    //   client.
+    // Fortunately the spec does not mandate the list to be exhaustive, so we
+    // could just stick to the default list returned. See claims_supported on
     // https://openid.net/specs/openid-connect-discovery-1_0.html#ProviderMetadata
     //  "Note that for privacy or other reasons, this might not be an exhaustive list."
 //  /**
