@@ -81,7 +81,7 @@
                     <!--compilerArgument>-Xlint:unchecked</compilerArgument-->
                     <compilerArgument>-Xlint:all</compilerArgument>
                 </configuration>
-                <version>3.5.1</version>
+                <version>3.8.1</version>
             </plugin>
 
             <plugin>
@@ -121,7 +121,7 @@
             <plugin>
                 <groupId>org.apache.maven.plugins</groupId>
                 <artifactId>maven-javadoc-plugin</artifactId>
-                <version>3.1.0</version>
+                <version>3.1.1</version>
                 <configuration>
                     <use>false</use>
                     <!-- Note: javax.servlet does not provide proper link for
@@ -146,6 +146,9 @@
                             <!--doclint>none</doclint-->
                             <!-- enable links to Java's own javadoc -->
                             <detectJavaApiLink>true</detectJavaApiLink>
+                            <!-- for JDK >=10 must source equal to compile source
+                                 see https://bugs.openjdk.java.net/browse/JDK-8212233 -->
+                            <source>1.8</source>
                         </configuration>
                     </execution>
                 </executions>
