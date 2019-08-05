@@ -1,7 +1,6 @@
 package eu.rcauth.masterportal.client;
 
 import java.security.GeneralSecurityException;
-import java.security.PrivateKey;
 import java.security.cert.X509Certificate;
 import java.util.Map;
 
