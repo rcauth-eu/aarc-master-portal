@@ -22,8 +22,6 @@ import eu.rcauth.masterportal.server.storage.sql.SQLSSHKeyStoreProvider;
 
 import eu.rcauth.masterportal.server.validators.GetProxyRequestValidator;
 
-import eu.rcauth.masterportal.servlet.MPOA4MPConfigTags;
-
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2ConfigurationLoader;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.storage.OA2SQLTransactionStoreProvider;
@@ -48,6 +46,8 @@ import static edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.OA4MPIdentif
 
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME;
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME_SPECIFIC_PART;
+
+import static eu.rcauth.masterportal.servlet.MPOA4MPConfigTags.*;
 
 public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2ConfigurationLoader<T> {
 
@@ -153,16 +153,16 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     /* ADDITIONAL MYPROXY SERVER CONFIGURATIONS */
 
     protected String getMyProxyPassword() {
-        ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
+        ConfigurationNode node =  Configurations.getFirstNode(cn, MYPROXY);
 
-        return Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MYPROXY_PASSWORD);
+        return Configurations.getFirstAttribute(node, MYPROXY_PASSWORD);
     }
 
     protected long getMyProxyDefaultLifetime() {
-        ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
-        ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME);
+        ConfigurationNode node =  Configurations.getFirstNode(cn, MYPROXY);
+        ConfigurationNode lifetimeNode =  Configurations.getFirstNode(node, MYPROXY_DEFAULT_LIFETIME);
         if (lifetimeNode==null)
-            throw new GeneralException("Missing "+MPOA4MPConfigTags.MYPROXY_DEFAULT_LIFETIME+" in node "+node.getName());
+            throw new GeneralException("Missing "+MYPROXY_DEFAULT_LIFETIME+" in node "+node.getName());
 
         return Long.parseLong( lifetimeNode.getValue().toString() );
     }
@@ -172,22 +172,22 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
     protected GetProxyRequestValidator[] getValidators() {
 
         // get the list of all validators
-        ConfigurationNode mpNode =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.MYPROXY);
-        ConfigurationNode validatorsNode =  Configurations.getFirstNode(mpNode, MPOA4MPConfigTags.MYPROXY_REQ_VALIDATORS);
+        ConfigurationNode mpNode =  Configurations.getFirstNode(cn, MYPROXY);
+        ConfigurationNode validatorsNode =  Configurations.getFirstNode(mpNode, MYPROXY_REQ_VALIDATORS);
 
         if ( validatorsNode != null ) {
 
             // count validators
-            int validatorCnt = validatorsNode.getChildrenCount( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR );
+            int validatorCnt = validatorsNode.getChildrenCount( MYPROXY_REQ_VALIDATOR );
             GetProxyRequestValidator[] validators = new GetProxyRequestValidator[ validatorCnt ];
             int i = 0;
 
-            for ( Object node : validatorsNode.getChildren( MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR ) ) {
+            for ( Object node : validatorsNode.getChildren( MYPROXY_REQ_VALIDATOR ) ) {
 
                 // get the validator handler class name
                 ConfigurationNode validatorNode = (ConfigurationNode) node;
                 String validatorClass = Configurations.getFirstAttribute(validatorNode,
-                                                                         MPOA4MPConfigTags.MYPROXY_REQ_VALIDATOR_HANDLER);
+                                                                         MYPROXY_REQ_VALIDATOR_HANDLER);
 
                 if ( validatorClass == null || validatorClass.isEmpty() ) {
                     throw new GeneralException("Invalid validator configuration! Missing validator handler!");
@@ -267,16 +267,16 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
 
     protected int getMaxSSHKeys() {
         MyLoggingFacade logger = loggerProvider.get();
-        ConfigurationNode node =  Configurations.getFirstNode(cn, MPOA4MPConfigTags.SSH_KEYS);
-        String maxValue = Configurations.getFirstAttribute(node, MPOA4MPConfigTags.MAX_SSH_KEYS);
+        ConfigurationNode node =  Configurations.getFirstNode(cn, SSH_KEYS);
+        String maxValue = Configurations.getFirstAttribute(node, MAX_SSH_KEYS);
         int max = -1;
         if (maxValue != null && !maxValue.isEmpty())    {
             try {
                 max=Integer.parseInt(maxValue);
                 logger.info("Using maximum "+max+" keys per user");
             } catch (Exception e)   {
-                logger.warn("Value of " + MPOA4MPConfigTags.MAX_SSH_KEYS +
-                            " in node "+node.getName()+" is not a valid integer");
+                logger.warn("Value of " + MAX_SSH_KEYS +
+                            " in node " + SSH_KEYS + " is not a valid integer");
             }
         } else {
             logger.info("No (valid) maximum keys found");
@@ -290,11 +290,10 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         MyLoggingFacade logger = loggerProvider.get();
         // Default is false
         boolean autoRegisterEndpoint = false;
-        String x = Configurations.getFirstAttribute(cn, MPOA4MPConfigTags.AUTOREGISTER_ENDPOINT_ENABLED);
+        String x = Configurations.getFirstAttribute(cn, AUTOREGISTER_ENDPOINT_ENABLED);
         if (x == null) {
             // using default: autoRegisterEndpoint == false;
-            logger.info("Attribute " +
-                        MPOA4MPConfigTags.AUTOREGISTER_ENDPOINT_ENABLED +
+            logger.info("Attribute " + AUTOREGISTER_ENDPOINT_ENABLED +
                         " is unset, autoregistration endpoint is disabled.");
         } else {
             autoRegisterEndpoint = Boolean.parseBoolean(x);
