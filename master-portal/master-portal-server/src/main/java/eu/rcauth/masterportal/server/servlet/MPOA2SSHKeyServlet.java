@@ -1,5 +1,6 @@
 package eu.rcauth.masterportal.server.servlet;
 
+import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2CertServlet;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.UserInfoServlet;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Utilities;
@@ -43,6 +44,7 @@ import javax.servlet.http.HttpServletResponse;
 import java.net.URI;
 import java.io.Writer;
 import java.io.IOException;
+import java.util.Collection;
 import java.util.List;
 import java.util.Collections;
 import java.util.Base64;
@@ -165,7 +167,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     @Override
     protected void doIt(HttpServletRequest request, HttpServletResponse response) throws OA2ATException {
         // Get transaction for this request, based on access_token
-        ServiceTransaction transaction = getAndVerifyTransaction(request);
+        OA2ServiceTransaction transaction = getAndVerifyTransaction(request);
 
         // Get the client_id: for ADD and UPDATE this is mandatory, for the
         // others: if present it should be valid and match the access_token
@@ -174,6 +176,24 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             if (! transaction.getClient().equals(client))
                 throw new OA2ATException(OA2Errors.INVALID_REQUEST, "client_id does not match access token.", HttpStatus.SC_BAD_REQUEST);
             checkClientApproval(client);
+        }
+
+        // Check that we have the required scope for the API
+        String expectedScope = se.getSSHKeyScope();
+        if ( expectedScope == null || expectedScope.isEmpty() )  {
+            info("No scope configured for SSH key API, access unrestricted");
+        } else {
+            Collection<String> scopes = transaction.getScopes();
+            debug("Found scopes: "+scopes.toString());
+            if (scopes.contains(expectedScope)) {
+                info("SSH key API scope \"" + expectedScope + "\" found, access allowed.");
+            } else {
+                warn("Missing required scope \"" + expectedScope + "\" for SSH key API, access denied.");
+                throw new OA2ATException(OA2Errors.INVALID_REQUEST,
+                        "Missing required scope for SSH key API",
+                        HttpStatus.SC_FORBIDDEN);
+            }
+
         }
 
         // Get username from transaction
@@ -459,7 +479,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
      * Get access token from request, copy and paste from /userinfo endpoint
      * {@link UserInfoServlet}#doIt(HttpServletRequest, HttpServletResponse)
      */
-    private ServiceTransaction getAndVerifyTransaction(HttpServletRequest request) {
+    private OA2ServiceTransaction getAndVerifyTransaction(HttpServletRequest request) {
         // Get access token: either bearer token or request parameter
         AccessToken at = null;
         List<String> authHeaders = HeaderUtils.getAuthHeader(request, "Bearer");
@@ -500,7 +520,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         if (!transaction.isAccessTokenValid())
             throw new OA2ATException(OA2Errors.INVALID_REQUEST, "invalid access token.", HttpStatus.SC_BAD_REQUEST);
 
-        return transaction;
+        return (OA2ServiceTransaction)transaction;
     }
 
     /**

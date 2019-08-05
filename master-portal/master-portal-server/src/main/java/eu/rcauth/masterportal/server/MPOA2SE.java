@@ -60,6 +60,7 @@ public class MPOA2SE extends OA2SE {
                    Provider<AdminClientStore> acs,
                    int clientSecretLength,
                    Collection<String> scopes,
+                   Collection<String> localScopes,
                    ClaimSource claimSource,
                    LDAPConfiguration ldapConfiguration2,
                    boolean isRefreshTokenEnabled,
@@ -69,6 +70,7 @@ public class MPOA2SE extends OA2SE {
                    String myproxyPassword,
                    long myproxyDefaultLifetime,
                    int maxSSHKeys,
+                   String sshKeyScope,
                    boolean autoRegisterEndpoint,
                    GetProxyRequestValidator[] validators,
                    String issuer,
@@ -117,6 +119,10 @@ public class MPOA2SE extends OA2SE {
 
         this.maxSSHKeys = maxSSHKeys;
 
+        this.sshKeyScope = sshKeyScope;
+
+        this.localScopes = localScopes;
+
         this.autoRegisterEndpoint = autoRegisterEndpoint;
     }
 
@@ -157,6 +163,18 @@ public class MPOA2SE extends OA2SE {
 
     public int getMaxSSHKeys()  {
         return maxSSHKeys;
+    }
+
+    protected String sshKeyScope;
+
+    public String getSSHKeyScope()  {
+        return sshKeyScope;
+    }
+
+    protected Collection<String> localScopes;
+
+    public Collection<String> getLocalScopes() {
+        return localScopes;
     }
 
     protected boolean autoRegisterEndpoint = false;

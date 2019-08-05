@@ -19,9 +19,12 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
+import java.util.ArrayList;
 import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
+
+import eu.rcauth.masterportal.server.MPOA2SE;
 import net.sf.json.JSONObject;
 
 import eu.rcauth.masterportal.MPClientContext;
@@ -86,8 +89,20 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
                 // wrap the request object so that we can replace a request parameter
                 UpdateParameterHttpServletRequest newRequest = new UpdateParameterHttpServletRequest(request);
 
-                // create String with the effective scopes for the client
-                Collection<String> scopes = transaction.getScopes();
+                // Need to create String with the effective scopes for the client.
+
+                // First get all the scopes, will remove the local scopes later.
+                // Note: make copy from those in transaction, or we'll loose the original.
+                Collection<String> scopes = new ArrayList<>(transaction.getScopes());
+
+                // get the local scopes, as we need to remove them
+                MPOA2SE se = (MPOA2SE)getServiceEnvironment();
+                Collection<String> localScopes = se.getLocalScopes();
+                if (!localScopes.isEmpty()) {
+                    debug("Not forwarding local scopes to MP-Client: " + localScopes.toString());
+                }
+                scopes.removeAll(localScopes);
+
                 String scopesString=String.join(" ", scopes.toArray(new String[0]));
                 newRequest.setParam(OA2Constants.SCOPE, scopesString);
 

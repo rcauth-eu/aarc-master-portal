@@ -42,11 +42,17 @@ import edu.uiuc.ncsa.security.storage.data.MapConverter;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPool;
 import edu.uiuc.ncsa.security.storage.sql.ConnectionPoolProvider;
 
+import java.util.ArrayList;
+import java.util.Collection;
+import java.util.List;
+
 import static edu.uiuc.ncsa.myproxy.oa4mp.server.admin.transactions.OA4MPIdentifierProvider.TRANSACTION_ID;
 
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME;
 import static edu.uiuc.ncsa.security.core.util.IdentifierProvider.SCHEME_SPECIFIC_PART;
 
+import static edu.uiuc.ncsa.security.oauth_2_0.OA2ConfigTags.SCOPE;
+import static edu.uiuc.ncsa.security.oauth_2_0.OA2ConfigTags.SCOPES;
 import static eu.rcauth.masterportal.servlet.MPOA4MPConfigTags.*;
 
 public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2ConfigurationLoader<T> {
@@ -87,6 +93,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     getMacp(),  // see OA2ConfigurationLoader, we suppress an unchecked assignment
                     getClientSecretLength(),
                     getScopes(),
+                    getLocalScopes(),
                     getClaimSource(),
                     getLdapConfiguration(),
                     isRefreshTokenEnabled(),
@@ -96,6 +103,7 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
                     getMyProxyPassword(),
                     getMyProxyDefaultLifetime(),
                     getMaxSSHKeys(),
+                    getSSHKeyScope(),
                     getAutoRegisterEndpoint(),
                     getValidators(),
                     getIssuer(),    // see OA2ConfigurationLoader
@@ -284,6 +292,17 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         return max;
     }
 
+    protected String getSSHKeyScope() {
+        MyLoggingFacade logger = loggerProvider.get();
+        ConfigurationNode node =  Configurations.getFirstNode(cn, SSH_KEYS);
+        String scope = Configurations.getFirstAttribute(node, SSH_KEYS_SCOPE);
+        if (scope == null)
+            logger.info("No " + SSH_KEYS_SCOPE + " attribute configured in " + SSH_KEYS + " node.");
+        else
+            logger.info("Required " + SSH_KEYS_SCOPE + " for using ssh key API set to: " + scope);
+        return scope;
+    }
+
     /* Configuration of autoregistration endpoint */
 
     protected boolean getAutoRegisterEndpoint() {
@@ -304,4 +323,35 @@ public class MPOA2ServerLoader<T extends ServiceEnvironmentImpl>  extends OA2Con
         return autoRegisterEndpoint;
     }
 
+    /* Configuration of MasterPortal-local scopes, which aren't forwarded to the DS */
+    protected Collection<String> localScopes = null;
+
+    /**
+     * Gets those scopes that are MasterPortal-local from the config file.
+     * @return Collection of String containing all the local scopes, returns
+     * empty (i.e. not null) collection when there aren't any local scopes.
+     */
+    public Collection<String> getLocalScopes()  {
+        if (localScopes == null) {
+            localScopes = new ArrayList<>();
+            // Get the first present SCOPES node
+            if (0 < cn.getChildrenCount(SCOPES)) {
+                ConfigurationNode node = Configurations.getFirstNode(cn, SCOPES);
+                // Get the SCOPE children, need to look for those with attribute "local"
+                List kids = node.getChildren(SCOPE);
+                for (int i = 0; i < kids.size(); i++) {
+                    ConfigurationNode currentNode = (ConfigurationNode) kids.get(i);
+                    String currentScope = (String) currentNode.getValue();
+
+                    // scope is non-local (i.e. forwarded) by default, so only add when local="true"
+                    String x = Configurations.getFirstAttribute(currentNode, SCOPE_LOCAL);
+                    if (x != null && Boolean.parseBoolean(x)) {
+                        info("Adding scope \""+currentScope+"\" to list of local (i.e. non-forwarded) scopes.");
+                        localScopes.add(currentScope);
+                    }
+                }
+            }
+        }
+        return localScopes;
+    }
 }
