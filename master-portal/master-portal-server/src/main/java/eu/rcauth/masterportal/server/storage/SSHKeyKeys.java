@@ -24,35 +24,55 @@ public class SSHKeyKeys extends SerializationKeys {
     /** column key of importTime column */
     String importTime = "import_time";
 
-    /** return column key for label column */
+    /**
+     * return column key for label column
+     * @param x column keys
+     * @return column key for label
+     */
     public String label(String... x) {
         if (0 < x.length)
             label = x[0];
         return label;
     }
 
-    /** return column key for userName column */
+    /**
+     * return column key for userName column
+     * @param x column keys
+     * @return column key for userName
+     */
     public String userName(String... x) {
         if (0 < x.length)
             userName = x[0];
         return userName;
     }
 
-    /** return column key for pubKey column */
+    /**
+     * return column key for pubKey column
+     * @param x column keys
+     * @return column key for pubKey
+     */
     public String pubKey(String... x) {
         if (0 < x.length)
             pubKey = x[0];
         return pubKey;
     }
 
-    /** return column key for description column */
+    /**
+     * return column key for description column
+     * @param x column keys
+     * @return column key for description
+     */
     public String description(String... x) {
         if (0 < x.length)
             description = x[0];
         return description;
     }
 
-    /** return column key for importTime column */
+    /**
+     * return column key for importTime column
+     * @param x column keys
+     * @return column key for importTime
+     */
     public String importTime(String... x) {
         if (0 < x.length)
             importTime = x[0];

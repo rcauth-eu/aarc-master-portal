@@ -17,7 +17,9 @@ public interface SSHKeyStore<V extends SSHKey> extends Store<V> {
     @Override
     Collection<V> values();
 
-    /** @return current list of SSHKey for given username */
+    /**
+     * @param userName username for whom to return the list of SSHkey
+     * @return current list of SSHKey for given username */
     List<SSHKey> getAll(String userName);
 
     /** adds a new {@link SSHKey} into the store. */

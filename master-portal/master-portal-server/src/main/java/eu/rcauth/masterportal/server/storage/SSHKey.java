@@ -30,6 +30,7 @@ public class SSHKey extends IdentifiableImpl {
     /**
      * constructs an SSHKey from given identifier, note that this does not work
      * properly as we don't fully implement SSHKeyIdentifier.
+     * @param identifier identifier for the new key
      */
     public SSHKey(SSHKeyIdentifier identifier) {
         super(identifier);
@@ -38,6 +39,8 @@ public class SSHKey extends IdentifiableImpl {
     /**
      * constructs a new SSHKey for given userName and label. Public key and
      * description are set to null.
+     * @param userName username for the new key
+     * @param label label for the new key
      */
     public SSHKey(String userName, String label) {
         super(new SSHKeyIdentifier(userName, label));
@@ -50,6 +53,10 @@ public class SSHKey extends IdentifiableImpl {
     /**
      * constructs a new SSHKey for given userName, label, public key and
      * description.
+     * @param userName username for the new key
+     * @param label label for the new key
+     * @param pubKey ssh public key for the new key
+     * @param description description for the new key
      */
     public SSHKey(String userName, String label, String pubKey, String description) {
         super(new SSHKeyIdentifier(userName, label));
@@ -61,7 +68,10 @@ public class SSHKey extends IdentifiableImpl {
 
     /* GETTERS AND SETTERS */
 
-    /** set label */
+    /**
+     * set label
+     * @param label new label for this key
+     */
     public void setLabel(String label) {
         this.label = label;
     }
@@ -71,7 +81,10 @@ public class SSHKey extends IdentifiableImpl {
         return label;
     }
 
-    /** set username */
+    /**
+     * set username
+     * @param userName new username for this key
+     */
     public void setUserName(String userName) {
         this.userName = userName;
     }
@@ -81,7 +94,10 @@ public class SSHKey extends IdentifiableImpl {
         return userName;
     }
 
-    /** set public key */
+    /**
+     * set public key
+     * @param pubKey new ssh public key for this key
+     */
     public void setPubKey(String pubKey) {
         this.pubKey = pubKey;
     }
@@ -91,7 +107,10 @@ public class SSHKey extends IdentifiableImpl {
         return pubKey;
     }
 
-    /** set description */
+    /**
+     * set description
+     * @param description new description for this key
+     */
     public void setDescription(String description) {
         this.description = description;
     }
@@ -101,7 +120,10 @@ public class SSHKey extends IdentifiableImpl {
         return description;
     }
 
-    /** set identifier */
+    /**
+     * set identifier
+     * @param identifier new identifier for this key
+     */
     @Override
     public void setIdentifier(Identifier identifier) {
         super.setIdentifier(identifier);
@@ -112,6 +134,7 @@ public class SSHKey extends IdentifiableImpl {
      * uniquely identified using their username/label pair. Keys are considered
      * equal when both the username and label matches. In case both pubKeys are
      * set, they also need to match.
+     * @param obj (SSHKey) object to compare this key to
      * @return boolean indicating whether the keys match.
      */
     @Override

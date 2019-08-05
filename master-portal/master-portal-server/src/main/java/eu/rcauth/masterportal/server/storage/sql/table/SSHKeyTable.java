@@ -55,6 +55,7 @@ public class SSHKeyTable extends Table {
 
     /**
      * Creates SQL select statement to obtain all entries for a single username.
+     * @return SQL select statement
      */
     public String createUserSelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
@@ -65,6 +66,7 @@ public class SSHKeyTable extends Table {
 
     /**
      * Creates SQL select statement for a specific pubKey.
+     * @return SQL select statement
      */
     public String createKeySelectStatement(){
         SSHKeyKeys x =  (SSHKeyKeys) keys;
@@ -111,6 +113,7 @@ public class SSHKeyTable extends Table {
     /**
      * Creates SQL delete statement for (userName,label) pair, which should be
      * the composite primary key.
+     * @return SQL delete statement
      */
     public String createDeleteStatement() {
         SSHKeyKeys x =  (SSHKeyKeys) keys;

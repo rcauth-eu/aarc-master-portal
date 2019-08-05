@@ -17,6 +17,8 @@ public class SSHKeyIdentifier implements Identifier {
     /**
      * construct an identifier out of username and label, combining into
      * single String with colon as separator
+     * @param userName username used for constructing the new SSHKeyIdentifier
+     * @param label label used for constructing the new SSHKeyIdentifier
      */
     public SSHKeyIdentifier(String userName, String label) {
         if (userName!=null && label!=null)
