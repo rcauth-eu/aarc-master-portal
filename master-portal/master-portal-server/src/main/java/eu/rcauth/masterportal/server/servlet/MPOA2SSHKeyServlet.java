@@ -472,24 +472,23 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     //////////////////////////////////////////////////////////////////////////
 
     /**
-     * Get access token from request, copy and paste from /userinfo endpoint
+     * Get access token from request, loosely copy and paste from /userinfo endpoint
+     * Note that we here don't verify whether multiply received tokens are the same.
      * {@link UserInfoServlet}#doIt(HttpServletRequest, HttpServletResponse)
      */
     private OA2ServiceTransaction getAndVerifyTransaction(HttpServletRequest request) {
         // Get access token: either bearer token or request parameter
         AccessToken at = null;
-        List<String> authHeaders = HeaderUtils.getAuthHeader(request, "Bearer");
+        String authHeader = HeaderUtils.getBearerAuthHeader(request);
 
-        if (authHeaders.isEmpty()) {
-            // it's not in a header, but was sent as a standard parameter.
-            at = se.getTokenForge().getAccessToken(request);
+        if (authHeader != null) {
+            at = se.getTokenForge().getAccessToken(authHeader);
         } else {
-            // only the very first one is taken. Don't try to snoop for them.
-            at = se.getTokenForge().getAccessToken(authHeaders.get(0));
+            // it's not in a header, try to get from a standard parameter.
+            at = se.getTokenForge().getAccessToken(request);
         }
 
         if (at == null) {
-            // the bearer token should be sent in the authorization header.
             throw new OA2ATException(OA2Errors.INVALID_REQUEST, "no access token was sent.", HttpStatus.SC_BAD_REQUEST);
         }
 
@@ -503,9 +502,9 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         }
 
         // Now get the corresponding transaction and verify it's ok
-        ServiceTransaction transaction = null;
+        OA2ServiceTransaction transaction = null;
         try {
-            transaction = (ServiceTransaction) getTransactionStore().get(at);
+            transaction = (OA2ServiceTransaction) getTransactionStore().get(at);
         } catch (Exception e)   {
             logger.warn("getAndVerifyTransaction(): Cannot get transaction for access_token: "+e.getMessage());
             throw new GeneralException("Cannot get transaction for access_token");
@@ -516,7 +515,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
         if (!transaction.isAccessTokenValid())
             throw new OA2ATException(OA2Errors.INVALID_REQUEST, "invalid access token.", HttpStatus.SC_BAD_REQUEST);
 
-        return (OA2ServiceTransaction)transaction;
+        return transaction;
     }
 
     /**
