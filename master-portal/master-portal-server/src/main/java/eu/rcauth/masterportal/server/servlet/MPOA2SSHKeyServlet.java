@@ -610,13 +610,13 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
             return false;
         }
 
-        // Get encoded part
+        // Get encoded part, also use trim to remove potential trailing newlines
         int secondSpace=key.indexOf(' ', firstSpace+1);
         String encoded;
         if (secondSpace<0)
-            encoded=key.substring(firstSpace+1);
+            encoded=key.substring(firstSpace+1).trim();
         else
-            encoded=key.substring(firstSpace+1,secondSpace);
+            encoded=key.substring(firstSpace+1,secondSpace).trim();
 
         try {
             byte[] decoded=Base64.getDecoder().decode(encoded);
