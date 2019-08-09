@@ -162,6 +162,18 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
     }
 
     /**
+     * Override doPost() to set UTF-8 character encoding for the input data.
+     * Note that that needs to be done before we actually access the request
+     * parameters and only works for POST.
+     * @see <a href="https://stackoverflow.com/questions/33941751/html-form-does-not-send-utf-8-format-inputs">stackoverflow: html-form-does-not-send-utf-8-format-inputs</a>.
+     */
+    @Override
+    public void doPost(HttpServletRequest request, HttpServletResponse response) throws ServletException, IOException {
+        request.setCharacterEncoding("UTF-8");
+        super.doPost(request, response);
+    }
+
+    /**
      * main method doing all the handling of the API requests
      */
     @Override
