@@ -107,6 +107,7 @@
                                 <manifest>
                                     <addClasspath>true</addClasspath>
                                     <mainClass>edu.uiuc.ncsa.myproxy.oauth2.tools.OA2Commands</mainClass>
+                                    <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                 </manifest>
                             </archive>
                             <descriptorRefs>
