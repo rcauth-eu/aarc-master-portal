@@ -32,7 +32,6 @@
 
     <servlet>
         <servlet-name>initiate</servlet-name>
-        <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizedServlet</servlet-class> -->
         <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2AuthorizedServlet</servlet-class>
     </servlet>
     <servlet-mapping>
@@ -71,7 +70,6 @@
 
     <servlet>
         <servlet-name>error</servlet-name>
-        <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.server.servlet.ErrorServlet</servlet-class> -->
         <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2ErrorServlet</servlet-class>
     </servlet>
     <servlet-mapping>
@@ -81,12 +79,21 @@
 
     <servlet>
         <servlet-name>authorize</servlet-name>
-        <!-- <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AuthorizationServer</servlet-class> -->
         <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2AuthorizationServer</servlet-class>
     </servlet>
     <servlet-mapping>
         <servlet-name>authorize</servlet-name>
         <url-pattern>/authorize</url-pattern>
+    </servlet-mapping>
+
+
+    <servlet>
+        <servlet-name>admin-register</servlet-name>
+        <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2AdminRegistrationServlet</servlet-class>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>admin-register</servlet-name>
+        <url-pattern>/admin-register</url-pattern>
     </servlet-mapping>
 
 
@@ -98,6 +105,16 @@
     <servlet-mapping>
         <servlet-name>clientVetting</servlet-name>
         <url-pattern>/register</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
+        <servlet-name>client</servlet-name>
+        <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.ClientServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>client</servlet-name>
+        <url-pattern>/clients</url-pattern>
     </servlet-mapping>
 
     <servlet>
@@ -187,7 +204,6 @@
     </resource-ref>
 
     <listener>
-        <!-- <listener-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.loader.OA2Bootstrapper</listener-class> -->
         <listener-class>eu.rcauth.masterportal.server.loader.MPOA2ServerBootstrapper</listener-class>
     </listener>
 
