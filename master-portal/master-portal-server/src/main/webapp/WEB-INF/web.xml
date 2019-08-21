@@ -153,6 +153,16 @@
     </servlet-mapping>
 
     <servlet>
+        <servlet-name>revoke</servlet-name>
+        <servlet-class>edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.RevocationServlet</servlet-class>
+        <load-on-startup>1</load-on-startup>
+    </servlet>
+    <servlet-mapping>
+        <servlet-name>revoke</servlet-name>
+        <url-pattern>/revoke</url-pattern>
+    </servlet-mapping>
+
+    <servlet>
         <servlet-name>sshkey</servlet-name>
         <servlet-class>eu.rcauth.masterportal.server.servlet.MPOA2SSHKeyServlet</servlet-class>
     </servlet>
