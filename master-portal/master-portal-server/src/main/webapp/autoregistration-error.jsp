@@ -5,9 +5,7 @@
   Properties included:
   * error = the error_code
   * exception = the exception that caused this page to be displayed.
---%>
-<%@ page contentType="application/json;charset=UTF-8" language="java" %>
-{
+--%><%@ page contentType="application/json;charset=UTF-8" language="java" %>{
   "error": "${error}",
   "error_description": "${exception.message}"
 }
