@@ -68,6 +68,21 @@
         <profile>
             <id>webapp</id>
 
+            <!-- Note: only needed for sources in cli profile, but we always
+                 compile all, hence use provided. Note that this would also pull
+                 in the necessary mysql-connector-java, so add that manually.
+                 We must not always include it, since it would pull in
+                 javax.mail which should be provided by the system, see note in
+                 security-lib's ServletMailUtil about cannot cast ... -->
+            <dependencies>
+                <dependency>
+                    <groupId>edu.uiuc.ncsa.myproxy</groupId>
+                    <artifactId>oa4mp-server-admin-oauth2</artifactId>
+                    <version>${oa4mpVersion}</version>
+                    <scope>provided</scope>
+                </dependency>
+            </dependencies>
+
             <activation>
                 <activeByDefault>true</activeByDefault>
             </activation>
@@ -91,6 +106,7 @@
                     <groupId>edu.uiuc.ncsa.myproxy</groupId>
                     <artifactId>oa4mp-server-admin-oauth2</artifactId>
                     <version>${oa4mpVersion}</version>
+                    <scope>compile</scope>
                 </dependency>
             </dependencies>
 
@@ -106,7 +122,7 @@
                             <archive>
                                 <manifest>
                                     <addClasspath>true</addClasspath>
-                                    <mainClass>edu.uiuc.ncsa.myproxy.oauth2.tools.OA2Commands</mainClass>
+                                    <mainClass>eu.rcauth.masterportal.server.cli.MPOA2Commands</mainClass>
                                     <addDefaultImplementationEntries>true</addDefaultImplementationEntries>
                                 </manifest>
                             </archive>
