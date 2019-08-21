@@ -215,6 +215,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
         clientApproval.setIdentifier(clientIdentifier);
         clientApproval.setApprover(approver);
         clientApproval.setApproved(true);
+        clientApproval.setStatus(ClientApproval.Status.APPROVED);
         // save new approval record
         clientApprovalStore.save(clientApproval);
         // Log the approval
