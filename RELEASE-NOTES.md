@@ -118,6 +118,17 @@ The effective list of scopes used in a request is the intersection of:
 
 #### Other new features
 
-Apart from the above changes, it is now possible to configure a client to *only*
-receive limited proxies. This can be useful if that client just needs to access
-storage and not use the proxy for job submission.
+Apart from the changes above, there are several new features.
+
+It is now possible to manage clients also using a JSON-based REST API
+(`/clients`) making use of special administrative client credentials. Those
+admin clients can be registered using the administrative client registration
+endpoint (`/admin-register`) and still need to be approved using the command
+line tool (`use admins`). The API allows e.g. to create, approve, list, update
+and remove clients.  
+For examples and description, see
+[oa4mp-server-admin-oauth2](https://github.com/rcauth-eu/OA4MP/tree/rcauth-4.2/oa4mp-server-admin-oauth2/src/main/scripts/client-scripts).
+
+Furthermore, it is now possible to configure a client to *only* receive limited
+proxies. This can be useful if that client just needs to access storage and not
+use the proxy for job submission.
