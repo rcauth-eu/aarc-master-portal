@@ -13,7 +13,17 @@ changes:
 
   The latter is optional, being the default setting.
 
-* Remove the scopehandler by changing
+* Make sure you have a `defaultKeyID` attribute specified in the `JSONWebKey`
+  element, e.g.
+
+       <JSONWebKey defaultKeyID="71463FFC64B4394DD96F29484E9BFB0A">
+           <path>/var/www/server/conf/mp.jwk</path>
+       </JSONWebKey>
+
+  where the `defaultKeyID` value should match one of the `kid` values in the
+  `mp.jwk` file.
+
+* Remove the scopes handler by changing
 
        <scopes handler="org.masterportal.oauth2.server.MPForwardingScopeHandler">
 
@@ -39,14 +49,6 @@ changes:
         eu.rcauth.masterportal.server.validators.DNValidator
         eu.rcauth.masterportal.server.validators.LifetimeValidator
 
-* Make sure you have a `defaultKeyID` attribute specified in the `JSONWebKey` element, e.g.
-
-       <JSONWebKey defaultKeyID="71463FFC64B4394DD96F29484E9BFB0A">
-           <path>/var/www/server/conf/mp.jwk</path>
-       </JSONWebKey>
-
-  where the `defaultKeyID` value should match one of the `kid` values in the `mp.jwk` file.
-
 * When using the ssh key API, you can now restrict it to a specific scope,
   e.g. `eu.rcauth.sshkeys`. Add it as attribute to the `sshkeys` node:
 
@@ -58,6 +60,13 @@ changes:
   `local` set to `true`:
 
        <scope local="true">eu.rcauth.sshkeys</scope>
+
+* Add the following two new tables to the mysql schema:
+
+        <permissions/>
+        <adminClients/>
+
+  These are necessary for the new client management API described below.
 
 #### Update the client config file `/var/www/client/conf/cfg.xml`
 
@@ -116,19 +125,28 @@ The effective list of scopes used in a request is the intersection of:
    Note that the basic scopes can be disabled using the `enabled="false"`
    attribute.
 
-#### Other new features
+#### Client management API
 
-Apart from the changes above, there are several new features.
-
-It is now possible to manage clients also using a JSON-based REST API
-(`/clients`) making use of special administrative client credentials. Those
-admin clients can be registered using the administrative client registration
-endpoint (`/admin-register`) and still need to be approved using the command
-line tool (`use admins`). The API allows e.g. to create, approve, list, update
-and remove clients.  
+It is now possible to manage clients (i.e. MasterPortals) also using a
+JSON-based REST API (`/clients`) making use of special administrative client
+credentials. Those admin clients can be registered using the administrative
+client registration endpoint (`/admin-register`) and still need to be approved
+using the command line tool (`use admins`). The API allows e.g. to create,
+approve, list, update and remove clients.  
 For examples and description, see
 [oa4mp-server-admin-oauth2](https://github.com/rcauth-eu/OA4MP/tree/rcauth-4.2/oa4mp-server-admin-oauth2/src/main/scripts/client-scripts).
 
-Furthermore, it is now possible to configure a client to *only* receive limited
-proxies. This can be useful if that client just needs to access storage and not
-use the proxy for job submission.
+#### Revocation of refresh tokens
+
+Using the new `/revoke` endpoint, clients can now revoke their own refresh
+tokens. They need to authenticate using their client ID and secret, sent as a
+"Basic" authorization header, while sending the refresh token via the `token`
+request parameter.
+See further [RFC7009 section 2.1](https://tools.ietf.org/html/rfc7009#section-2.1)
+and [RFC6749 section 2.3.1](https://tools.ietf.org/html/rfc6749#section-2.3.1).
+
+#### Other new features
+
+Apart from the above changes, it is now possible to configure a client to *only*
+receive limited proxies. This can be useful if that client just needs to access
+storage and not use the proxy for job submission.
