@@ -127,7 +127,7 @@ public class MPOA2AutoRegistrationServlet extends OA2RegistrationServlet {
      *
      * @param request contains the parameters for the new client
      * @param response the HttpResponse
-     * @param fireClientEvents whether to call {@link AbstractRegistrationServlet#fireNewClientEvent(Client)}
+     * @param fireClientEvents whether to call {@link AbstractRegistrationServlet#fireNewClientEvent(BaseClient)}
      * @throws Throwable in case of errors
      */
     @Override
