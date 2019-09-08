@@ -29,7 +29,8 @@
         <dependency>
             <groupId>mysql</groupId>
             <artifactId>mysql-connector-java</artifactId>
-            <version>8.0.16</version>
+            <!-- MySQL of CentOS6 requires version 5.1.X instead of 8.0.X -->
+            <version>5.1.48</version>
         </dependency>
 
         <dependency>
