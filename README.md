@@ -2,7 +2,8 @@
 
 The AARC master-portal is an implementation of the MasterPortal component, which
 is used as a caching component in front of the [RCauth.eu](https://rcauth.eu/)
-online CA, see e.g. https://wiki.nikhef.nl/grid/AARC_Pilot_-_Architecture.  
+online CA.
+See e.g. https://wiki.nikhef.nl/grid/RCauth.eu_and_MasterPortal_architecture.  
 It is based on a customised version of the
 [OA4MP](https://github.com/rcauth-eu/OA4MP).
 
@@ -68,7 +69,7 @@ certificates by ssh-ing to a special account on a co-located SSH host.
 ## Other Resources
 
 Background information:
-* [AARC Pilot RCauth/MasterPortal information](https://wiki.nikhef.nl/grid/AARC_Pilot)
+* [RCauth.eu and MasterPortal documentation](https://wiki.nikhef.nl/grid/RCauth.eu_and_MasterPortal_documentation)
 * [Master Portal internals](https://wiki.nikhef.nl/grid/Master_Portal_Internals)
 * [Ansible scripts for the Master Portal](https://github.com/rcauth-eu/aarc-ansible-master-portal)
 
