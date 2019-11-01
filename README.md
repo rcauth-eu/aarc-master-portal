@@ -31,7 +31,7 @@ certificates by ssh-ing to a special account on a co-located SSH host.
    
    Make sure to use the *same* version (branch or tag) for both the
    security-lib and OA4MP components.  
-   For the **0.2.0** series of the aarc-master-portal, you must use the
+   For the **0.2** series of the aarc-master-portal, you must use the
    **4.2-RCauth** versions.
    
 2. Checkout the right version of the aarc-master-portal.
@@ -39,7 +39,7 @@ certificates by ssh-ing to a special account on a co-located SSH host.
         git clone https://github.com/rcauth-eu/aarc-master-portal
         cd aarc-master-portal
 
-        git checkout v0.2.0
+        git checkout v0.2.1
         cd master-portal
 
 3. Build the master-portal's server and client war files
