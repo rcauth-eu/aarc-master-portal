@@ -117,7 +117,7 @@ public class MPOA2AuthorizationServer extends OA2AuthorizationServer {
 
                 try {
                     RequestDispatcher dispatcher = clientContext.getRequestDispatcher(MPClientContext.MP_CLIENT_START_ENDPOINT);
-                    MPOA2RequestForwarder.forwardRequest(newRequest, newResponse, dispatcher, false);
+                    MPOA2RequestForwarder.forwardRequest(newRequest, newResponse, dispatcher, false, true);
                     //dispatcher.forward(state.getRequest(), response);
                 } catch (Throwable t) {
                     if (t instanceof GeneralException) {

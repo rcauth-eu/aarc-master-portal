@@ -6,7 +6,6 @@ import edu.uiuc.ncsa.myproxy.exception.MyProxyCertExpiredException;
 import edu.uiuc.ncsa.myproxy.exception.MyProxyNoUserException;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.OA2ServiceTransaction;
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2ProxyServlet;
-import edu.uiuc.ncsa.security.core.exceptions.GeneralException;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.delegation.server.request.IssuerResponse;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
@@ -17,6 +16,7 @@ import edu.uiuc.ncsa.security.util.pkcs.KeyUtil;
 
 import edu.uiuc.ncsa.security.oauth_2_0.OA2GeneralError;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Errors;
+import edu.uiuc.ncsa.security.oauth_2_0.OA2ATException;
 
 import java.io.IOException;
 import java.security.GeneralSecurityException;
@@ -54,7 +54,12 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
      */
     @Override
     public ServiceTransaction verifyAndGet(IssuerResponse iResponse) throws IOException {
-        ServiceTransaction trans =  super.verifyAndGet(iResponse);
+        ServiceTransaction trans;
+        try {
+            trans = super.verifyAndGet(iResponse);
+        } catch (OA2GeneralError e) {
+            throw new OA2ATException(e.getError(), e.getDescription(), e.getHttpStatus());
+        }
 
         MPOA2SE se = (MPOA2SE) getServiceEnvironment();
         Map params = iResponse.getParameters();
@@ -142,16 +147,15 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
             requestNewCert = true;
         } catch (Throwable e) {
             // myproxy info failed for some unknown reason: don't try to fix
-            if ( e instanceof GeneralException )
-                throw e;
-            else
-                throw new GeneralException("MyProxy info failed", e);
+            warn("myproxy info failed: "+e.getMessage());
+            throw new OA2ATException(OA2Errors.SERVER_ERROR, "MyProxy info failed", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 
         try {
             // execute request validator in order. Note that some validators
             // will not do anything in case of empty mpc_info, but we should
-            // still run them now.
+            // still run the validators now, e.g. to test whether the requested
+            // lifetime is more than the server maximum.
             for ( GetProxyRequestValidator validator : se.getValidators()) {
                 validator.validate(trans, request, response, mpc_info);
             }
@@ -167,12 +171,10 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
             debug("The requested lifetime exceeds server maximum!");
             String mesg=e.getMessage();
             // don't request new certificate in this case, it's a user error
-            throw new OA2GeneralError(mesg, OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
+            throw new OA2ATException(OA2Errors.INVALID_REQUEST, mesg, HttpStatus.SC_BAD_REQUEST);
         } catch (Throwable e) {
-            if ( e instanceof GeneralException )
-                throw e;
-            else
-                throw new GeneralException("Validation of /getproxy request failed", e);
+            warn("Validation of /getproxy request failed: "+e.getMessage());
+            throw new OA2ATException(OA2Errors.SERVER_ERROR, "Validating of /getproxy request failed", HttpStatus.SC_BAD_REQUEST);
         }
 
         if (requestNewCert) {
@@ -193,7 +195,8 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         } catch (Throwable e) {
             if (e instanceof RuntimeException)
                 throw e;
-            throw new GeneralException("Could not create cert request", e);
+            warn("Could not create cert request: "+e.getMessage());
+            throw new OA2ATException(OA2Errors.SERVER_ERROR, "Could not create cert request", HttpStatus.SC_INTERNAL_SERVER_ERROR);
         }
 
         // insert a CSR and generated keypair into the transaction
@@ -230,7 +233,8 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         // written by the forwarding call.
         //dispatcher.include( request , response );
 
-        MPOA2RequestForwarder.forwardRequest(request, response, dispatcher, true);
+        // forwardRequest is used for front and backchannel forwarding, getproxy is backchannel
+        MPOA2RequestForwarder.forwardRequest(request, response, dispatcher, true, false);
 
         info("Ended forwarding getCert to Master Portal Client");
     }
