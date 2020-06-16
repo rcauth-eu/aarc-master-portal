@@ -342,6 +342,10 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         // We should by now have the myproxy info in the MPOA2ServiceTransaction
         MyProxyCredentialInfo mpcInfo = t.getMpcInfo();
 
+        // Not entirely sure whether we should save it but it seems using refreshed ATs
+        // otherwise cannot find the transaction after a while.
+        getTransactionStore().save(t);
+
         // Build-up the output JSON
         JSONObject json = new JSONObject();
         json.put(USERNAME, t.getUsername());

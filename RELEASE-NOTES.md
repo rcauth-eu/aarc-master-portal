@@ -1,6 +1,33 @@
 # RELEASE NOTES
 
-## Version 0.2.0 & 0.2.1
+## Version 0.2.1
+
+Bugfix:
+
+- the `/getproxy` endpoint would return an HTTP status code 500 with error
+  `server_error` in case it could not retrieve a new EEC from the Delegation
+  Server (DS). However, that can also happen when the latter's access token has
+  expired or is no longer valid due to previous use for retrieving an EEC.   
+  It now returns instead a 403 with error `invalid_request`. It will set the
+  `error_description` to a string starting with "Master Portal could not
+  retrieve new EEC from CA: " followed by a further reason. In case the failure
+  is due to expiry of the DS's access token, the whole string starts with
+  "Master Portal could not retrieve new EEC from CA: CA Access token expired,
+  cannot retrieve new EEC".
+
+Improvements:
+
+- the `/getproxy` endpoint is extended to support getting the myproxy timeleft
+  information by specifying a new GET or POST parameter `info`. Such a request
+  returns a JSON containing the `username`, `timeleft` and `tolerance`.   
+  **NOTE**: when `timeleft` becomes equal to or less than `tolerance`, a new
+  long-lived proxy needs to be stored in the MasterPortal, meaning a new EEC
+  needs to be obtained from the Delegation Server.
+
+- error handling is improved and the `/getproxy` now returns a JSON with an
+  `error` and `error_description` to its client.
+
+## Version 0.2.0
 
 If you are upgrading from a previous release, you will need to make several
 changes:
