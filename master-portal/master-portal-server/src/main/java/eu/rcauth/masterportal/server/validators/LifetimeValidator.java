@@ -24,6 +24,7 @@ import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
  * that exceed server maximum, and against proxy lifetime requests that are larger than the
  * time left in the stored proxy. The maximum proxy lifetime used by this validator is constructed
  * from the inputs by max_proxy_lifetime - tolerance
+ * Additionally it stores the value of the tolerance in the MPOA2ServiceTransaction.
  * <p>
  * An empty reqLifetime is considered a valid request lifetime.
  *
@@ -122,6 +123,9 @@ public class LifetimeValidator implements GetProxyRequestValidator {
 
         String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
         long maxLifetime = maxProxyLifetime - tolerance;
+
+        // Store the retrieved tolerance in the transaction such that we can print it in an INFO request
+        transaction.setProxyLifetimeTolerance(tolerance);
 
         long requestedLifetime;
         String lifetimelabel="Requested";
