@@ -19,10 +19,16 @@ Improvements:
 
 - the `/getproxy` endpoint is extended to support getting the myproxy timeleft
   information by specifying a new GET or POST parameter `info`. Such a request
-  returns a JSON containing the `username`, `timeleft` and `tolerance`.   
-  **NOTE**: when `timeleft` becomes equal to or less than `tolerance`, a new
-  long-lived proxy needs to be stored in the MasterPortal, meaning a new EEC
-  needs to be obtained from the Delegation Server.
+  returns a JSON containing the `username`, `timeleft` and `tolerance`:
+    * `timeleft` - remaining time in seconds for the long-lived proxy.
+    * `tolerance` - also in seconds, is used to determine the longest
+      `proxylifetime` that can be requested in a /getproxy call: 11days -
+      tolerance.
+
+  **NOTE**: if a /getproxy call has a `proxylifetime` (or its default of 12
+  hours) which is longer than `timeleft`, a new long-lived proxy needs to be
+  stored in the MasterPortal, meaning a new EEC needs to be obtained from the
+  Delegation Server. This also applies to an `info` request.
 
 - error handling is improved and the `/getproxy` now returns a JSON with an
   `error` and `error_description` to its client.
