@@ -350,7 +350,7 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         JSONObject json = new JSONObject();
         json.put(USERNAME, t.getUsername());
         // Note: getEndTime() returns milliseconds
-        json.put(TIMELEFT, mpcInfo.getEndTime()/1000);
+        json.put(TIMELEFT, (mpcInfo.getEndTime()-System.currentTimeMillis())/1000);
         long tolerance = t.getProxyLifetimeTolerance();
         // Only add valid tolerance
         if (tolerance >= 0)
