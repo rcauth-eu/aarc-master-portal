@@ -70,4 +70,34 @@ public class MPOA2ServiceTransaction extends OA2ServiceTransaction {
         this.ProxyLifetimeTolerance = proxy_lifetime_tolerance;
     }
 
+    long MaxProxyLifetime = -1;
+
+    /**
+     * @return the tolerance in seconds for this request
+     */
+    public long getMaxProxyLifetime() { return MaxProxyLifetime; }
+
+    /**
+     * Set the tolerance for this request
+     * @param max_proxy_lifetime the tolerance in seconds
+     */
+    public void setMaxProxyLifetime(long max_proxy_lifetime) {
+        this.MaxProxyLifetime = max_proxy_lifetime;
+    }
+
+    long DefProxyLifetime = -1;
+
+    /**
+     * @return the tolerance in seconds for this request
+     */
+    public long getDefProxyLifetime() { return DefProxyLifetime; }
+
+    /**
+     * Set the tolerance for this request
+     * @param def_proxy_lifetime the tolerance in seconds
+     */
+    public void setDefProxyLifetime(long def_proxy_lifetime) {
+        this.DefProxyLifetime = def_proxy_lifetime;
+    }
+
 }

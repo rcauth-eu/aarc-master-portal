@@ -124,8 +124,11 @@ public class LifetimeValidator implements GetProxyRequestValidator {
         String reqLifetime = request.getParameter(OA2Constants.PROXY_LIFETIME);
         long maxLifetime = maxProxyLifetime - tolerance;
 
-        // Store the retrieved tolerance in the transaction such that we can print it in an INFO request
+        // Store the retrieved tolerance, max_proxy_lifetime and def_proxy_lifetime
+        // in the transaction such that we can print it in an INFO request.
         transaction.setProxyLifetimeTolerance(tolerance);
+        transaction.setMaxProxyLifetime(maxProxyLifetime);
+        transaction.setDefProxyLifetime(defProxyLifetime);
 
         long requestedLifetime;
         String lifetimelabel="Requested";

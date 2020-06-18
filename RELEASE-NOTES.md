@@ -19,16 +19,23 @@ Improvements:
 
 - the `/getproxy` endpoint is extended to support getting the myproxy timeleft
   information by specifying a new GET or POST parameter `info`. Such a request
-  returns a JSON containing the `username`, `timeleft` and `tolerance`:
+  returns a JSON containing the `username`, `timeleft`, `tolerance`,
+  `max_proxy_lifetime` and `default_proxy_lifetime`:
     * `timeleft` - remaining time in seconds for the long-lived proxy.
-    * `tolerance` - also in seconds, is used to determine the longest
-      `proxylifetime` that can be requested in a /getproxy call: 11days -
-      tolerance.
+    * `tolerance` - also in seconds, used (in combination with
+      `max_proxy_lifetime`) to determine the longest `proxylifetime` that can be
+      requested in a /getproxy call: `max_proxy_lifetime - tolerance`.
+    * `max_proxy_lifetime` - typically the lifetime in seconds of the long-lived
+      proxy, i.e. 950400 (which is 11 days). Used in combination with
+      `tolerance` to determine the longest `proxylifetime` that can be requested
+      in a /getproxy call.
+    * `default_proxy_lifetime` - default lifetime in seconds of returned
+      short-lived proxy, typically 43200 (i.e. 12 hours).
 
-  **NOTE**: if a /getproxy call has a `proxylifetime` (or its default of 12
-  hours) which is longer than `timeleft`, a new long-lived proxy needs to be
-  stored in the MasterPortal, meaning a new EEC needs to be obtained from the
-  Delegation Server. This also applies to an `info` request.
+  **NOTE**: if a /getproxy call has a `proxylifetime` (or its default
+  `default_proxy_lifetime`) which is longer than `timeleft`, a new long-lived
+  proxy needs to be stored in the MasterPortal, meaning a new EEC needs to be
+  obtained from the Delegation Server. This also applies to an `info` request.
 
 - error handling is improved and the `/getproxy` now returns a JSON with an
   `error` and `error_description` to its client.

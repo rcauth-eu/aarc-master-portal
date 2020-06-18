@@ -36,6 +36,8 @@ import net.sf.json.JSONObject;
 import net.sf.json.util.JSONUtils;
 import org.apache.http.HttpStatus;
 
+import eu.rcauth.masterportal.servlet.MPOA4MPConfigTags;
+
 import eu.rcauth.masterportal.MPClientContext;
 import eu.rcauth.masterportal.server.MPOA2RequestForwarder;
 import eu.rcauth.masterportal.server.MPOA2SE;
@@ -44,6 +46,7 @@ import eu.rcauth.masterportal.server.exception.InvalidDNException;
 import eu.rcauth.masterportal.server.exception.InvalidRequestLifetimeException;
 import eu.rcauth.masterportal.server.exception.ShortProxyLifetimeException;
 import eu.rcauth.masterportal.server.validators.GetProxyRequestValidator;
+import eu.rcauth.masterportal.server.validators.LifetimeValidator; // import for javadoc
 
 /**
  * Class implementing the MasterPortal's version of a /getproxy endpoint
@@ -59,8 +62,15 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
     public static final String USERNAME = "username";
     /** claim name for the timeleft in the INFO response */
     public static final String TIMELEFT = "timeleft";
-    /** claim name for the tolerance in the INFO response */
+    /** claim name for the tolerance in the INFO response, corresponding to the config tag in the
+     *  LifetimeValidator config, {@link LifetimeValidator#INPUT_TOLERANCE} */
     public static final String TOLERANCE = "tolerance";
+    /** claim name for the max_proxy_lifetime in the INFO response, corresponding to the config tag in the
+     *  LifetimeValidator config, {@link LifetimeValidator#INPUT_MAX_PROXY_LIFETIME} */
+    public static final String MAXPROXYLIFETIME = "max_proxy_lifetime";
+    /** claim name for the default_proxy_lifetime in the INFO response, corresponding to the defaultLifetime
+     *  tag in the server.cfg file, {@link MPOA4MPConfigTags#MYPROXY_DEFAULT_LIFETIME} */
+    public static final String DEFPROXYLIFETIME = "default_proxy_lifetime";
 
     /* OVERRIDDEN METHODS */
 
@@ -351,10 +361,17 @@ public class MPOA2ProxyServlet extends OA2ProxyServlet {
         json.put(USERNAME, t.getUsername());
         // Note: getEndTime() returns milliseconds
         json.put(TIMELEFT, (mpcInfo.getEndTime()-System.currentTimeMillis())/1000);
+        // Only add valid tolerance, max_proxy_lifetime and def_proxy_lifetime.
+        // Note: not really necessary to check here since the validator already checks them.
         long tolerance = t.getProxyLifetimeTolerance();
-        // Only add valid tolerance
         if (tolerance >= 0)
             json.put(TOLERANCE, tolerance);
+        long max_proxy_lifetime = t.getMaxProxyLifetime();
+        if (max_proxy_lifetime >= 0)
+            json.put(MAXPROXYLIFETIME, max_proxy_lifetime);
+        long def_proxy_lifetime = t.getDefProxyLifetime();
+        if (def_proxy_lifetime >= 0)
+            json.put(DEFPROXYLIFETIME, def_proxy_lifetime);
 
         info("6.b. Writing out MyProxy INFO for request " + statusString);
         // Convert to a pretty-printed String
