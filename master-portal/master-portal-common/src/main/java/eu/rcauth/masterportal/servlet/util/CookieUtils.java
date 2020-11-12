@@ -45,6 +45,8 @@ public class CookieUtils {
                     // This way if the user surfs to another portal there won't
                     // be a cookie clash.
                     cookie.setMaxAge(0);
+                    cookie.setValue(""); // not necessary but good practice
+                    cookie.setSecure(true); // prevents sameSite without secure warning
                     response.addCookie(cookie);
                 }
             }
