@@ -122,10 +122,10 @@
     -->
 
     <!-- JGlobus Myproxy logging configuration file -->
-    <context-param>
+    <!--context-param>
         <param-name>org.globus.log4j.properties</param-name>
         <param-value>WEB-INF/log4j.properties</param-value>
-    </context-param>
+    </context-param-->
 
 </web-app>
 
