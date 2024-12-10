@@ -39,7 +39,7 @@ certificates by ssh-ing to a special account on a co-located SSH host.
         git clone https://github.com/rcauth-eu/aarc-master-portal
         cd aarc-master-portal
 
-        git checkout v0.2.3
+        git checkout v0.2.4
         cd master-portal
 
 3. Build the master-portal's server and client war files
