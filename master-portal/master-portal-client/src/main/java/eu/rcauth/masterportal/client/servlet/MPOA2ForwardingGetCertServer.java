@@ -5,7 +5,7 @@ import javax.servlet.http.HttpServletResponse;
 
 import edu.uiuc.ncsa.security.core.exceptions.InvalidTimestampException;
 import edu.uiuc.ncsa.security.servlet.ServiceClientHTTPException;
-import net.sf.json.JSONObject;
+import org.kordamp.json.JSONObject;
 import org.apache.http.HttpStatus;
 import eu.rcauth.masterportal.MPClientContext;
 

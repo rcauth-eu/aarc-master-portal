@@ -25,7 +25,7 @@ import java.util.HashMap;
 import java.util.Map;
 
 import eu.rcauth.masterportal.server.MPOA2SE;
-import net.sf.json.JSONObject;
+import org.kordamp.json.JSONObject;
 
 import eu.rcauth.masterportal.MPClientContext;
 import eu.rcauth.masterportal.MPServerContext;

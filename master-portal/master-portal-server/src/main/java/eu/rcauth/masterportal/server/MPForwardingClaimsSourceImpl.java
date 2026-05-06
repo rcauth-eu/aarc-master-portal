@@ -7,7 +7,7 @@ import edu.uiuc.ncsa.security.oauth_2_0.server.claims.ClaimSourceConfiguration;
 import javax.servlet.http.HttpServletRequest;
 
 /* Next imports are to ease the javadoc */
-import net.sf.json.JSONObject;
+import org.kordamp.json.JSONObject;
 import edu.uiuc.ncsa.security.servlet.PresentableState;
 import edu.uiuc.ncsa.security.delegation.server.ServiceTransaction;
 import edu.uiuc.ncsa.security.oauth_2_0.server.config.LDAPConfiguration;

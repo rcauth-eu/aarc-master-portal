@@ -2,8 +2,8 @@ package eu.rcauth.masterportal.server.servlet;
 
 import edu.uiuc.ncsa.myproxy.oa4mp.oauth2.servlet.OA2DiscoveryServlet;
 import eu.rcauth.masterportal.server.MPOA2SE;
-import net.sf.json.JSONArray;
-import net.sf.json.JSONObject;
+import org.kordamp.json.JSONArray;
+import org.kordamp.json.JSONObject;
 
 import javax.servlet.http.HttpServletRequest;
 

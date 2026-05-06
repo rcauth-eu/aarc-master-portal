@@ -32,8 +32,8 @@ import javax.servlet.ServletContext;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
-import net.sf.json.JSONObject;
-import net.sf.json.util.JSONUtils;
+import org.kordamp.json.JSONObject;
+import org.kordamp.json.util.JSONUtils;
 import org.apache.http.HttpStatus;
 
 import eu.rcauth.masterportal.servlet.MPOA4MPConfigTags;

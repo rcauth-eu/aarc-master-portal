@@ -6,9 +6,9 @@ import javax.servlet.http.HttpServletResponse;
 
 import edu.uiuc.ncsa.security.oauth_2_0.OA2Constants;
 import edu.uiuc.ncsa.security.oauth_2_0.OA2RedirectableError;
-import net.sf.json.JSON;
-import net.sf.json.JSONObject;
-import net.sf.json.JSONSerializer;
+import org.kordamp.json.JSON;
+import org.kordamp.json.JSONObject;
+import org.kordamp.json.JSONSerializer;
 import org.apache.http.HttpStatus;
 import eu.rcauth.masterportal.servlet.util.ContentAwareHttpServletResponse;
 

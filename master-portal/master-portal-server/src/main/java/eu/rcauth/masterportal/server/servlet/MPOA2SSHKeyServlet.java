@@ -32,8 +32,8 @@ import static edu.uiuc.ncsa.myproxy.oa4mp.server.ServiceConstantKeys.CONSUMER_KE
 import static edu.uiuc.ncsa.security.core.util.DateUtils.checkTimestamp;
 import static edu.uiuc.ncsa.security.oauth_2_0.OA2Constants.CLIENT_SECRET;
 
-import net.sf.json.JSONObject;
-import net.sf.json.util.JSONUtils;
+import org.kordamp.json.JSONObject;
+import org.kordamp.json.util.JSONUtils;
 
 import org.apache.commons.codec.digest.DigestUtils;
 import org.apache.http.HttpStatus;

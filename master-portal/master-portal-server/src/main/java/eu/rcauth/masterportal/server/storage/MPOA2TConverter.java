@@ -9,7 +9,7 @@ import edu.uiuc.ncsa.security.delegation.storage.Client;
 import edu.uiuc.ncsa.security.delegation.token.TokenForge;
 import edu.uiuc.ncsa.security.storage.data.ConversionMap;
 
-import net.sf.json.JSONObject;
+import org.kordamp.json.JSONObject;
 
 public class MPOA2TConverter<V extends MPOA2ServiceTransaction> extends OA2TConverter<V> {
 
