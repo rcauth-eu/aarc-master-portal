@@ -588,7 +588,7 @@ public class MPOA2SSHKeyServlet extends MyProxyDelegationServlet {
 
         // Get type part: must start with ssh-
         String type=key.substring(0, firstSpace);
-        if (! type.substring(0,4).equals(SSH_KEY_START))   {
+        if (type.length()<4 || ! type.substring(0,4).equals(SSH_KEY_START)) {
             logger.warn("Uploaded key does not start with \""+SSH_KEY_START+"\"");
             return false;
         }
